@@ -48,7 +48,7 @@ void MainBackendWorker::onStartTest1(){
     if (AttachThreadInput(currentThreadId, threadId, TRUE)) {
         // 激活窗口
         SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
-
+        Sleep(1000);
         if(!isBusy()){
             AttachThreadInput(currentThreadId, threadId, FALSE);
             emit startTest1Done(true, QString("用户停止"));
@@ -58,10 +58,11 @@ void MainBackendWorker::onStartTest1(){
 
         // 按下ESC
         Utils::sendKeyToWindow(Utils::hwnd, VK_ESCAPE, WM_KEYDOWN);
-        Sleep(100);
+        Sleep(300);
         Utils::sendKeyToWindow(Utils::hwnd, VK_ESCAPE, WM_KEYUP);
         Sleep(500);
 
+        // 检测是否用户要求停止
         if(!isBusy()){
             AttachThreadInput(currentThreadId, threadId, FALSE);
             emit startTest1Done(true, QString("用户停止"));
@@ -69,11 +70,12 @@ void MainBackendWorker::onStartTest1(){
             return;
         }
 
-        // 点击活动
+        // 点击ESC菜单中的 活动
         Sleep(1000);   //等待ESC菜单展开
         Utils::clickWindowClientArea(Utils::hwnd, 641, 145);
         Sleep(500);
 
+        // 检测是否用户要求停止
         if(!isBusy()){
             AttachThreadInput(currentThreadId, threadId, FALSE);
             emit startTest1Done(true, QString("用户停止"));

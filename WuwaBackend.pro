@@ -44,27 +44,30 @@ LIBS += -lgdi32 -luser32
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    windowhandler.cpp \
     commonTools/customdelegate.cpp \
     commonTools/debugmessagehandler.cpp \
     generalpanel.cpp \
     utils.cpp \
     mainbackendworker.cpp \
-    globalhotkeyfilter.cpp
+    globalhotkeyfilter.cpp \
+    speicalbosswidget.cpp \
+    settingparams.cpp
 
 HEADERS += \
         mainwindow.h \
-    windowhandler.h \
     commonTools/customdelegate.h \
     commonTools/debugmessagehandler.h \
     generalpanel.h \
     utils.h \
     mainbackendworker.h \
-    globalhotkeyfilter.h
+    globalhotkeyfilter.h \
+    speicalbosswidget.h \
+    settingparams.h
 
 FORMS += \
         mainwindow.ui \
-    generalpanel.ui
+    generalpanel.ui \
+    speicalbosswidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

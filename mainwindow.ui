@@ -23,14 +23,17 @@
       <height>521</height>
      </rect>
     </property>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
     <widget class="GeneralPanel" name="generalPanel">
      <attribute name="title">
-      <string>Tab 1</string>
+      <string>通用面板</string>
      </attribute>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="SpeicalBossWidget" name="specialBossPanel">
      <attribute name="title">
-      <string>Tab 2</string>
+      <string>角和无妄者</string>
      </attribute>
     </widget>
    </widget>
@@ -133,6 +136,12 @@
    <class>GeneralPanel</class>
    <extends>QWidget</extends>
    <header location="global">generalpanel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SpeicalBossWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">speicalbosswidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

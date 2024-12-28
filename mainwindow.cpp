@@ -102,6 +102,8 @@ void MainWindow::on_test1_clicked(){
 }
 
 void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& msg){
+    ui->isBusyBox->setChecked(false);
+
     if(isNormalEnd){
         QMessageBox::information(this, "后台任务正常结束", "后台任务正常结束");
     }
@@ -110,9 +112,6 @@ void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& msg){
     }
 
     qInfo() << QString("onStartTest1Done, result %1, msg %2").arg(isNormalEnd).arg(msg);
-
-    // 更新UI
-    ui->isBusyBox->setChecked(false);
 }
 
 void MainWindow::on_stopBtn_clicked(){
