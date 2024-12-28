@@ -49,7 +49,8 @@ SOURCES += \
     commonTools/debugmessagehandler.cpp \
     generalpanel.cpp \
     utils.cpp \
-    mainbackendworker.cpp
+    mainbackendworker.cpp \
+    globalhotkeyfilter.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -58,7 +59,8 @@ HEADERS += \
     commonTools/debugmessagehandler.h \
     generalpanel.h \
     utils.h \
-    mainbackendworker.h
+    mainbackendworker.h \
+    globalhotkeyfilter.h
 
 FORMS += \
         mainwindow.ui \

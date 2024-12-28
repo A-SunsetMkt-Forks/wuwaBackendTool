@@ -33,10 +33,29 @@ MainWindow::MainWindow(QWidget *parent) :
     m_mainBackendWorker.moveToThread(&m_mainBackendThread);
     m_mainBackendThread.start();
 
+    // test1的连接
+    connect(this, &MainWindow::startTest1, &this->m_mainBackendWorker, &MainBackendWorker::onStartTest1);
+    connect(&this->m_mainBackendWorker, &MainBackendWorker::startTest1Done, this, &MainWindow::onStartTest1Done);
+
+    // 注册全局快捷键 允许快捷停止脚本运行
+    registerGlobalHotKey();
+
+    // 安装全局事件过滤器
+    hotKeyFilter = new GlobalHotKeyFilter();
+    qApp->installNativeEventFilter(hotKeyFilter);
+
+    // 连接热键信号到槽
+    connect(hotKeyFilter, &GlobalHotKeyFilter::hotKeyPressed, this, &MainWindow::onHotKeyActivated);
+
 }
 
 MainWindow::~MainWindow()
 {
+    // 取消 停止脚本快捷键
+    unregisterGlobalHotKey(); // 注销全局快捷键
+    qApp->removeNativeEventFilter(hotKeyFilter);
+    delete hotKeyFilter;
+
     // 停止后台线程
     m_mainBackendThread.quit();
     m_mainBackendThread.wait();
@@ -82,17 +101,18 @@ void MainWindow::on_test1_clicked(){
 
 }
 
-void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& errMsg){
+void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& msg){
     if(isNormalEnd){
         QMessageBox::information(this, "后台任务正常结束", "后台任务正常结束");
     }
     else{
-        QMessageBox::critical(this, "后台任务异常结束", errMsg);
+        QMessageBox::critical(this, "后台任务异常结束", msg);
     }
+
+    qInfo() << QString("onStartTest1Done, result %1, msg %2").arg(isNormalEnd).arg(msg);
 
     // 更新UI
     ui->isBusyBox->setChecked(false);
-
 }
 
 void MainWindow::on_stopBtn_clicked(){
@@ -105,7 +125,8 @@ void MainWindow::on_sendBtn_clicked(){
     QString windowTitle = "鸣潮  ";
 
     // 转换为宽字符（Unicode）
-    HWND hwnd = FindWindow(nullptr, (LPCWSTR)windowTitle.utf16());
+    //HWND hwnd = FindWindow(nullptr, (LPCWSTR)windowTitle.utf16());
+    HWND hwnd = FindWindow(nullptr, windowTitle.toStdWString().c_str());
     if (!hwnd) {
         qWarning() << "Failed to find window with title: " << windowTitle;
         return;
@@ -146,6 +167,24 @@ void MainWindow::on_sendBtn_clicked(){
 }
 
 
+void MainWindow::registerGlobalHotKey() {
+    if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyId, MOD_ALT, VK_F12)) {
+        qDebug() << "Failed to register Alt + F12!";
+    } else {
+        qDebug() << "Alt + F12 hotkey registered.";
+    }
+}
 
+void MainWindow::unregisterGlobalHotKey() {
+    UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyId);
+}
 
+void MainWindow::onHotKeyActivated(int id) {
+    if (id == toggleHotKeyId) {
+        qDebug() << "收到ALT+F12，中止脚本";
+        on_stopBtn_clicked();
+    } else {
+        qWarning() << "Unhandled hotkey ID:" << id;
+    }
+}
 

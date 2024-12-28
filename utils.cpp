@@ -138,6 +138,13 @@ bool Utils::sendKeyToWindow(HWND hwnd, int vkCode, int keyStatus) {
 
     // Send key down
     PostMessage(hwnd, keyStatus, vkCode, 0);
+    QString logMessage = QString("Key: %1 (%2), Action: %3")
+                             .arg(QChar(vkCode))
+                             .arg(vkCode)
+                             .arg(keyStatus == WM_KEYDOWN ? "Pressed" :
+                                  keyStatus == WM_KEYUP ? "Released" :
+                                  "Unknown");
+    qDebug() << logMessage;
     return true;
 }
 
