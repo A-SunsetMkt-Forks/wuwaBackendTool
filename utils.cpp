@@ -4,6 +4,9 @@ const QString Utils::wuwaWindowTitle = "鸣潮  ";
 QMutex Utils::m_locker;
 HWND Utils::hwnd = nullptr;
 
+const int Utils::CLIENT_WIDTH = 1280;
+const int Utils::CLIENT_HEIGHT = 720;
+
 Utils::Utils()
 {
 
@@ -192,4 +195,97 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
               << x << ", " << y << ")" ;
 
     return true;
+}
+
+
+// 实现 cv::Mat 转 QImage
+QImage Utils::cvMat2QImage(const cv::Mat& mat) {
+    if (mat.empty()) {
+        return QImage();
+    }
+
+    switch (mat.type()) {
+    case CV_8UC1: {
+        // 单通道灰度图
+        QImage image(mat.cols, mat.rows, QImage::Format_Grayscale8);
+        memcpy(image.bits(), mat.data, static_cast<size_t>(mat.cols * mat.rows));
+        return image;
+    }
+    case CV_8UC3: {
+        // 三通道彩色图 (BGR to RGB)
+        QImage image(mat.cols, mat.rows, QImage::Format_RGB888);
+        for (int row = 0; row < mat.rows; ++row) {
+            memcpy(image.scanLine(row), mat.ptr(row), static_cast<size_t>(mat.cols * 3));
+        }
+        return image.rgbSwapped(); // BGR -> RGB
+    }
+    case CV_8UC4: {
+        // 四通道带透明度图 (BGRA to RGBA)
+        QImage image(mat.cols, mat.rows, QImage::Format_ARGB32);
+        for (int row = 0; row < mat.rows; ++row) {
+            memcpy(image.scanLine(row), mat.ptr(row), static_cast<size_t>(mat.cols * 4));
+        }
+        return image;
+    }
+    default:
+        return QImage();
+    }
+}
+
+// 实现 QImage 转 cv::Mat
+cv::Mat Utils::qImage2CvMat(const QImage& image) {
+    if (image.isNull()) {
+        return cv::Mat();
+    }
+
+    switch (image.format()) {
+    case QImage::Format_Grayscale8: {
+        // 单通道灰度图
+        cv::Mat mat(image.height(), image.width(), CV_8UC1, const_cast<uchar*>(image.bits()), image.bytesPerLine());
+        return mat.clone(); // 返回一个深拷贝，避免原数据被更改
+    }
+    case QImage::Format_RGB888: {
+        // 三通道彩色图 (RGB to BGR)
+        cv::Mat mat(image.height(), image.width(), CV_8UC3, const_cast<uchar*>(image.bits()), image.bytesPerLine());
+        cv::Mat matBGR;
+        cv::cvtColor(mat, matBGR, cv::COLOR_RGB2BGR); // RGB -> BGR
+        return matBGR;
+    }
+    case QImage::Format_ARGB32: {
+        // 四通道带透明度图 (RGBA to BGRA)
+        cv::Mat mat(image.height(), image.width(), CV_8UC4, const_cast<uchar*>(image.bits()), image.bytesPerLine());
+        cv::Mat matBGRA;
+        cv::cvtColor(mat, matBGRA, cv::COLOR_RGBA2BGRA); // RGBA -> BGRA
+        return matBGRA;
+    }
+    default:
+        return cv::Mat();
+    }
+}
+
+bool Utils::FindPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY) {
+    if (sourceImage.empty() || templateImage.empty()) {
+        std::cerr << "Error: Image(s) could not be loaded." << std::endl;
+        return false;
+    }
+
+    // 创建结果矩阵
+    cv::Mat result;
+    cv::matchTemplate(sourceImage, templateImage, result, cv::TM_CCOEFF_NORMED);
+
+    // 查找结果中最大匹配值
+    double minVal, maxVal;
+    cv::Point minLoc, maxLoc;
+    cv::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc);
+
+    // 检查是否超过阈值
+    if (maxVal >= threshold) {
+        outX = maxLoc.x;
+        outY = maxLoc.y;
+        return true; // 匹配成功
+    }
+
+    outX = -1;
+    outY = -1;
+    return false; // 匹配失败
 }

@@ -22,6 +22,33 @@ void MainBackendWorker::stopWorker(){
     m_isRunning.store(0);
 }
 
+void MainBackendWorker::skipMonthCard(){
+    QDateTime dateTime = QDateTime::currentDateTime();
+    /*
+    // 对应副本BOSS单刷1122V10 源文件 265行 Function 月卡跳过
+    if(dateTime.time().hour() == 4 && dateTime.time().minute() == 0){
+        // 循环5次
+        for(int i = 0; i < 5; i++){
+            // 按下ALT
+            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+            Sleep(200);
+            for(int jClick = 0; jClick < 2; jClick++){
+                Utils::clickWindowClientArea(Utils::hwnd, 627, 602);
+                Sleep(200);
+            }
+            // 松开ALT
+            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
+        }
+    }
+    else if(dateTime.time().hour() == 4 && dateTime.time().minute() == 1){
+
+    }
+    */
+    // 不再使用上述方法 改用图像检测
+
+
+}
+
 void MainBackendWorker::onStartTest1(){
     // 启动程序 UI线程 发信号后 已经更改为忙碌了
     // 不管任何方式退出 都发送信号要求UI更新状态
@@ -36,8 +63,6 @@ void MainBackendWorker::onStartTest1(){
         m_isRunning.store(0);
         return;
     }
-
-    // 检查分辨率 可选
 
     // 尝试后台激活窗口（并不强制将窗口置前）
     DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
@@ -130,6 +155,88 @@ void MainBackendWorker::onStartTest1(){
         qWarning() << "Failed to attach thread input.";
         return;
     }
+}
 
+
+void MainBackendWorker::onStartSpecialBoss(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting){
+    // 启动程序 UI线程 发信号后 已经更改为忙碌了
+    // 不管任何方式退出 都发送信号要求UI更新状态
+    m_isRunning.store(1);
+
+    qDebug().noquote() << setting.toQString();
+    qInfo() << QString("MainBackendWorker::onStartSpecialBoss start...");
+
+    // 初始化句柄
+    bool isInit = Utils::initWuwaHwnd();
+    if(!isInit){
+        emit startSpecialBossDone(false, QString("未能初始化鸣潮窗口句柄"), setting, rebootGameSetting);
+        m_isRunning.store(0);
+        return;
+    }
+
+    bool isWuwaRunning = Utils::isWuwaRunning();
+    if(!isWuwaRunning){
+        emit startSpecialBossDone(false, QString("未能初始化鸣潮窗口句柄"), setting, rebootGameSetting);
+        m_isRunning.store(0);
+        return;
+    }
+
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+
+    // 每一步都需要执行该检查 封装为匿名函数
+    auto isSpecialBossClosing = [&](bool isAbort, bool isNormalEnd, const QString& msg, const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting) {
+        bool isWuwaRunning = Utils::isWuwaRunning();
+        if(!isWuwaRunning){
+            // 鸣潮已经被关闭 异常结束
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            emit startSpecialBossDone(false, QString("鸣潮已经被关闭"), setting, rebootGameSetting);
+            m_isRunning.store(0);
+            return true;
+        }
+
+        if(!isBusy()){
+            // 用户中止 正常结束
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            emit startSpecialBossDone(true, QString("用户停止"), setting, rebootGameSetting);
+            m_isRunning.store(0);
+            return true;
+        }
+        else{
+            if(isAbort){
+                // 根据输入参数决定是否正常结束
+                AttachThreadInput(currentThreadId, threadId, FALSE);
+                emit startSpecialBossDone(isNormalEnd, msg, setting, rebootGameSetting);
+                m_isRunning.store(0);
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    };
+
+    // 将线程附加到目标窗口
+    // 测试 ESC 点击活动 ESC 往前走
+    if (AttachThreadInput(currentThreadId, threadId, TRUE)) {
+        // 激活窗口
+        SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
+        Sleep(500);
+
+        for(int i = 0; i < 10; i++){
+            Sleep(500);
+            qDebug() << "等待500ms... ";
+            if(isSpecialBossClosing(false, true, QString("用户中止脚本"), setting, rebootGameSetting)) return;
+        }
+
+
+        if(isSpecialBossClosing(true, true, QString("脚本运行结束"), setting, rebootGameSetting)) return;
+        return;
+    }
+    else {
+        if(isSpecialBossClosing(true, false, QString("用户中止脚本"), setting, rebootGameSetting)) return;
+        return;
+    }
 
 }

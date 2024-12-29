@@ -10,11 +10,25 @@
 struct RebootGameSetting{
     bool isReboot = true;
     QPoint startGameBtnPos = {0, 0};
+    unsigned int rebootCycles = 99999;   // 刷怪这么多次后 进行重启
     unsigned int rebootWaitS = 300;
 
+    QString toQString() const {
+        return QString(
+            "Reboot: %1\n"
+            "Reboot cycles: %2\n"
+            "Start Game Button Position: (%3, %4)\n"
+            "Reboot Wait Time: %5 seconds")
+            .arg(isReboot ? "Yes" : "No")
+            .arg(rebootCycles)
+            .arg(startGameBtnPos.x())
+            .arg(startGameBtnPos.y())
+            .arg(rebootWaitS);
+    }
 };
+Q_DECLARE_METATYPE(RebootGameSetting)
 
-struct SpecialBoosSetting{
+struct SpecialBossSetting{
     enum SpecialBoss{
         Jue,   // 角 今州岁主
         Rover   // 无妄者 二姐
@@ -76,7 +90,7 @@ struct SpecialBoosSetting{
             .arg(customDungeonLevel);
     }
 };
-
+Q_DECLARE_METATYPE(SpecialBossSetting)
 
 
 #endif // SETTINGPARAMS_H

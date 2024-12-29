@@ -13,31 +13,31 @@ SpeicalBossWidget::~SpeicalBossWidget()
     delete ui;
 }
 
-SpecialBoosSetting SpeicalBossWidget::getSetting()
+SpecialBossSetting SpeicalBossWidget::getSetting()
 {
-    SpecialBoosSetting setting;
+    SpecialBossSetting setting;
 
     // 设置 Boss 类型
     if (ui->radioButton->isChecked()) {
-        setting.boss = SpecialBoosSetting::SpecialBoss::Jue;
+        setting.boss = SpecialBossSetting::SpecialBoss::Jue;
     } else if (ui->radioButton_2->isChecked()) {
-        setting.boss = SpecialBoosSetting::SpecialBoss::Rover;
+        setting.boss = SpecialBossSetting::SpecialBoss::Rover;
     }
 
     // 设置拾取方式
     QString picpUpEchoMethod = ui->pickUpEchoMethod->currentText();
     if (picpUpEchoMethod.contains("方")) {
-        setting.pickupShape = SpecialBoosSetting::PickupShape::Square;
+        setting.pickupShape = SpecialBossSetting::PickupShape::Square;
     } else if (picpUpEchoMethod.contains("普通")) {
-        setting.pickupShape = SpecialBoosSetting::PickupShape::Normal;
+        setting.pickupShape = SpecialBossSetting::PickupShape::Normal;
     } else if (picpUpEchoMethod.contains("直线")) {
-        setting.pickupShape = SpecialBoosSetting::PickupShape::Line;
+        setting.pickupShape = SpecialBossSetting::PickupShape::Line;
     } else if (picpUpEchoMethod.contains("蚊香")) {
-        setting.pickupShape = SpecialBoosSetting::PickupShape::Spiral;
+        setting.pickupShape = SpecialBossSetting::PickupShape::Spiral;
     } else {
         // 如果未匹配到，设置为默认值
         qWarning() << QString("UI选择 %1 作为声骸拾取方式，未知方式，设置为方形").arg(picpUpEchoMethod);
-        setting.pickupShape = SpecialBoosSetting::PickupShape::Square;
+        setting.pickupShape = SpecialBossSetting::PickupShape::Square;
     }
 
     // 设置拾取范围
@@ -65,10 +65,10 @@ SpecialBoosSetting SpeicalBossWidget::getSetting()
     // 大招检测方式
     switch (ui->ultimateSkillDetectMethod->currentIndex()) {
     case 0:
-        setting.ultimateCheckMode = SpecialBoosSetting::UltimateCheckMode::Mode1;
+        setting.ultimateCheckMode = SpecialBossSetting::UltimateCheckMode::Mode1;
         break;
     case 1:
-        setting.ultimateCheckMode = SpecialBoosSetting::UltimateCheckMode::Mode2;
+        setting.ultimateCheckMode = SpecialBossSetting::UltimateCheckMode::Mode2;
         break;
     }
 
@@ -79,6 +79,7 @@ SpecialBoosSetting SpeicalBossWidget::getSetting()
 }
 
 void SpeicalBossWidget::on_activateBtn_clicked(){
-    qInfo() << QString();
-
+    qInfo() << QString("准备启动特殊BOSS脚本 ");
+    SpecialBossSetting setting = this->getSetting();
+    emit startSpecialBoss(setting);
 }

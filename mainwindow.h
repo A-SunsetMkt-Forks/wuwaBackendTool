@@ -23,8 +23,10 @@
 
 #include "utils.h"    //通用工具
 #include "generalpanel.h"  // 子面板
+#include "speicalbosswidget.h"   // 特殊boss面板
 #include "mainbackendworker.h"  // 后台线程
 #include "globalhotkeyfilter.h"   // 允许全局快捷键 停止脚本程序
+#include "settingparams.h"    // 每种应用场景都有自己的一套参数
 
 namespace Ui {
 class MainWindow;
@@ -58,11 +60,13 @@ private:
 signals:
     void startTest1();
 
+    // 转发信号 请求后台线程执行
+    void startSpecialBoss(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
+
+
 private slots:
     void on_getGameWin_clicked();
 
-    // 后台发出按键请求
-    void on_sendBtn_clicked();
 
     // 测试 ESC 点击活动 ESC 往前走
     void on_test1_clicked();
@@ -73,8 +77,68 @@ private slots:
     // 打断一切后台操作
     void on_stopBtn_clicked();
 
-    // 响应外界的快捷键
+    // 响应外界的快捷键 停止脚本运行
     void onHotKeyActivated(int id);
+
+    // 接收特殊boss脚本启动请求 检查窗口句柄和分辨率 没问题就转发信号
+    void checkSpecialBoss(const SpecialBossSetting& setting);
+
+    // 后台线程结束
+    void onStartSpecialBossDone(const bool& isNormalEnd, const QString& msg, const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
+
 };
+
+
+// 后台发出按键请求
+/*
+void on_sendBtn_clicked();
+void MainWindow::on_sendBtn_clicked(){
+    qDebug() << "sendBtnClicked";
+    // 中文窗口标题
+    QString windowTitle = "鸣潮  ";
+
+    // 转换为宽字符（Unicode）
+    //HWND hwnd = FindWindow(nullptr, (LPCWSTR)windowTitle.utf16());
+    HWND hwnd = FindWindow(nullptr, windowTitle.toStdWString().c_str());
+    if (!hwnd) {
+        qWarning() << "Failed to find window with title: " << windowTitle;
+        return;
+    }
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+
+    // 将线程附加到目标窗口
+    if (AttachThreadInput(currentThreadId, threadId, TRUE)) {
+        // 激活窗口
+        SendMessage(hwnd, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
+
+        Utils::sendKeyToWindow(hwnd, VK_ESCAPE, WM_KEYDOWN);
+        Sleep(300);
+
+        Utils::sendKeyToWindow(hwnd, VK_ESCAPE, WM_KEYUP);
+        Sleep(300);
+
+        //PostMessage(hwnd, WM_KEYDOWN, VK_MENU, 0);
+
+        Utils::clickWindowClientArea(hwnd, 641, 145);
+        Sleep(500);
+        //PostMessage(hwnd, WM_KEYUP, VK_MENU, 0);
+
+        //sendKeySequenceToWindow(hwnd);
+        //sendKeySequenceToWindow(hwnd);
+        //sendKeySequenceToWindow(hwnd);
+        //sendKeySequenceToWindow(hwnd);
+
+        // 分离线程
+        AttachThreadInput(currentThreadId, threadId, FALSE);
+    } else {
+        qDebug() << "Failed to attach thread input.";
+    }
+
+
+}
+*/
+
 
 #endif // MAINWINDOW_H

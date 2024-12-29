@@ -16,10 +16,13 @@ public:
     explicit SpeicalBossWidget(QWidget *parent = nullptr);
     ~SpeicalBossWidget();
 
-    SpecialBoosSetting getSetting();
+    SpecialBossSetting getSetting();
 
 private:
     Ui::SpeicalBossWidget *ui;
+
+signals:
+    void startSpecialBoss(const SpecialBossSetting& setting);
 
 public slots:
     void on_activateBtn_clicked();

@@ -49,31 +49,17 @@
     <string>only window mode 1280 720 resolution is supported</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="checkReady">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>270</y>
-     <width>241</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>检查是否已就绪
-check if is ready</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="getGameWin">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>350</y>
+     <y>290</y>
      <width>241</width>
      <height>51</height>
     </rect>
    </property>
    <property name="text">
-    <string>测试 点击按钮 获取图像</string>
+    <string>①测试 点击按钮 获取图像</string>
    </property>
   </widget>
   <widget class="QPushButton" name="test1">
@@ -95,7 +81,7 @@ check if is ready</string>
      <x>510</x>
      <y>260</y>
      <width>461</width>
-     <height>131</height>
+     <height>191</height>
     </rect>
    </property>
    <property name="title">
@@ -121,7 +107,7 @@ check if is ready</string>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox">
+        <widget class="QSpinBox" name="rebootCycles">
          <property name="minimum">
           <number>10</number>
          </property>
@@ -145,7 +131,7 @@ check if is ready</string>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_2">
+        <widget class="QSpinBox" name="rebootWaitS">
          <property name="suffix">
           <string>秒</string>
          </property>
@@ -167,6 +153,68 @@ check if is ready</string>
      </item>
     </layout>
    </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>441</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>开始游戏按钮坐标</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QSpinBox" name="startBtnX">
+         <property name="suffix">
+          <string/>
+         </property>
+         <property name="prefix">
+          <string>X: </string>
+         </property>
+         <property name="maximum">
+          <number>99999</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="startBtnY">
+         <property name="suffix">
+          <string/>
+         </property>
+         <property name="prefix">
+          <string>Y: </string>
+         </property>
+         <property name="maximum">
+          <number>99999</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="testFindPic">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>350</y>
+     <width>241</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>②测试 读取模板 匹配</string>
+   </property>
   </widget>
  </widget>
  <resources/>
