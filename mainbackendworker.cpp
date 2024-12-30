@@ -240,3 +240,90 @@ void MainBackendWorker::onStartSpecialBoss(const SpecialBossSetting& setting, co
     }
 
 }
+
+
+bool MainBackendWorker::isPickUpEcho(const int& pickUpEchoRange){
+    // 在按键精灵源码这是一个sub 也就是void函数 没有返回值 363行
+    bool isPickUp = false;
+    if(!isPickUp){
+        for (int i = 0; i < pickUpEchoRange && isBusy(); i++) {
+            for(int j = 0; j < 2; j++){
+                cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+                int findX, findY;
+                bool isFindPic = Utils::findPic(capImg, \
+                                         cv::imread(QString("%1/720p吸收.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED), \
+                                         0.9, findX, findY);
+                if(isFindPic){
+                    Utils::keyPress(Utils::hwnd, 'F', 2);
+                    Utils::keyPress(Utils::hwnd, 'D', 1);
+                    Utils::keyPress(Utils::hwnd, 'F', 2);
+                    Utils::keyPress(Utils::hwnd, 'A', 1);
+                    Utils::keyPress(Utils::hwnd, 'F', 2);
+                    Utils::keyPress(Utils::hwnd, 'S', 1);
+                    Utils::keyPress(Utils::hwnd, 'F', 2);
+                    Utils::keyPress(Utils::hwnd, 'W', 1);
+
+                    Utils::keyPress(Utils::hwnd, 'F', 2);
+                    Utils::keyPress(Utils::hwnd, 'S', 1);
+                    Utils::keyPress(Utils::hwnd, 'A', 1);
+                    Utils::keyPress(Utils::hwnd, 'F', 1);
+
+                    Utils::keyPress(Utils::hwnd, 'W', 2);
+                    Utils::keyPress(Utils::hwnd, 'F', 2);
+                    Utils::keyPress(Utils::hwnd, 'D', 2);
+                    Utils::keyPress(Utils::hwnd, 'F', 2);
+                    return true;  // 结束过程
+                }
+
+                Sleep(50);
+            }
+        }
+    }
+
+    return true;   // 不关心返回值
+}
+
+bool MainBackendWorker::lockEnemy(){
+    bool bossName = false;
+    bool traceTarget = false;
+    bool bossHPbar = false;
+    bool forceJudgeBossExist = false;
+    // int bossLevel = 0;
+    int rebootCount = 0;
+    QTime rebootCalcStartTime = QTime::currentTime();
+
+    for(int i = 0; i < 80 && isBusy(); i++){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+        qDebug() << QString("开始确认敌人");
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        int x, y;
+        bool isFindTraceColor = Utils::findColorEx(capImg, 0, 168, 47, 217, "F48A94", 0.8, x, y);
+        if(isFindTraceColor){
+            traceTarget = true;
+        }
+        else{
+            traceTarget = false;
+        }
+        qDebug() << QString("是否找到BOSS目标？ %1").arg(isFindTraceColor == true ? "是" : "否");
+
+        bool isFindBossHpBarColor = Utils::findColorEx(capImg, 800, 24, 848, 63, "F48A94", 0.8, x, y);
+        if(isFindBossHpBarColor){
+            bossHPbar = true;
+        }
+        else{
+            bossHPbar = false;
+        }
+        qDebug() << QString("是否找到BOSS血条？ %1").arg(isFindBossHpBarColor == true ? "是" : "否");
+
+        if(traceTarget && bossHPbar){
+            // 确定boss存在
+            qDebug() << QString("BOSS确定存在");
+            Sleep(100);
+            Utils::middleClickWindowClientArea(Utils::hwnd, 640, 360);
+            break;
+        }
+    }
+
+    return true;
+}
+

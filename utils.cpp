@@ -158,7 +158,9 @@ bool Utils::keyPress(HWND hwnd, int vkCode, int times){
 
     for(int i = 0 ; i < times; i++){
         sendKeyToWindow(hwnd, vkCode, WM_KEYDOWN);
+        Sleep(10);
         sendKeyToWindow(hwnd, vkCode, WM_KEYUP);
+        Sleep(10);
     }
 
     return true;
@@ -198,11 +200,11 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
 
     // 发送鼠标按下消息
     PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
-    Sleep(200);  // 给消息处理留一点缓冲时间
+    Sleep(20);  // 给消息处理留一点缓冲时间
 
     // 发送鼠标松开消息
     PostMessage(hwnd, WM_LBUTTONUP, 0, lParam);
-    Sleep(200);
+    Sleep(20);
 
     qDebug() << "Simulated click at client area coordinates: ("
              << x << ", " << y << ")" ;
@@ -210,6 +212,36 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
     return true;
 }
 
+// 模拟鼠标中键点击目标窗口的客户区坐标
+bool Utils::middleClickWindowClientArea(HWND hwnd, int x, int y) {
+    if (!isWuwaRunning()) {
+        return false;
+    }
+
+    // 将客户区坐标转换为屏幕坐标
+    POINT clientPoint = { x, y };
+    if (!ClientToScreen(hwnd, &clientPoint)) {
+        qWarning() << "Failed to convert client area coordinates to screen coordinates.";
+        return false;
+    }
+
+    // 如果 x, y 是“客户区坐标”，则直接组合到 lParam
+    // MAKELPARAM 的低 16 位是 X 坐标，高 16 位是 Y 坐标
+    LPARAM lParam = MAKELPARAM(x, y);
+
+    // 发送鼠标中键按下消息
+    PostMessage(hwnd, WM_MBUTTONDOWN, MK_MBUTTON, lParam);
+    Sleep(20);  // 给消息处理留一点缓冲时间
+
+    // 发送鼠标中键松开消息
+    PostMessage(hwnd, WM_MBUTTONUP, 0, lParam);
+    Sleep(20);
+
+    qDebug() << "Simulated middle click at client area coordinates: ("
+             << x << ", " << y << ")" ;
+
+    return true;
+}
 
 // 实现 cv::Mat 转 QImage
 QImage Utils::cvMat2QImage(const cv::Mat& mat) {
@@ -274,66 +306,6 @@ cv::Mat Utils::qImage2CvMat(const QImage& image) {
     default:
         return cv::Mat();
     }
-}
-
-bool Utils::isPickUpEcho(const int& pickUpEchoRange){
-    // 在按键精灵源码这是一个sub 也就是void函数 没有返回值 363行
-    bool isPickUp = false;
-    if(!isPickUp){
-        for (int i = 0; i < pickUpEchoRange; i++) {
-            for(int j = 0; j < 2; j++){
-                cv::Mat capImg = qImage2CvMat(captureWindowToQImage(Utils::hwnd));
-                int findX, findY;
-                bool isFindPic = findPic(capImg, \
-                                         cv::imread(QString("%1/720p吸收.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED), \
-                                         0.9, findX, findY);
-                if(isFindPic){
-                    keyPress(Utils::hwnd, 'F', 2);
-                    keyPress(Utils::hwnd, 'D', 1);
-                    keyPress(Utils::hwnd, 'F', 2);
-                    keyPress(Utils::hwnd, 'A', 1);
-                    keyPress(Utils::hwnd, 'F', 2);
-                    keyPress(Utils::hwnd, 'S', 1);
-                    keyPress(Utils::hwnd, 'F', 2);
-                    keyPress(Utils::hwnd, 'W', 1);
-
-                    keyPress(Utils::hwnd, 'F', 2);
-                    keyPress(Utils::hwnd, 'S', 1);
-                    keyPress(Utils::hwnd, 'A', 1);
-                    keyPress(Utils::hwnd, 'F', 1);
-
-                    keyPress(Utils::hwnd, 'W', 2);
-                    keyPress(Utils::hwnd, 'F', 2);
-                    keyPress(Utils::hwnd, 'D', 2);
-                    keyPress(Utils::hwnd, 'F', 2);
-                    return true;  // 结束过程
-                }
-
-                Sleep(50);
-            }
-        }
-    }
-
-    return true;   // 不关心返回值
-}
-
-bool Utils::lockEnemy(){
-    bool bossName = false;
-    bool traceTarget = false;
-    bool bossHPbar = false;
-    bool forceJudgeBossExist = false;
-    // int bossLevel = 0;
-    int rebootCount = 0;
-    QTime rebootCalcStartTime = QTime::currentTime();
-
-    for(int i = 0; i < 80; i++){
-        sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
-        qDebug() << QString("开始确认敌人");
-
-
-    }
-
-    return true;
 }
 
 bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY) {

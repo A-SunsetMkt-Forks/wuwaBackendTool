@@ -41,6 +41,13 @@ public slots:
     // 特殊boss
     void onStartSpecialBoss(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
 
+private:
+    // 按键精灵的执行过程
+    // 副本BOSS单刷 363行 捡声骸判断
+    bool isPickUpEcho(const int& pickUpEchoRange);
+
+    // 副本BOSS单刷  398行 锁定敌人
+    bool lockEnemy();
 };
 
 #endif // MAINBACKENDWORKER_H
