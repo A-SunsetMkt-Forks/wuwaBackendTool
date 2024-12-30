@@ -77,7 +77,7 @@ void GeneralPanel::on_testFindPic_clicked(){
     int X, Y;
     QElapsedTimer timer;
     timer.start();
-    bool isFind = Utils::FindPic(capImg, templateImg, 0.9, X, Y);
+    bool isFind = Utils::findPic(capImg, templateImg, 0.9, X, Y);
     auto timeCostMs = timer.elapsed();
     qDebug() << QString("GeneralPanel::on_testFindPic_clicked is done, timeCost %1 ms, X %2, Y %3, isFound %4").arg(timeCostMs).arg(X).arg(Y).arg(isFind);
 

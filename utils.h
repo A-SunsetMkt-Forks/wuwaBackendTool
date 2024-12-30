@@ -14,6 +14,7 @@ basic tool functions
 #include <QMutexLocker>
 #include <QCoreApplication>
 #include <QDir>
+#include <QTime>
 
 // 获取窗体 句柄
 #include <windows.h>
@@ -55,13 +56,27 @@ public:
     // release sendKeyToWindow(HWND hwnd, int vkCode, WM_KEYUP)
     static bool sendKeyToWindow(HWND hwnd, int vkCode, int keyStatus);
 
+    // 模仿按键精灵连续按下 松开几次某按键
+    static bool keyPress(HWND hwnd, int vkCode, int times);
+
+    // 点击客户端的某个位置
     static bool clickWindowClientArea(HWND hwnd, int x, int y);
 
     // get if it's admin
     static bool isRunningAsAdmin();
 
     // 对应按键精灵的FindPic
-    static bool FindPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY);
+    static bool findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY);
+
+    // 对应按键精灵的FindColorEx
+    static bool findColorEx(const cv::Mat& image, int x1, int y1, int x2, int y2, const QString& hexColor, double tolerance, int& outX, int& outY);
+
+    // 按键精灵的执行过程
+    // 副本BOSS单刷 363行 捡声骸判断
+    bool isPickUpEcho(const int& pickUpEchoRange);
+
+    // 副本BOSS单刷  398行 锁定敌人
+    bool lockEnemy();
 
 private:
     static const QString wuwaWindowTitle;
@@ -74,6 +89,8 @@ private:
     static QImage cvMat2QImage(const cv::Mat& mat);
     static cv::Mat qImage2CvMat(const QImage& image);
 
+    // "F48A94" 转换为颜色
+    static bool hexToBGR(const QString& hexColor, cv::Vec3b& outColor);
 
 
 };

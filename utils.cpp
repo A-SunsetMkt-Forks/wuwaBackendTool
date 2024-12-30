@@ -142,12 +142,25 @@ bool Utils::sendKeyToWindow(HWND hwnd, int vkCode, int keyStatus) {
     // Send key down
     PostMessage(hwnd, keyStatus, vkCode, 0);
     QString logMessage = QString("Key: %1 (%2), Action: %3")
-                             .arg(QChar(vkCode))
-                             .arg(vkCode)
-                             .arg(keyStatus == WM_KEYDOWN ? "Pressed" :
-                                  keyStatus == WM_KEYUP ? "Released" :
-                                  "Unknown");
+            .arg(QChar(vkCode))
+            .arg(vkCode)
+            .arg(keyStatus == WM_KEYDOWN ? "Pressed" :
+                                           keyStatus == WM_KEYUP ? "Released" :
+                                                                   "Unknown");
     qDebug() << logMessage;
+    return true;
+}
+
+bool Utils::keyPress(HWND hwnd, int vkCode, int times){
+    if (!isWuwaRunning()) {
+        return false;
+    }
+
+    for(int i = 0 ; i < times; i++){
+        sendKeyToWindow(hwnd, vkCode, WM_KEYDOWN);
+        sendKeyToWindow(hwnd, vkCode, WM_KEYUP);
+    }
+
     return true;
 }
 
@@ -157,8 +170,8 @@ bool Utils::isRunningAsAdmin() {
     SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
 
     if (AllocateAndInitializeSid(&ntAuthority, 2,
-        SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
-        0, 0, 0, 0, 0, 0, &adminGroup)) {
+                                 SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
+                                 0, 0, 0, 0, 0, 0, &adminGroup)) {
         CheckTokenMembership(nullptr, adminGroup, &isAdmin);
         FreeSid(adminGroup);
     }
@@ -192,7 +205,7 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
     Sleep(200);
 
     qDebug() << "Simulated click at client area coordinates: ("
-              << x << ", " << y << ")" ;
+             << x << ", " << y << ")" ;
 
     return true;
 }
@@ -263,7 +276,67 @@ cv::Mat Utils::qImage2CvMat(const QImage& image) {
     }
 }
 
-bool Utils::FindPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY) {
+bool Utils::isPickUpEcho(const int& pickUpEchoRange){
+    // 在按键精灵源码这是一个sub 也就是void函数 没有返回值 363行
+    bool isPickUp = false;
+    if(!isPickUp){
+        for (int i = 0; i < pickUpEchoRange; i++) {
+            for(int j = 0; j < 2; j++){
+                cv::Mat capImg = qImage2CvMat(captureWindowToQImage(Utils::hwnd));
+                int findX, findY;
+                bool isFindPic = findPic(capImg, \
+                                         cv::imread(QString("%1/720p吸收.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED), \
+                                         0.9, findX, findY);
+                if(isFindPic){
+                    keyPress(Utils::hwnd, 'F', 2);
+                    keyPress(Utils::hwnd, 'D', 1);
+                    keyPress(Utils::hwnd, 'F', 2);
+                    keyPress(Utils::hwnd, 'A', 1);
+                    keyPress(Utils::hwnd, 'F', 2);
+                    keyPress(Utils::hwnd, 'S', 1);
+                    keyPress(Utils::hwnd, 'F', 2);
+                    keyPress(Utils::hwnd, 'W', 1);
+
+                    keyPress(Utils::hwnd, 'F', 2);
+                    keyPress(Utils::hwnd, 'S', 1);
+                    keyPress(Utils::hwnd, 'A', 1);
+                    keyPress(Utils::hwnd, 'F', 1);
+
+                    keyPress(Utils::hwnd, 'W', 2);
+                    keyPress(Utils::hwnd, 'F', 2);
+                    keyPress(Utils::hwnd, 'D', 2);
+                    keyPress(Utils::hwnd, 'F', 2);
+                    return true;  // 结束过程
+                }
+
+                Sleep(50);
+            }
+        }
+    }
+
+    return true;   // 不关心返回值
+}
+
+bool Utils::lockEnemy(){
+    bool bossName = false;
+    bool traceTarget = false;
+    bool bossHPbar = false;
+    bool forceJudgeBossExist = false;
+    // int bossLevel = 0;
+    int rebootCount = 0;
+    QTime rebootCalcStartTime = QTime::currentTime();
+
+    for(int i = 0; i < 80; i++){
+        sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+        qDebug() << QString("开始确认敌人");
+
+
+    }
+
+    return true;
+}
+
+bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY) {
     if (sourceImage.empty() || templateImage.empty()) {
         std::cerr << "Error: Image(s) could not be loaded." << std::endl;
         return false;
@@ -288,4 +361,68 @@ bool Utils::FindPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, do
     outX = -1;
     outY = -1;
     return false; // 匹配失败
+}
+
+// 在图像中查找指定颜色
+bool Utils::findColorEx(const cv::Mat& image, int x1, int y1, int x2, int y2, const QString& hexColor, double tolerance, int& outX, int& outY) {
+    // 转换颜色
+    cv::Vec3b targetColor;
+    bool isConvertColor = Utils::hexToBGR(hexColor, targetColor);
+    if(!isConvertColor){
+        qWarning() << QString();
+    }
+
+    // 限制搜索区域
+    cv::Rect searchRegion(x1, y1, x2 - x1, y2 - y1);
+    cv::Mat region = image(searchRegion);
+
+    // 遍历搜索区域内的所有像素
+    for (int y = 0; y < region.rows; ++y) {
+        for (int x = 0; x < region.cols; ++x) {
+            cv::Vec3b pixelColor = region.at<cv::Vec3b>(y, x);
+
+            // 计算颜色差异（基于欧几里得距离）
+            double distance = sqrt(
+                pow(pixelColor[0] - targetColor[0], 2) + // B
+                pow(pixelColor[1] - targetColor[1], 2) + // G
+                pow(pixelColor[2] - targetColor[2], 2)   // R
+            );
+
+            // 判断是否满足容忍误差
+            if (distance <= tolerance * 255) {
+                outX = x1 + x; // 转换为原图的坐标
+                outY = y1 + y;
+                return true; // 找到匹配颜色
+            }
+        }
+    }
+
+    // 未找到匹配颜色
+    outX = -1;
+    outY = -1;
+    return false;
+}
+
+bool Utils::hexToBGR(const QString& hexColor, cv::Vec3b& outColor) {
+    // 检查长度是否为 6 个字符
+    if (hexColor.length() != 6) {
+        return false;
+    }
+
+    bool ok;
+    int r, g, b;
+
+    // 尝试解析 R、G、B 分量
+    r = hexColor.mid(0, 2).toInt(&ok, 16);
+    if (!ok) return false;
+
+    g = hexColor.mid(2, 2).toInt(&ok, 16);
+    if (!ok) return false;
+
+    b = hexColor.mid(4, 2).toInt(&ok, 16);
+    if (!ok) return false;
+
+    // 设置输出 BGR 颜色（OpenCV 使用 BGR 格式）
+    outColor = cv::Vec3b(b, g, r);
+    return true;
 }
