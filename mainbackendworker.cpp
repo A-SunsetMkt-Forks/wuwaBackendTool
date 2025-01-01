@@ -1,5 +1,13 @@
 #include "mainbackendworker.h"
 
+QTime MainBackendWorker::rebootCalcStartTime;
+QTime MainBackendWorker::rebootCalcEndTime;
+QTime MainBackendWorker::dungeonStartTime;
+QTime MainBackendWorker::dungeonEndTime;
+QAtomicInt MainBackendWorker::isContinueFight;
+QTime MainBackendWorker::battlePickUpTime;  // 战斗时按拾取开始时间
+QAtomicInt MainBackendWorker::reviveVal; // 复苏变量
+
 // 实现部分
 MainBackendWorker::MainBackendWorker(QObject* parent)
     : QObject(parent)  // 初始化基类 QObject
@@ -46,6 +54,14 @@ void MainBackendWorker::skipMonthCard(){
     */
     // 不再使用上述方法 改用图像检测
 
+
+}
+
+void MainBackendWorker::pickUpEchoIsBossDied(){
+
+}
+
+void MainBackendWorker::quitRover(){
 
 }
 
@@ -288,12 +304,21 @@ bool MainBackendWorker::lockEnemy(){
     bool traceTarget = false;
     bool bossHPbar = false;
     bool forceJudgeBossExist = false;
+    bool bossHPbar2 = false;
+    bool bossHPbar3 = false;
     // int bossLevel = 0;
     int rebootCount = 0;
-    QTime rebootCalcStartTime = QTime::currentTime();
+    {
+        QMutexLocker locker(&m_mutex);
+        MainBackendWorker::rebootCalcStartTime = QTime::currentTime();
+    }
 
+    Q_UNUSED(bossName);
+    Q_UNUSED(forceJudgeBossExist);
+
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
     for(int i = 0; i < 80 && isBusy(); i++){
-        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+        //Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
         qDebug() << QString("开始确认敌人");
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         int x, y;
@@ -306,6 +331,7 @@ bool MainBackendWorker::lockEnemy(){
         }
         qDebug() << QString("是否找到BOSS目标？ %1").arg(isFindTraceColor == true ? "是" : "否");
 
+        capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         bool isFindBossHpBarColor = Utils::findColorEx(capImg, 800, 24, 848, 63, "F48A94", 0.8, x, y);
         if(isFindBossHpBarColor){
             bossHPbar = true;
@@ -322,7 +348,136 @@ bool MainBackendWorker::lockEnemy(){
             Utils::middleClickWindowClientArea(Utils::hwnd, 640, 360);
             break;
         }
+        Sleep(200);
+
+        Utils::keyPress(Utils::hwnd, VK_SHIFT, 1);
+        capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        bool isFindBossHpBar2 = Utils::findColorEx(capImg, 430, 20, 480, 60, "44B3FF", 0.9, x, y);
+        if(isFindBossHpBar2){
+            bossHPbar2 = true;
+            qDebug() << "找到boss血条";
+        }
+        else{
+            bossHPbar2 = false;
+            qDebug() << "未找到boss血条，检查boss血条是否绑定";
+        }
+
+        capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        bool isFindBossHpBar3 = Utils::findColorEx(capImg, 800, 24, 848, 63, "0825FF", 0.9, x, y);
+        if(isFindBossHpBar3){
+            isFindBossHpBar3 = true;
+            qDebug() << "找到boss血条";
+        }
+        else{
+            isFindBossHpBar3 = false;
+            qDebug() << "未找到boss血条，检查boss血条是否绑定";
+        }
+
+        qDebug() << "再次开始判断boss是否真的存在";
+        if(traceTarget && bossHPbar2 && bossHPbar3){
+            qDebug() << "确认敌人存在";
+            Sleep(300);
+            Utils::middleClickWindowClientArea(Utils::hwnd, 640, 360);
+            break;
+        }
+
+        // ##### 时间差默认是s还是ms？
+        {
+            QMutexLocker locker(&m_mutex);
+            MainBackendWorker::rebootCalcEndTime = QTime::currentTime();
+        }
+        if(rebootCalcStartTime.msecsTo(rebootCalcEndTime) > 60000){
+            qWarning() << QString("触发重启游戏条件 已经过了 %1 ms").arg(rebootCalcStartTime.msecsTo(rebootCalcEndTime));
+            // 调用重启游戏
+        }
+
+        Sleep(500);
+        for (int i = 0; i < 5 && isBusy(); i++) {
+            Sleep(300);
+            Utils::middleClickWindowClientArea(Utils::hwnd, 640, 360);
+        }
+
+        if(!isBusy()){
+            break;
+        }
+
+        rebootCount++;
+        skipMonthCard();
+        if(rebootCount > 30){
+            quitRover();  //退出无妄者
+            rebootCount = 5;
+        }
     }
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    skipMonthCard();
+    for(int i = 0; i < 15 && isBusy(); i++){
+        Sleep(1000);
+    }
+
+    return true;
+}
+
+bool MainBackendWorker::revive(){
+    for(int i = 0; i < 10 && isBusy(); i++){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        cv::Mat reviveImg = cv::imread(QString("%1/复苏.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        int x, y;
+        bool isFindRevivePic = Utils::findPic(capImg, reviveImg, 0.7, x, y);
+        if(isFindRevivePic){
+            for(int i = 0; i<5 && isBusy(); i++){
+                emit stopSwitchFightSignal();
+                emit stopNoSwitchFightSignal();
+                Sleep(500);
+            }
+            if(!isBusy()){
+                return true;
+            }
+
+            Utils::keyPress(Utils::hwnd, VK_ESCAPE, 1);
+
+        }
+    }
+
+    /*
+ For 10
+        FindPic 257,113,343,180,"C:\noki\复苏.bmp",0.7,intX,intY
+        If intX > 0 And intY > 0 Then
+            TracePrint "C:\noki\复苏.bmp"
+            //              Call QUI输出调试信息("C:\鸣潮1.3副本boss单刷日志.log")
+            For 5
+                StopThread 不切人战斗线程ID
+                StopThread 速切战斗线程ID
+                Delay 500
+            Next
+            KeyPress "Esc", 1
+            开始时间 = Plugin.Sys.GetTime()
+            Do
+                FindPic 750,591,865,644,"C:\noki\重新挑战.bmp",0.8,intX,intY
+                If intX > 0 And intY > 0 Then
+                    For 4
+                        Delay 500
+                        MoveTo 807,610
+                        Delay 500
+                        LeftClick 1
+                        Delay 500
+                        MoveTo 857, 450
+                        Delay 500
+                        LeftClick 1
+                    Next
+                    复苏变量=1
+                    Exit Do
+                End If
+                结束时间 = Plugin.Sys.GetTime()
+                If 结束时间 - 开始时间 > 120000 Then
+                    Call 退出无妄者
+                    Exit Do
+                End If
+                Delay 200
+            Loop
+        End If
+        Delay 100
+    Next
+    */
 
     return true;
 }
