@@ -73,6 +73,8 @@ public:
     // 对应按键精灵的FindColorEx
     static bool findColorEx(const cv::Mat& image, int x1, int y1, int x2, int y2, const QString& hexColor, double tolerance, int& outX, int& outY);
 
+    // ##### findPic findColorEx 需要对屏幕截图进行ROI限制 + 模板图需要重新从游戏截取
+
 
     // QImage 和cvMat互转
     static QImage cvMat2QImage(const cv::Mat& mat);

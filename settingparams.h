@@ -31,7 +31,8 @@ Q_DECLARE_METATYPE(RebootGameSetting)
 struct SpecialBossSetting{
     enum SpecialBoss{
         Jue,   // 角 今州岁主
-        Rover   // 无妄者 二姐
+        Rover,   // 无妄者 二姐
+        Hecate    // 赫卡忒
     };
 
     enum PickupShape {
@@ -50,7 +51,7 @@ struct SpecialBossSetting{
     bool jumpRecovery = false;      // 跳回血
     bool bossHealthAssist = false;  // BOSS血条辅助判定
     bool startWithoutSwitch = false;// 开启不切人战斗
-    float startDelay = 0.125f;      // 启动时机（秒）
+    float startDelay = 0.125f;      // 启动时机（ 剩余血量
 
     enum UltimateCheckMode {
         Mode1,  // 方式一

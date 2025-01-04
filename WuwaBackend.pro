@@ -51,7 +51,8 @@ SOURCES += \
     mainbackendworker.cpp \
     globalhotkeyfilter.cpp \
     speicalbosswidget.cpp \
-    settingparams.cpp
+    settingparams.cpp \
+    debugform.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -62,12 +63,14 @@ HEADERS += \
     mainbackendworker.h \
     globalhotkeyfilter.h \
     speicalbosswidget.h \
-    settingparams.h
+    settingparams.h \
+    debugform.h
 
 FORMS += \
         mainwindow.ui \
     generalpanel.ui \
-    speicalbosswidget.ui
+    speicalbosswidget.ui \
+    debugform.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

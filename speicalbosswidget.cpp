@@ -18,10 +18,13 @@ SpecialBossSetting SpeicalBossWidget::getSetting()
     SpecialBossSetting setting;
 
     // 设置 Boss 类型
-    if (ui->radioButton->isChecked()) {
+    if (ui->JueRadioButton->isChecked()) {
         setting.boss = SpecialBossSetting::SpecialBoss::Jue;
-    } else if (ui->radioButton_2->isChecked()) {
+    } else if (ui->RoverRadioButton->isChecked()) {
         setting.boss = SpecialBossSetting::SpecialBoss::Rover;
+    } else if (ui->HecateRadioButton->isChecked()){
+        setting.boss = SpecialBossSetting::SpecialBoss::Hecate;
+
     }
 
     // 设置拾取方式

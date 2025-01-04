@@ -25,8 +25,7 @@ public:
 private:
     Ui::GeneralPanel *ui;
 
-private slots:
-    void on_testFindPic_clicked();
+
 };
 
 #endif // GENERALPANEL_H

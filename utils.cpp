@@ -337,6 +337,7 @@ bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, do
 
 // 在图像中查找指定颜色
 bool Utils::findColorEx(const cv::Mat& image, int x1, int y1, int x2, int y2, const QString& hexColor, double tolerance, int& outX, int& outY) {
+    /*
     // 转换颜色
     cv::Vec3b targetColor;
     bool isConvertColor = Utils::hexToBGR(hexColor, targetColor);
@@ -364,11 +365,83 @@ bool Utils::findColorEx(const cv::Mat& image, int x1, int y1, int x2, int y2, co
             if (distance <= tolerance * 255) {
                 outX = x1 + x; // 转换为原图的坐标
                 outY = y1 + y;
+                qDebug() << QString("distance = %1, <=  tolerance * 255 %2. Find the color").arg(distance).arg(tolerance * 255);
                 return true; // 找到匹配颜色
             }
         }
     }
 
+    qDebug() << QString("Failed to find the color");
+    // 未找到匹配颜色
+    outX = -1;
+    outY = -1;
+    return false;
+    */
+
+
+    // 检查 tolerance 是否在有效范围 [0, 1]
+    if (tolerance < 0.0 || tolerance > 1.0) {
+        qWarning() << "Tolerance should be between 0 and 1.";
+        outX = -1;
+        outY = -1;
+        return false;
+    }
+
+    // 转换颜色
+    cv::Vec3b targetColor;
+    bool isConvertColor = Utils::hexToBGR(hexColor, targetColor);
+    if (!isConvertColor) {
+        qWarning() << "Failed to convert hex color to BGR.";
+        outX = -1;
+        outY = -1;
+        return false;
+    }
+
+    // 限制搜索区域，确保区域在图像范围内
+    x1 = std::max(0, x1);
+    y1 = std::max(0, y1);
+    x2 = std::min(image.cols, x2);
+    y2 = std::min(image.rows, y2);
+
+    if (x2 <= x1 || y2 <= y1) {
+        qWarning() << "Invalid search region.";
+        outX = -1;
+        outY = -1;
+        return false;
+    }
+
+    cv::Rect searchRegion(x1, y1, x2 - x1, y2 - y1);
+    cv::Mat region = image(searchRegion);
+
+    // 计算最大可能的颜色距离
+    const double max_distance = std::sqrt(3.0 * 255.0 * 255.0); // ~441.67
+
+    // 计算允许的最大距离，根据 tolerance 反转逻辑
+    double allowed_distance = (1.0 - tolerance) * max_distance;
+
+    // 遍历搜索区域内的所有像素
+    for (int y = 0; y < region.rows; ++y) {
+        for (int x = 0; x < region.cols; ++x) {
+            cv::Vec3b pixelColor = region.at<cv::Vec3b>(y, x);
+
+            // 计算颜色差异（欧几里得距离）
+            double distance = std::sqrt(
+                        std::pow(static_cast<double>(pixelColor[0]) - targetColor[0], 2) + // B
+                    std::pow(static_cast<double>(pixelColor[1]) - targetColor[1], 2) + // G
+                    std::pow(static_cast<double>(pixelColor[2]) - targetColor[2], 2)   // R
+                    );
+
+            // 判断是否满足容忍误差
+            if (distance <= allowed_distance) {
+                outX = x1 + x; // 转换为原图的坐标
+                outY = y1 + y;
+                qDebug() << QString("distance = %1, <= allowed_distance %2. Found the color.").arg(distance).arg(allowed_distance);
+                return true; // 找到匹配颜色
+            }
+        }
+    }
+
+    qDebug() << "Failed to find the color.";
     // 未找到匹配颜色
     outX = -1;
     outY = -1;

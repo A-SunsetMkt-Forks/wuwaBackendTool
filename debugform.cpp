@@ -1,0 +1,156 @@
+#include "debugform.h"
+#include "ui_debugform.h"
+
+DebugForm::DebugForm(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::DebugForm)
+{
+    ui->setupUi(this);
+    lockWidgetList.push_back(ui->getGameWin);
+    lockWidgetList.push_back(ui->testFindPic);
+    lockWidgetList.push_back(ui->tempThres);
+    lockWidgetList.push_back(ui->test1);
+    lockWidgetList.push_back(ui->testPress2);
+
+    for(auto widget : lockWidgetList){
+        widget->setVisible(false);
+    }
+
+}
+
+DebugForm::~DebugForm()
+{
+    delete ui;
+}
+
+
+void DebugForm::on_testFindPic_clicked(){
+    qInfo() << QString("GeneralPanel::on_testFindPic_clicked");
+
+    QString tempImgFullPath = QFileDialog::getOpenFileName(this, "打开待匹配的小图像");
+    if(tempImgFullPath.isEmpty()){
+        return;
+    }
+    cv::Mat templateImg = cv::imread(tempImgFullPath.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    if(templateImg.empty()){
+        qWarning() << QString("failed to load %1").arg(tempImgFullPath);
+        return;
+    }
+
+    if(templateImg.channels() == 3){
+
+    }
+    else if(templateImg.channels() == 4)  {
+        cv::cvtColor(templateImg, templateImg, cv::COLOR_BGRA2BGR);
+    }
+    else{
+        qWarning() << QString("%1 is not rgb image").arg(tempImgFullPath);
+        return;
+    }
+
+    QString capImgFullPath = Utils::IMAGE_DIR() + "/" + "capWuwa.png";
+    cv::Mat capImg = cv::imread(capImgFullPath.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    if(capImg.empty()){
+        qWarning() << QString("failed to load %1").arg(capImgFullPath);
+        return;
+    }
+
+    if(capImg.channels() == 3){
+
+    }
+    else if(capImg.channels() == 4)  {
+        cv::cvtColor(capImg, capImg, cv::COLOR_BGRA2BGR);
+    }
+    else{
+        qWarning() << QString("%1 is not rgb image").arg(capImgFullPath);
+        return;
+    }
+
+    int X, Y;
+    QElapsedTimer timer;
+    timer.start();
+    bool isFind = Utils::findPic(capImg, templateImg, ui->tempThres->value(), X, Y);
+    auto timeCostMs = timer.elapsed();
+    qDebug() << QString("GeneralPanel::on_testFindPic_clicked is done, timeCost %1 ms, X %2, Y %3, isFound %4").arg(timeCostMs).arg(X).arg(Y).arg(isFind);
+
+    // 如果找到模板，绘制蓝色矩形
+    if (isFind) {
+        cv::Mat markedImg = capImg.clone();
+        cv::rectangle(
+                    markedImg,
+                    cv::Point(X, Y),
+                    cv::Point(X + templateImg.cols, Y + templateImg.rows),
+                    cv::Scalar(255, 0, 0), // 蓝色
+                    2 // 线条宽度
+                    );
+
+        // 显示标记后的图像
+        cv::imshow("Matched Image", markedImg);
+        cv::waitKey(0); // 等待按键
+        cv::destroyAllWindows(); // 关闭窗口
+    } else {
+        qDebug() << "Template not found in the source image.";
+    }
+}
+
+void DebugForm::on_testFindColor_clicked(){
+    QString capImgFullPath = Utils::IMAGE_DIR() + "/" + "capWuwa.png";
+    cv::Mat capImg = cv::imread(capImgFullPath.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+
+    int x, y;
+    bool isFindColorEx = Utils::findColorEx(capImg, 450, 39, 454, 43, ui->colorEditText->toPlainText(), ui->tempThres->value(), x, y);
+    qDebug() << QString("isFindColorEx %1. x = %2, y = %3").arg(isFindColorEx).arg(x).arg(y);
+}
+
+void DebugForm::on_confirmPwd_clicked(){
+    QString pwd = ui->pwd->toPlainText();
+    QByteArray correctPwdHash = QCryptographicHash::hash("IloveWuwa666", QCryptographicHash::Sha256);
+    QByteArray inputPwdHash = QCryptographicHash::hash(pwd.toUtf8(), QCryptographicHash::Sha256);
+    //if(inputPwdHash == correctPwdHash){
+    if(1){
+        for(auto widget : lockWidgetList){
+            widget->setVisible(true);
+        }
+    }
+    else{
+        QMessageBox::critical(this, "密码错误", "请重新输入密码");
+    }
+}
+
+void DebugForm::on_testPress2_clicked(){
+    bool isInit = Utils::initWuwaHwnd();
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+    AttachThreadInput(currentThreadId, threadId, TRUE);
+
+    Utils::keyPress(Utils::hwnd, '2', 1);
+
+    AttachThreadInput(currentThreadId, threadId, FALSE);
+}
+
+void DebugForm::on_testPressM_clicked(){
+    int a = 1;
+mark:
+    int b = 0;
+    a++;
+    if (a > 10){
+        return;
+    }
+    b++;
+    qDebug() << QString("a = %1, b = %2").arg(a).arg(b);
+    goto mark;
+
+    /*
+    bool isInit = Utils::initWuwaHwnd();
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+    AttachThreadInput(currentThreadId, threadId, TRUE);
+
+    Utils::keyPress(Utils::hwnd, 'M', 1);
+
+    AttachThreadInput(currentThreadId, threadId, FALSE);
+    */
+}
+

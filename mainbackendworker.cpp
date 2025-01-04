@@ -7,6 +7,9 @@ QTime MainBackendWorker::dungeonEndTime;
 QAtomicInt MainBackendWorker::isContinueFight;
 QTime MainBackendWorker::battlePickUpTime;  // 战斗时按拾取开始时间
 QAtomicInt MainBackendWorker::reviveVal; // 复苏变量
+QAtomicInt MainBackendWorker::startNoSwitchFight;
+QAtomicInt MainBackendWorker::isPickUp;
+QAtomicInt MainBackendWorker::rebootCount;
 
 // 实现部分
 MainBackendWorker::MainBackendWorker(QObject* parent)
@@ -96,6 +99,9 @@ void MainBackendWorker::onStartTest1(){
             m_isRunning.store(0);
             return;
         }
+
+        // 切换2人物
+        Utils::keyPress(Utils::hwnd, '2', 1);
 
         // 按下ESC
         Utils::sendKeyToWindow(Utils::hwnd, VK_ESCAPE, WM_KEYDOWN);
@@ -260,8 +266,7 @@ void MainBackendWorker::onStartSpecialBoss(const SpecialBossSetting& setting, co
 
 bool MainBackendWorker::isPickUpEcho(const int& pickUpEchoRange){
     // 在按键精灵源码这是一个sub 也就是void函数 没有返回值 363行
-    bool isPickUp = false;
-    if(!isPickUp){
+    if(!MainBackendWorker::isPickUp.load()){
         for (int i = 0; i < pickUpEchoRange && isBusy(); i++) {
             for(int j = 0; j < 2; j++){
                 cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
@@ -307,7 +312,7 @@ bool MainBackendWorker::lockEnemy(){
     bool bossHPbar2 = false;
     bool bossHPbar3 = false;
     // int bossLevel = 0;
-    int rebootCount = 0;
+    MainBackendWorker::rebootCount.store(0);
     {
         QMutexLocker locker(&m_mutex);
         MainBackendWorker::rebootCalcStartTime = QTime::currentTime();
@@ -345,7 +350,7 @@ bool MainBackendWorker::lockEnemy(){
             // 确定boss存在
             qDebug() << QString("BOSS确定存在");
             Sleep(100);
-            Utils::middleClickWindowClientArea(Utils::hwnd, 640, 360);
+            Utils::middleClickWindowClientArea(Utils::hwnd, Utils::CLIENT_WIDTH / 2, Utils::CLIENT_HEIGHT / 2);
             break;
         }
         Sleep(200);
@@ -377,11 +382,10 @@ bool MainBackendWorker::lockEnemy(){
         if(traceTarget && bossHPbar2 && bossHPbar3){
             qDebug() << "确认敌人存在";
             Sleep(300);
-            Utils::middleClickWindowClientArea(Utils::hwnd, 640, 360);
+            Utils::middleClickWindowClientArea(Utils::hwnd, Utils::CLIENT_WIDTH / 2, Utils::CLIENT_HEIGHT / 2);
             break;
         }
 
-        // ##### 时间差默认是s还是ms？
         {
             QMutexLocker locker(&m_mutex);
             MainBackendWorker::rebootCalcEndTime = QTime::currentTime();
@@ -394,18 +398,18 @@ bool MainBackendWorker::lockEnemy(){
         Sleep(500);
         for (int i = 0; i < 5 && isBusy(); i++) {
             Sleep(300);
-            Utils::middleClickWindowClientArea(Utils::hwnd, 640, 360);
+            Utils::middleClickWindowClientArea(Utils::hwnd, Utils::CLIENT_WIDTH / 2, Utils::CLIENT_HEIGHT / 2);
         }
 
         if(!isBusy()){
             break;
         }
 
-        rebootCount++;
+        MainBackendWorker::rebootCount.ref();
         skipMonthCard();
-        if(rebootCount > 30){
+        if(MainBackendWorker::rebootCount.load() > 30){
             quitRover();  //退出无妄者
-            rebootCount = 5;
+            MainBackendWorker::rebootCount.store(5);
         }
     }
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
@@ -417,14 +421,111 @@ bool MainBackendWorker::lockEnemy(){
     return true;
 }
 
+bool MainBackendWorker::noSwitchExp(const float& noSwitchCondition){
+    MainBackendWorker::startNoSwitchFight.store(false);
+    // ##### 需要对屏幕截图进行ROI处理
+    // 1/8 血量
+    if (qFuzzyCompare(noSwitchCondition, 0.125f)){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        cv::Mat hpBar = cv::imread(QString("%1/720pboss血条1分8.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        int x, y;
+        bool isFindPicOneEighth = Utils::findPic(capImg, hpBar, 0.8, x, y);  // 440, 30, 440+75, y+55
+        if(isFindPicOneEighth){
+            MainBackendWorker::startNoSwitchFight.store(false);
+        }
+        else{
+            MainBackendWorker::startNoSwitchFight.store(true);
+        }
+    }
+
+    if(!isBusy()){
+        return true;
+    }
+
+    // 2/8 血量
+    if (qFuzzyCompare(noSwitchCondition, 0.250f)){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        cv::Mat hpBar = cv::imread(QString("%1/720pboss血条2分8.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        int x, y;
+        bool isFindPicTwoEighth = Utils::findPic(capImg, hpBar, 0.8, x, y);  // 440+48, 30, 440+48+75, y+55
+        if(isFindPicTwoEighth){
+            MainBackendWorker::startNoSwitchFight.store(false);
+        }
+        else{
+            MainBackendWorker::startNoSwitchFight.store(true);
+        }
+    }
+
+    if(!isBusy()){
+        return true;
+    }
+
+    // 3/8 血量
+    if (qFuzzyCompare(noSwitchCondition, 0.375f)){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        cv::Mat hpBar = cv::imread(QString("%1/720pboss血条3分8.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        int x, y;
+        bool isFindPicThreeEighth = Utils::findPic(capImg, hpBar, 0.8, x, y);  // 440+48+48, 30, 440+48+48+75, y+55
+        if(isFindPicThreeEighth){
+            MainBackendWorker::startNoSwitchFight.store(false);
+        }
+        else{
+            MainBackendWorker::startNoSwitchFight.store(true);
+        }
+    }
+
+    if(!isBusy()){
+        return true;
+    }
+
+    // 1/2 血量
+    if (qFuzzyCompare(noSwitchCondition, 0.500f)){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        cv::Mat hpBar = cv::imread(QString("%1/720pboss血条4分8.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        int x, y;
+        bool isFindPicFourEighth = Utils::findPic(capImg, hpBar, 0.8, x, y);  // 440+48+48+48, 30, 440+48+48+48+75, y+55
+        if(isFindPicFourEighth){
+            MainBackendWorker::startNoSwitchFight.store(false);
+        }
+        else{
+            MainBackendWorker::startNoSwitchFight.store(true);
+        }
+    }
+
+    if(!isBusy()){
+        return true;
+    }
+
+    // 5/8 血量
+    if (qFuzzyCompare(noSwitchCondition, 0.625f)){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        cv::Mat hpBar = cv::imread(QString("%1/720pboss血条5分8.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        int x, y;
+        bool isFindPicFiveEighth = Utils::findPic(capImg, hpBar, 0.8, x, y);  // 440+48+48+48+48, 30, 440+48+48+48+48+75, y+55
+        if(isFindPicFiveEighth){
+            MainBackendWorker::startNoSwitchFight.store(false);
+        }
+        else{
+            MainBackendWorker::startNoSwitchFight.store(true);
+        }
+    }
+
+    if(!isBusy()){
+        return true;
+    }
+
+    return true;
+}
+
 bool MainBackendWorker::revive(){
     for(int i = 0; i < 10 && isBusy(); i++){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         cv::Mat reviveImg = cv::imread(QString("%1/复苏.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
         int x, y;
-        bool isFindRevivePic = Utils::findPic(capImg, reviveImg, 0.7, x, y);
+        bool isFindRevivePic = Utils::findPic(capImg, reviveImg, 0.7, x, y);  // 257,113,343,180
         if(isFindRevivePic){
             for(int i = 0; i<5 && isBusy(); i++){
+                // ##### 信号暂时放在这 没有实现
                 emit stopSwitchFightSignal();
                 emit stopNoSwitchFightSignal();
                 Sleep(500);
@@ -434,50 +535,91 @@ bool MainBackendWorker::revive(){
             }
 
             Utils::keyPress(Utils::hwnd, VK_ESCAPE, 1);
+            QTime startTime = QTime::currentTime();
+            while(isBusy()){
+                capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+                cv::Mat retryImg = cv::imread(QString("%1/重新挑战.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+                bool isFindRetry = Utils::findPic(capImg, retryImg, 0.8, x, y);  // 750,591,865,644
+                if(isFindRetry){
+                    for(int i = 0; i < 4 && isBusy(); i++){
+                        Sleep(500);
+                        Utils::clickWindowClientArea(Utils::hwnd, 807, 610);
+                        Sleep(500);
+                        Utils::clickWindowClientArea(Utils::hwnd, 857, 450);
+                        Sleep(500);
+                    }
+                    if(!isBusy()){
+                        return true;
+                    }
+                    MainBackendWorker::reviveVal.store(1);
+                    break;  // exit while(do)
+
+                }
+                QTime endTime = QTime::currentTime();
+                if(startTime.msecsTo(endTime) > 120000){
+                    quitRover();
+                    break;  // exit while(do)
+                }
+                Sleep(200);
+            }
+            if(!isBusy()){
+                return true;
+            }
+        }
+        Sleep(100);
+    }
+    return true;
+}
+
+bool MainBackendWorker::fight(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting){
+    {
+        QMutexLocker locker(&m_mutex);
+        MainBackendWorker::battlePickUpTime = QTime::currentTime();
+    }
+
+    qInfo() << "战斗开始";
+bossUndead:
+detectNoSwitch:
+
+    int i = 0;
+    MainBackendWorker::reviveVal.store(0);
+    bool forceRestartFight = false;  // 强制重新开始战斗
+    int detectNoSwitch = 0;     // 检测到应该不切人
+    MainBackendWorker::isPickUp.store(0);      // 拾取成功
+    MainBackendWorker::isContinueFight.store(0);
+    QTime startTime = QTime::currentTime();
+    {
+        QMutexLocker locker(&m_mutex);
+        MainBackendWorker::rebootCalcStartTime = QTime::currentTime();
+    }
+
+    if(setting.jumpRecovery){
+        Utils::keyPress(Utils::hwnd, '2', 1);
+        Utils::keyPress(Utils::hwnd, VK_SPACE, 1);
+        Utils::clickWindowClientArea(Utils::hwnd, Utils::CLIENT_WIDTH / 2, Utils::CLIENT_HEIGHT / 2);
+    }
+
+    // 速切循环
+    if(!setting.startWithoutSwitch){
+        int d = 1;
+        int h = 1;
+        // #####速切战斗线程ID = BeginThread(速切战斗线程)
+        if(setting.ultimateCheckMode == SpecialBossSetting::UltimateCheckMode::Mode1){
+            cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            cv::Mat hpBar = cv::imread(QString("%1/720R（判断大招用）.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+            int x, y;
+            bool isDetectUltimate1 = Utils::findPic(capImg, hpBar, 0.6, x, y);   // 1147, 622, 1272, 723
+            if(isDetectUltimate1){
+                qDebug() << "没有开启大招";
+                bool isFindColorEx = Utils::findColorEx(capImg, 450, 39, 454, 43, "44B3FF", 0.8, x, y);
+
+            }
 
         }
     }
 
-    /*
- For 10
-        FindPic 257,113,343,180,"C:\noki\复苏.bmp",0.7,intX,intY
-        If intX > 0 And intY > 0 Then
-            TracePrint "C:\noki\复苏.bmp"
-            //              Call QUI输出调试信息("C:\鸣潮1.3副本boss单刷日志.log")
-            For 5
-                StopThread 不切人战斗线程ID
-                StopThread 速切战斗线程ID
-                Delay 500
-            Next
-            KeyPress "Esc", 1
-            开始时间 = Plugin.Sys.GetTime()
-            Do
-                FindPic 750,591,865,644,"C:\noki\重新挑战.bmp",0.8,intX,intY
-                If intX > 0 And intY > 0 Then
-                    For 4
-                        Delay 500
-                        MoveTo 807,610
-                        Delay 500
-                        LeftClick 1
-                        Delay 500
-                        MoveTo 857, 450
-                        Delay 500
-                        LeftClick 1
-                    Next
-                    复苏变量=1
-                    Exit Do
-                End If
-                结束时间 = Plugin.Sys.GetTime()
-                If 结束时间 - 开始时间 > 120000 Then
-                    Call 退出无妄者
-                    Exit Do
-                End If
-                Delay 200
-            Loop
-        End If
-        Delay 100
-    Next
-    */
+
+
 
     return true;
 }

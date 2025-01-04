@@ -19,12 +19,12 @@
      <x>10</x>
      <y>10</y>
      <width>121</width>
-     <height>81</height>
+     <height>101</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QRadioButton" name="radioButton">
+     <widget class="QRadioButton" name="JueRadioButton">
       <property name="text">
        <string>角</string>
       </property>
@@ -34,9 +34,16 @@
      </widget>
     </item>
     <item>
-     <widget class="QRadioButton" name="radioButton_2">
+     <widget class="QRadioButton" name="RoverRadioButton">
       <property name="text">
        <string>无妄者</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QRadioButton" name="HecateRadioButton">
+      <property name="text">
+       <string>赫卡忒</string>
       </property>
      </widget>
     </item>
@@ -186,7 +193,7 @@
     <item>
      <widget class="QCheckBox" name="jumpAttackToHeal">
       <property name="text">
-       <string>跳A回血</string>
+       <string>2号位 跳A回血</string>
       </property>
      </widget>
     </item>

@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="GeneralPanel" name="generalPanel">
      <attribute name="title">
@@ -34,6 +34,11 @@
     <widget class="SpeicalBossWidget" name="specialBossPanel">
      <attribute name="title">
       <string>角和无妄者</string>
+     </attribute>
+    </widget>
+    <widget class="DebugForm" name="debugPanel">
+     <attribute name="title">
+      <string>调试面板</string>
      </attribute>
     </widget>
    </widget>
@@ -116,7 +121,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>19</height>
+     <height>17</height>
     </rect>
    </property>
   </widget>
@@ -142,6 +147,12 @@
    <class>SpeicalBossWidget</class>
    <extends>QWidget</extends>
    <header location="global">speicalbosswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DebugForm</class>
+   <extends>QWidget</extends>
+   <header location="global">debugform.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

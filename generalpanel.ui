@@ -49,32 +49,6 @@
     <string>only window mode 1280 720 resolution is supported</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="getGameWin">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>290</y>
-     <width>241</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>①测试 点击按钮 获取图像</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="test1">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>410</y>
-     <width>391</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>测试 ESC 点击活动 ESC 往前走</string>
-   </property>
-  </widget>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
@@ -202,19 +176,6 @@
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="testFindPic">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>350</y>
-     <width>241</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>②测试 读取模板 匹配</string>
-   </property>
   </widget>
  </widget>
  <resources/>

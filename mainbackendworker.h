@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QtGlobal>
 
 // 获取窗体 句柄
 #include <windows.h>
@@ -58,18 +59,28 @@ private:
     // 副本BOSS单刷  398行 锁定敌人
     bool lockEnemy();
 
+    // 副本BOSS单刷 479行 不切人判断式
+    bool noSwitchExp(const float& noSwitchCondition);
+
     // 副本BOSS单刷 524行 复苏
     bool revive();
 
+    // 副本BOSS单刷 565 战斗代码
+    bool fight(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
+
 
     //以下为若干GLOBAL全局变量
-    static QTime rebootCalcStartTime;
-    static QTime rebootCalcEndTime;
-    static QTime dungeonStartTime;
-    static QTime dungeonEndTime;
-    static QAtomicInt isContinueFight;
+    static QTime rebootCalcStartTime;   // 重启计算开始时间
+    static QTime rebootCalcEndTime;    // 重启计算结束时间
+    static QTime dungeonStartTime;     // 副本战斗开始时间
+    static QTime dungeonEndTime;       // 副本战斗结束时间
+    static QAtomicInt isContinueFight;   // 重复判定继续战斗
     static QTime battlePickUpTime;  // 战斗时按拾取开始时间
     static QAtomicInt reviveVal; // 复苏变量
+
+    static QAtomicInt startNoSwitchFight;  // 开启不切人战斗
+    static QAtomicInt isPickUp;    // 拾取成功
+    static QAtomicInt rebootCount;  // 重启计数
 
 
 };
