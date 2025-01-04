@@ -63,7 +63,7 @@ SpecialBossSetting SpeicalBossWidget::getSetting()
     setting.startWithoutSwitch = ui->isTriggerNoSwitch->isChecked();
 
     // 启动时机
-    setting.startDelay = ui->triggerNoSwitchCondition->currentText().toFloat();
+    setting.startLeftHP = ui->triggerNoSwitchCondition->currentText().toFloat();
 
     // 大招检测方式
     switch (ui->ultimateSkillDetectMethod->currentIndex()) {

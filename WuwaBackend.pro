@@ -52,7 +52,9 @@ SOURCES += \
     globalhotkeyfilter.cpp \
     speicalbosswidget.cpp \
     settingparams.cpp \
-    debugform.cpp
+    debugform.cpp \
+    fastswitchfightbackendworker.cpp \
+    noswitchfightbackendworker.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -64,7 +66,9 @@ HEADERS += \
     globalhotkeyfilter.h \
     speicalbosswidget.h \
     settingparams.h \
-    debugform.h
+    debugform.h \
+    fastswitchfightbackendworker.h \
+    noswitchfightbackendworker.h
 
 FORMS += \
         mainwindow.ui \

@@ -51,7 +51,7 @@ struct SpecialBossSetting{
     bool jumpRecovery = false;      // 跳回血
     bool bossHealthAssist = false;  // BOSS血条辅助判定
     bool startWithoutSwitch = false;// 开启不切人战斗
-    float startDelay = 0.125f;      // 启动时机（ 剩余血量
+    float startLeftHP = 0.125f;      // 启动时机（ 剩余血量
 
     enum UltimateCheckMode {
         Mode1,  // 方式一
@@ -86,7 +86,7 @@ struct SpecialBossSetting{
             .arg(jumpRecovery ? "Yes" : "No")
             .arg(bossHealthAssist ? "Yes" : "No")
             .arg(startWithoutSwitch ? "Yes" : "No")
-            .arg(static_cast<double>(startDelay))
+            .arg(static_cast<double>(startLeftHP))
             .arg(ultimateCheckMode == UltimateCheckMode::Mode1 ? "Mode1" : "Mode2")
             .arg(customDungeonLevel);
     }

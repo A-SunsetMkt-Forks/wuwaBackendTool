@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QtGlobal>
+#include <QThread>
 
 // 获取窗体 句柄
 #include <windows.h>
@@ -16,7 +17,12 @@
 // 通用工具
 #include "utils.h"
 
+// 后台运行的参数
 #include "settingparams.h"
+
+// 速切战斗子线程
+#include "fastswitchfightbackendworker.h"
+#include "noswitchfightbackendworker.h"
 
 class MainBackendWorker : public QObject
 {
@@ -24,6 +30,7 @@ class MainBackendWorker : public QObject
 
 public:
     explicit MainBackendWorker(QObject* parent = nullptr);  // 构造函数需要接受 QObject* 类型的参数
+    ~MainBackendWorker();
     bool isBusy();
     void stopWorker();
 
@@ -46,6 +53,7 @@ signals:
     void stopSwitchFightSignal();  // 速切战斗线程 停止信号
 
 public slots:
+    // 简单测试 调试用
     void onStartTest1();
 
     // 特殊boss 角和无妄者的刷取
@@ -82,6 +90,14 @@ private:
     static QAtomicInt isPickUp;    // 拾取成功
     static QAtomicInt rebootCount;  // 重启计数
 
+
+    //速切战斗子线程
+    QThread m_fastSwitchFightBackendThread;
+    FastSwitchFightBackendWorker m_fastSwitchFightBackendWorker;
+
+    // 不切人战斗子线程
+    QThread m_noSwitchFightBackendThread;
+    NoSwitchFightBackendWorker m_noSwitchFightBackendWorker;
 
 };
 

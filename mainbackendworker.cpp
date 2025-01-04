@@ -17,6 +17,27 @@ MainBackendWorker::MainBackendWorker(QObject* parent)
 {
     m_isRunning.store(0);
 
+    // 启动后台线程
+    m_fastSwitchFightBackendWorker.moveToThread(&m_fastSwitchFightBackendThread);
+    m_fastSwitchFightBackendThread.start();
+
+    m_noSwitchFightBackendWorker.moveToThread(&m_noSwitchFightBackendThread);
+    m_noSwitchFightBackendThread.start();
+
+}
+
+MainBackendWorker::~MainBackendWorker()
+{
+    // 停止后台线程
+    m_fastSwitchFightBackendWorker.stopWorker();
+    m_fastSwitchFightBackendThread.quit();
+    m_fastSwitchFightBackendThread.wait();
+
+    m_noSwitchFightBackendWorker.stopWorker();
+    m_noSwitchFightBackendThread.quit();
+    m_noSwitchFightBackendThread.wait();
+
+
 }
 
 bool MainBackendWorker::isBusy(){
@@ -31,6 +52,8 @@ bool MainBackendWorker::isBusy(){
 
 void MainBackendWorker::stopWorker(){
     m_isRunning.store(0);
+    m_fastSwitchFightBackendWorker.stopWorker();
+    m_noSwitchFightBackendWorker.stopWorker();
 }
 
 void MainBackendWorker::skipMonthCard(){
@@ -578,15 +601,18 @@ bool MainBackendWorker::fight(const SpecialBossSetting& setting, const RebootGam
     }
 
     qInfo() << "战斗开始";
+    // boss未死亡
 bossUndead:
+    // 检测到应该不切人
 detectNoSwitch:
 
     int i = 0;
-    MainBackendWorker::reviveVal.store(0);
+    MainBackendWorker::reviveVal.store(0);  // 复苏变量
+    MainBackendWorker::startNoSwitchFight.store(0);  // 开启不切人战斗
     bool forceRestartFight = false;  // 强制重新开始战斗
     int detectNoSwitch = 0;     // 检测到应该不切人
     MainBackendWorker::isPickUp.store(0);      // 拾取成功
-    MainBackendWorker::isContinueFight.store(0);
+    MainBackendWorker::isContinueFight.store(0);  // 重复判定继续战斗
     QTime startTime = QTime::currentTime();
     {
         QMutexLocker locker(&m_mutex);
@@ -600,21 +626,182 @@ detectNoSwitch:
     }
 
     // 速切循环
-    if(!setting.startWithoutSwitch){
+    if(MainBackendWorker::startNoSwitchFight.load() == 0){  // 开启不切人战斗 = 0
         int d = 1;
         int h = 1;
-        // #####速切战斗线程ID = BeginThread(速切战斗线程)
-        if(setting.ultimateCheckMode == SpecialBossSetting::UltimateCheckMode::Mode1){
-            cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-            cv::Mat hpBar = cv::imread(QString("%1/720R（判断大招用）.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-            int x, y;
-            bool isDetectUltimate1 = Utils::findPic(capImg, hpBar, 0.6, x, y);   // 1147, 622, 1272, 723
-            if(isDetectUltimate1){
-                qDebug() << "没有开启大招";
-                bool isFindColorEx = Utils::findColorEx(capImg, 450, 39, 454, 43, "44B3FF", 0.8, x, y);
+        // ##### 速切战斗线程ID = BeginThread(速切战斗线程)
+        while(isBusy()){
+            if(setting.ultimateCheckMode == SpecialBossSetting::UltimateCheckMode::Mode1){
+                cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+                cv::Mat ultimateIcon = cv::imread(QString("%1/720R（判断大招用）.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+                int x, y;
+                bool isDetectUltimate1 = Utils::findPic(capImg, ultimateIcon, 0.6, x, y);   // 1147, 622, 1272, 723
+                if(isDetectUltimate1){
+                    qDebug() << "没有开启大招";
+                    capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+                    bool isFindColorEx = Utils::findColorEx(capImg, 450, 39, 454, 43, "44B3FF", 0.8, x, y);
+                    if(isFindColorEx){
+                        d = 1;
+                    }
+                    else{
+                        d = 0;
+                    }
 
+                    if(setting.bossHealthAssist){
+                        capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+                        if(setting.boss == SpecialBossSetting::SpecialBoss::Jue){
+                            if(Utils::findColorEx(capImg, 176, 181, 199, 204, "FFFFFF", 1, x, y)){
+                                h = 1;
+                            }
+                            else{
+                                h = 0;
+                            }
+                        }
+                        else if(setting.boss == SpecialBossSetting::SpecialBoss::Rover){
+                            if(Utils::findColorEx(capImg, 207, 163, 269, 216, "FFFFFF", 1, x, y)){
+                                h = 1;
+                            }
+                            else{
+                                h = 0;
+                            }
+                        }
+                        else if(setting.boss == SpecialBossSetting::SpecialBoss::Hecate){
+                            if(Utils::findColorEx(capImg, 117, 177, 147, 205, "FFFFFF", 0.9, x, y)){
+                                h = 1;
+                            }
+                            else{
+                                h = 0;
+                            }
+                        }
+                    }
+                    else{
+                        h = 0;
+                    }
+                }
+                else{   // if(isDetectUltimate1){  是720R 判断大招用 的else分支
+                    this->revive();
+                    if(MainBackendWorker::reviveVal.load() == 1){
+                        goto bossUndead;   // I know goto is deadly fucking bad, going to fix it...
+                    }
+                    for(int i = 0 ; i < 5 && isBusy(); i++){
+                        Utils::clickWindowClientArea(Utils::hwnd, 627, 697);
+                        Sleep(100);
+                    }
+                    if(!isBusy()){
+                        return true;
+                    }
+
+                }
+                if(setting.startWithoutSwitch == 1){
+                    // ##### 调用不切人判断式
+                    this->noSwitchExp(setting.startLeftHP);
+                }
+                Sleep(100);
             }
+            else if(setting.ultimateCheckMode == SpecialBossSetting::UltimateCheckMode::Mode2){
+                cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+                cv::Mat ultimateIcon = cv::imread(QString("%1/720R（判断大招用）.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+                int x, y;
+                bool isDetectUltimate2 = Utils::findPic(capImg, ultimateIcon, 0.4, x, y);  // 1147, 633, 1272, 723
+                if(isDetectUltimate2){
+                    // 646
+                    bool isFindColorEx = Utils::findColorEx(capImg, 1119, 669, 1152, 697, "FEFAF7", 0.6, x, y);
+                    if(isFindColorEx){
+                        qDebug() << "没有开启大招";
+                        if(Utils::findColorEx(capImg, 450, 39, 454, 43, "44B3FF", 0.8, x, y)){
+                            d = 1;
+                        }
+                        else{
+                            d = 0;
+                        }
 
+                        if(setting.bossHealthAssist){
+                            capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+                            if(setting.boss == SpecialBossSetting::SpecialBoss::Jue){
+                                if(Utils::findColorEx(capImg, 176, 181, 199, 204, "FFFFFF", 1, x, y)){
+                                    h = 1;
+                                }
+                                else{
+                                    h = 0;
+                                }
+                            }
+                            else if(setting.boss == SpecialBossSetting::SpecialBoss::Rover){
+                                if(Utils::findColorEx(capImg, 207, 163, 269, 216, "FFFFFF", 1, x, y)){
+                                    h = 1;
+                                }
+                                else{
+                                    h = 0;
+                                }
+                            }
+                            else if(setting.boss == SpecialBossSetting::SpecialBoss::Hecate){
+                                if(Utils::findColorEx(capImg, 117, 177, 147, 205, "FFFFFF", 0.9, x, y)){
+                                    h = 1;
+                                }
+                                else{
+                                    h = 0;
+                                }
+                            }
+                        }
+                        else{
+                            h = 0;
+                        }
+                    }
+                    // bool isFindColorEx = Utils::findColorEx(capImg, 1119, 669, 1152, 697, "FEFAF7", 0.6, x, y); ENDIF
+                    if(setting.startWithoutSwitch == 1){
+                        // ##### 调用不切人判断式
+                        this->noSwitchExp(setting.startLeftHP);
+                    }
+                    Sleep(100);
+                }
+                else{
+                    //isDetectUltimate2 = Utils::findPic(capImg, ultimateIcon, 0.4, x, y);  // 1147, 633, 1272, 723 的ELSE
+                    this->revive();
+                    if(MainBackendWorker::reviveVal.load() == 1){
+                        goto bossUndead;   // I know goto is deadly fucking bad, going to fix it...
+                    }
+                    for(int i = 0 ; i < 5 && isBusy(); i++){
+                        Utils::clickWindowClientArea(Utils::hwnd, 627, 697);
+                        Sleep(100);
+                    }
+                    if(!isBusy()){
+                        return true;
+                    }
+
+                }
+            }
+            // 大招判断完成
+            qDebug() << QString("h = %1, d = %2").arg(h ? "true" : "false").arg(d ? "true" : "false");
+            if(h && d){
+                i = 0;
+                if(MainBackendWorker::isContinueFight.load() >= 1){
+                    qDebug() << QString("重复判定继续战斗 %1").arg(MainBackendWorker::isContinueFight.load());
+                    MainBackendWorker::isContinueFight.ref();
+                    if(MainBackendWorker::isContinueFight.load() >= 4){
+                        // ##### 速切战斗线程ID = BeginThread(速切战斗线程)
+                        MainBackendWorker::isContinueFight.store(0);
+                    }
+                }
+            }
+            else{
+                if(setting.boss == SpecialBossSetting::SpecialBoss::Hecate){
+                    Sleep(1000);
+                }
+                i = i + 1;
+                if(i == 1){
+                    for(int i = 0; i < 5; i++){
+                        // ##### StopThread 速切战斗线程ID
+                        Sleep(50);
+                    }
+                    MainBackendWorker::isContinueFight.ref();
+                }
+                if(i == 2){
+
+                }
+            }
+        }
+
+        if(!isBusy()){
+            return true;
         }
     }
 

@@ -61,7 +61,9 @@ MainWindow::~MainWindow()
     qApp->removeNativeEventFilter(hotKeyFilter);
     delete hotKeyFilter;
 
+
     // 停止后台线程
+    m_mainBackendWorker.stopWorker();
     m_mainBackendThread.quit();
     m_mainBackendThread.wait();
 
