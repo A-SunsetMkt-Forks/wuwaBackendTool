@@ -65,6 +65,9 @@ SpecialBossSetting SpeicalBossWidget::getSetting()
     // 启动时机
     setting.startLeftHP = ui->triggerNoSwitchCondition->currentText().toFloat();
 
+    // 吸收文字 模板匹配阈值
+    setting.absorbThres = ui->absorbThres->value();
+
     // 大招检测方式
     switch (ui->ultimateSkillDetectMethod->currentIndex()) {
     case 0:

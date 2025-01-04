@@ -80,6 +80,7 @@ QImage Utils::captureWindowToQImage(HWND hwnd, const DWORD mode) {
         return QImage();
     }
 
+    QMutexLocker locker(&m_locker);
     RECT rect;
     GetWindowRect(hwnd, &rect);
     int width = rect.right - rect.left;
@@ -139,6 +140,7 @@ bool Utils::sendKeyToWindow(HWND hwnd, int vkCode, int keyStatus) {
         return false;
     }
 
+    QMutexLocker locker(&m_locker);
     // Send key down
     PostMessage(hwnd, keyStatus, vkCode, 0);
     QString logMessage = QString("Key: %1 (%2), Action: %3")
@@ -187,6 +189,7 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
         return false;
     }
 
+    QMutexLocker locker(&m_locker);
     // 将客户区坐标转换为屏幕坐标
     POINT clientPoint = { x, y };
     if (!ClientToScreen(hwnd, &clientPoint)) {
@@ -218,6 +221,7 @@ bool Utils::middleClickWindowClientArea(HWND hwnd, int x, int y) {
         return false;
     }
 
+    QMutexLocker locker(&m_locker);
     // 将客户区坐标转换为屏幕坐标
     POINT clientPoint = { x, y };
     if (!ClientToScreen(hwnd, &clientPoint)) {

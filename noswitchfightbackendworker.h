@@ -25,6 +25,7 @@ private:
 signals:
 
 public slots:
+    void startFight();
 };
 
 #endif // NOSWITCHFIGHTBACKENDWORKER_H

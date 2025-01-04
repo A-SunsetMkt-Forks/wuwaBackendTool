@@ -24,6 +24,7 @@ private:
 signals:
 
 public slots:
+    void startFight();
 };
 
 #endif // FASTSWITCHFIGHTBACKENDWORKER_H

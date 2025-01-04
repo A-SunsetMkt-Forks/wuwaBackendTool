@@ -36,7 +36,6 @@ public:
 
 private:
     QAtomicInt m_isRunning;   //原子int 防止多线程冲突
-
     QMutex m_mutex;
 
     void skipMonthCard();    // 领取月卡
@@ -48,9 +47,10 @@ signals:
     void startTest1Done(const bool &isNormalEnd, const QString& msg);
     // 完成副本BOSS单刷
     void startSpecialBossDone(const bool& isNormalEnd, const QString& msg, const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
-    // 中断某子线程
-    void stopNoSwitchFightSignal();  // 不切人战斗线程 停止信号
-    void stopSwitchFightSignal();  // 速切战斗线程 停止信号
+
+    //  两种战斗子线程
+    void startNoSwitchFightWorker();  // 开启不切人战斗线程
+    void startFastSwitchFightWorker();  // 开启速切战斗线程
 
 public slots:
     // 简单测试 调试用
@@ -75,6 +75,9 @@ private:
 
     // 副本BOSS单刷 565 战斗代码
     bool fight(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
+
+    // 副本BOSS单刷 重启
+    bool reboot(const RebootGameSetting& rebootGameSetting);
 
 
     //以下为若干GLOBAL全局变量

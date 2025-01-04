@@ -52,6 +52,7 @@ struct SpecialBossSetting{
     bool bossHealthAssist = false;  // BOSS血条辅助判定
     bool startWithoutSwitch = false;// 开启不切人战斗
     float startLeftHP = 0.125f;      // 启动时机（ 剩余血量
+    float absorbThres = 0.9f;        // 吸收文字 模板匹配阈值
 
     enum UltimateCheckMode {
         Mode1,  // 方式一
