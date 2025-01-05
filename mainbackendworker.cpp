@@ -10,7 +10,7 @@ QAtomicInt MainBackendWorker::reviveVal; // 复苏变量
 QAtomicInt MainBackendWorker::startNoSwitchFight;
 QAtomicInt MainBackendWorker::isPickUp;
 QAtomicInt MainBackendWorker::rebootCount;
-
+std::atomic<float> MainBackendWorker::absorbThres;
 // 实现部分
 MainBackendWorker::MainBackendWorker(QObject* parent)
     : QObject(parent)  // 初始化基类 QObject
@@ -230,6 +230,9 @@ void MainBackendWorker::onStartSpecialBoss(const SpecialBossSetting& setting, co
         return;
     }
 
+    qInfo() << QString("特殊BOSS设置 %1").arg(setting.toQString());
+    qInfo() << QString("重启游戏设置 %1").arg(rebootGameSetting.toQString());
+
     // 尝试后台激活窗口（并不强制将窗口置前）
     DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
     DWORD currentThreadId = GetCurrentThreadId();
@@ -413,13 +416,15 @@ bool MainBackendWorker::lockEnemy(){
             break;
         }
 
+        int rebootCalcPastMs = 0;
         {
             QMutexLocker locker(&m_mutex);
             MainBackendWorker::rebootCalcEndTime = QTime::currentTime();
+            rebootCalcPastMs = rebootCalcEndTime.msecsTo(rebootCalcStartTime);
         }
-        if(rebootCalcStartTime.msecsTo(rebootCalcEndTime) > 60000){
-            qWarning() << QString("触发重启游戏条件 已经过了 %1 ms").arg(rebootCalcStartTime.msecsTo(rebootCalcEndTime));
-            // 调用重启游戏
+        if(rebootCalcPastMs > 60000){
+            qWarning() << QString("触发重启游戏条件 已经过了 %1 ms").arg(rebootCalcPastMs);
+            // ##### 调用重启游戏
         }
 
         Sleep(500);
@@ -449,7 +454,7 @@ bool MainBackendWorker::lockEnemy(){
 }
 
 bool MainBackendWorker::noSwitchExp(const float& noSwitchCondition){
-    MainBackendWorker::startNoSwitchFight.store(false);
+    //MainBackendWorker::startNoSwitchFight.store(false);
     // ##### 需要对屏幕截图进行ROI处理
     cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
     int colorX, colorY;
@@ -604,10 +609,14 @@ bool MainBackendWorker::revive(){
 }
 
 bool MainBackendWorker::fight(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting){
+    qInfo() << QString("战斗开始");
     {
         QMutexLocker locker(&m_mutex);
         MainBackendWorker::battlePickUpTime = QTime::currentTime();
     }
+
+    // 将文字吸收作为全局变量
+    MainBackendWorker::absorbThres.store(setting.absorbThres);
 
     qInfo() << "战斗开始";
     // boss未死亡
@@ -699,7 +708,7 @@ detectNoSwitch:
                         goto bossUndead;   // I know goto is deadly fucking bad, going to fix it...
                     }
                     for(int i = 0 ; i < 5 && isBusy(); i++){
-                        Utils::clickWindowClientArea(Utils::hwnd, 627, 697);
+                        Utils::clickWindowClientArea(Utils::hwnd, 627, 602);  //原来是697
                         Sleep(100);
                     }
                     if(!isBusy()){
@@ -778,7 +787,7 @@ detectNoSwitch:
                         goto bossUndead;   // I know goto is deadly fucking bad, going to fix it...
                     }
                     for(int i = 0 ; i < 5 && isBusy(); i++){
-                        Utils::clickWindowClientArea(Utils::hwnd, 627, 697);
+                        Utils::clickWindowClientArea(Utils::hwnd, 627, 602);  //原来是697
                         Sleep(100);
                     }
                     if(!isBusy()){
@@ -861,7 +870,7 @@ detectNoSwitch:
                     qDebug() << QString("战斗开始后 过去了 %1 ms").arg(battlePickUpEndTime.msecsTo(battlePickUpTime));
                     cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
                     cv::Mat absorbImg = cv::imread(QString("%1/720p吸收.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-                    if(Utils::findPic(capImg, absorbImg, static_cast<double>(setting.absorbThres), x, y)){
+                    if(Utils::findPic(capImg, absorbImg, static_cast<double>(MainBackendWorker::absorbThres.load()), x, y)){
                         Utils::keyPress(Utils::hwnd, 'S', 1);
                         Utils::keyPress(Utils::hwnd, 'F', 1);
                         Utils::keyPress(Utils::hwnd, 'A', 1);
@@ -874,15 +883,20 @@ detectNoSwitch:
                 }
             }
             Sleep(100);
+            int rebootCalcPastMs = 0;
             {
                 QMutexLocker locker(&m_mutex);
                 MainBackendWorker::rebootCalcEndTime = QTime::currentTime();
+                rebootCalcPastMs = MainBackendWorker::rebootCalcEndTime.msecsTo(MainBackendWorker::rebootCalcStartTime);
             }
-            if(MainBackendWorker::rebootCalcEndTime.msecsTo(MainBackendWorker::rebootCalcStartTime)){
+            if(rebootCalcPastMs){
                 m_fastSwitchFightBackendWorker.stopWorker();
-                // ##### reboot逻辑尚未填充
+                // ##### 重启游戏
                 reboot(rebootGameSetting);
-                MainBackendWorker::rebootCalcStartTime = QTime::currentTime();
+                {
+                    QMutexLocker locker(&m_mutex);
+                    MainBackendWorker::rebootCalcStartTime = QTime::currentTime();
+                }
                 emit startFastSwitchFightWorker();
             }
         }  // end of while(isBusy())  Do-loop
@@ -890,7 +904,7 @@ detectNoSwitch:
         if(!isBusy()){
             return true;
         }
-    }
+    } // end if 开启不切人战斗 = 0  也就是开启速切战斗
 
     // 792行
     isContinueFight.store(0);
@@ -906,7 +920,7 @@ detectNoSwitch:
                 cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
                 cv::Mat ultimateIcon = cv::imread(QString("%1/720R（判断大招用）.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
                 // 1147, 622, 1272, 723
-                if(Utils::findPic(capImg, capImg, 0.6, x, y)){
+                if(Utils::findPic(capImg, ultimateIcon, 0.6, x, y)){
                     qDebug()<< "没有开启大招";
                     if(Utils::findColorEx(capImg, 450, 39, 454, 43, "44B3FF", 0.8, x, y)){
                         d = 1;
@@ -956,7 +970,7 @@ detectNoSwitch:
                         goto bossUndead;
                     }
                     for(int i = 0; i < 5 && isBusy(); i++){
-                        Utils::clickWindowClientArea(Utils::hwnd, Utils::CLIENT_WIDTH / 2, Utils::CLIENT_HEIGHT / 2);
+                        Utils::clickWindowClientArea(Utils::hwnd, 627, 602);
                         Sleep(300);
                     }
                     if(!isBusy()){
@@ -972,17 +986,162 @@ detectNoSwitch:
             else if (setting.ultimateCheckMode == SpecialBossSetting::UltimateCheckMode::Mode2) {
                 cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
                 cv::Mat ultimateIcon = cv::imread(QString("%1/720R（判断大招用）.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+                if(Utils::findPic(capImg, ultimateIcon, 0.4, x, y)){   // 1147, 622,1272,723
+                    if(Utils::findColorEx(capImg, 1119, 669, 1152, 697, "FEFAF7", 0.6, x, y)){
+                        qDebug() << "没有开启大招";
+                        if(Utils::findColorEx(capImg, 450, 39, 454, 43, "44B3FF", 0.8, x, y)){
+                            d = 1;
+                        }
+                        else {
+                            d = 0;
+                        }
+
+                        capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+                        if(setting.bossHealthAssist == 1){
+                            if(setting.boss == SpecialBossSetting::SpecialBoss::Jue){
+                                if(Utils::findColorEx(capImg, 176,181,199,204, "FFFFFF", 1.0, x, y)){
+                                    h = 1;
+                                }
+                                else {
+                                    h = 0;
+                                }
+                            }
+                            else if(setting.boss == SpecialBossSetting::SpecialBoss::Rover){
+                                if(Utils::findColorEx(capImg, 207,163,269,216, "FFFFFF", 1.0, x, y)){
+                                    h = 1;
+                                }
+                                else {
+                                    h = 0;
+                                }
+                            }
+                            else if(setting.boss == SpecialBossSetting::SpecialBoss::Hecate){
+                                if(Utils::findColorEx(capImg, 117,177,147,205, "FFFFFF", 0.9, x, y)){
+                                    h = 1;
+                                }
+                                else {
+                                    h = 0;
+                                }
+                            }
+                        }
+                        else{
+                            h = 0;
+                        }
+                    }
+                    if(setting.startWithoutSwitch == 1){
+                        // ##### 调用不切人判断式
+                        this->noSwitchExp(setting.startLeftHP);
+                    }
+                    Sleep(100);
+                }
+                else{
+                    // 开启了大招
+                    this->revive();
+                    if(!isBusy()){
+                        return true;
+                    }
+                    if(reviveVal.load() == 1){
+                        goto bossUndead;
+                    }
+                    for(int i = 0; i < 2 && isBusy(); i++){
+                        Utils::clickWindowClientArea(Utils::hwnd, 627, 602);
+                        Sleep(300);
+                    }
+                    if(!isBusy()){
+                        return true;
+                    }
+                }
             }
-        }
+            // 大招判断完成  903
+            qDebug() << QString("h = %1, d = %2").arg(h ? "true" : "false").arg(d ? "true" : "false");
+            if((d+h) >= 1){
+                i = 0;
+                if(MainBackendWorker::isContinueFight.load() >= 1){
+                    qDebug() << "重复判定继续战斗";
+                    MainBackendWorker::isContinueFight.ref();
+                    if(MainBackendWorker::isContinueFight.load() >= 4){
+                        emit startNoSwitchFightWorker();
+                        MainBackendWorker::isContinueFight.store(0);
+                    }
+                }
+            }
+            else{
+                i = i + 1;
+                if(i == 1){
+                    for(int i = 0; i < 5; i++){
+                        m_fastSwitchFightBackendWorker.stopWorker();
+                        Sleep(50);
+                    }
+                    MainBackendWorker::isContinueFight.ref();
+                }
+                if(i == 2){
+                    if(setting.boss == SpecialBossSetting::SpecialBoss::Hecate){
+                        for(int i = 0; i < 6 && isBusy(); i++){
+                            Sleep(300);
+                        }
+                        if(!isBusy()){
+                            return true;
+                        }
+                    }
+                }
+                if(i >= 3){
+                    for(int i = 0; i < 5; i++){
+                        m_fastSwitchFightBackendWorker.stopWorker();
+                        Sleep(50);
+                    }
+                }
+                qDebug() << QString("TracePrint i = %1").arg(i);
+                if(i >= 4){
+                    break; // break while(isBusy()){   // do - loop
+                }
+            }
+            if(startNoSwitchFight.load() == 0){
+                detectNoSwitch = detectNoSwitch + 1;
+                if(detectNoSwitch == 3){
+                    qDebug() << QString("重新判断boss血条未达到不切人条件，强制开始重新切人输出");
+                    detectNoSwitch = 0;
+                    m_noSwitchFightBackendWorker.stopWorker();
+                    goto detectNoSwitch;
+                }
+            }
+            Sleep(500);
+            // 重启计算结束时间 计算过去了多少ms 目前(20250105)没有多线程冲突修改时间的可能，但以防万一
+            int rebootCalcPastMs = 0;
+            {
+                QMutexLocker locker(&m_mutex);
+                MainBackendWorker::rebootCalcEndTime = QTime::currentTime();
+                rebootCalcPastMs = MainBackendWorker::rebootCalcEndTime.msecsTo(MainBackendWorker::rebootCalcStartTime);
+            }
+            if(rebootCalcPastMs > 300000){
+                qDebug() << QString("重启计算结束时间 - 重启计算开始时间 = %1 ms").arg(rebootCalcPastMs);
+                for(int i = 0; i<5; i++){
+                    m_noSwitchFightBackendWorker.stopWorker();
+                    m_fastSwitchFightBackendWorker.stopWorker();
+                    Sleep(50);
+                }
+                //##### 调用重启
+                reboot(rebootGameSetting);
+                {
+                    QMutexLocker locker(&m_mutex);
+                    MainBackendWorker::rebootCalcStartTime = QTime::currentTime();
+                }
+
+                emit startNoSwitchFightWorker();
+            }
+
+        } // end of while(isBusy())  Do-loop
 
         if(!isBusy()){
             return true;
         }
-    }
-
-
-
-
+    } // end if 开启不切人战斗 = 1  也就是开启不切人战斗
+    qInfo() << QString("战斗结束");
     return true;
 }
+
+bool MainBackendWorker::reboot(const RebootGameSetting& rebootGameSetting){
+    qInfo() << QString("重启,参数信息 %1").arg(rebootGameSetting.toQString());
+
+
+}
+
 

@@ -123,34 +123,53 @@ void DebugForm::on_testPress2_clicked(){
     DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
     DWORD currentThreadId = GetCurrentThreadId();
     AttachThreadInput(currentThreadId, threadId, TRUE);
+    SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
+    Sleep(300);
+
+    Utils::middleClickWindowClientArea(Utils::hwnd, 2, 2);
+    Sleep(300);
 
     Utils::keyPress(Utils::hwnd, '2', 1);
+    // VK_F3 #define VK_F3 0x72
+    Sleep(300);
+
+    Utils::keyPress(Utils::hwnd, 'R', 1);
+    Sleep(100);
+    Utils::keyPress(Utils::hwnd, 'E', 1);
+    Sleep(100);
+    Utils::keyPress(Utils::hwnd, 'Q', 1);
+    Sleep(100);
+
+    Utils::clickWindowClient(Utils::hwnd);
+    Sleep(100);
+    Utils::clickWindowClient(Utils::hwnd);
+    Sleep(100);
+    Utils::clickWindowClient(Utils::hwnd);
+    Sleep(100);
+    Utils::clickWindowClient(Utils::hwnd);
+    Sleep(100);
+
 
     AttachThreadInput(currentThreadId, threadId, FALSE);
 }
 
 void DebugForm::on_testPressM_clicked(){
-    int a = 1;
-mark:
-    int b = 0;
-    a++;
-    if (a > 10){
-        return;
-    }
-    b++;
-    qDebug() << QString("a = %1, b = %2").arg(a).arg(b);
-    goto mark;
 
-    /*
     bool isInit = Utils::initWuwaHwnd();
     // 尝试后台激活窗口（并不强制将窗口置前）
     DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
     DWORD currentThreadId = GetCurrentThreadId();
     AttachThreadInput(currentThreadId, threadId, TRUE);
+    SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
 
     Utils::keyPress(Utils::hwnd, 'M', 1);
 
+
     AttachThreadInput(currentThreadId, threadId, FALSE);
-    */
+
+}
+
+void DebugForm::on_testFastSwitch_clicked(){
+    emit startTestFastSwitch();
 }
 

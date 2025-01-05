@@ -215,6 +215,30 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
     return true;
 }
 
+bool Utils::clickWindowClient(HWND hwnd) {
+    if (!isWuwaRunning()) {
+        return false;
+    }
+
+    QMutexLocker locker(&m_locker);
+
+    // 如果 x, y 是“客户区坐标”，则直接组合到 lParam
+    // MAKELPARAM 的低 16 位是 X 坐标，高 16 位是 Y 坐标
+    LPARAM lParam = MAKELPARAM(0, 0);
+
+    // 发送鼠标按下消息
+    PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
+    Sleep(20);  // 给消息处理留一点缓冲时间
+
+    // 发送鼠标松开消息
+    PostMessage(hwnd, WM_LBUTTONUP, 0, lParam);
+    Sleep(20);
+
+    qDebug() << "Simulated click at client" ;
+
+    return true;
+}
+
 // 模拟鼠标中键点击目标窗口的客户区坐标
 bool Utils::middleClickWindowClientArea(HWND hwnd, int x, int y) {
     if (!isWuwaRunning()) {

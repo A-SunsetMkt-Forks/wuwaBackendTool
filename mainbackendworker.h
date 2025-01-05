@@ -14,6 +14,9 @@
 #include <windows.h>
 #include <wingdi.h>
 
+// 吸收文字相似度 存放为原子float
+#include <atomic>
+
 // 通用工具
 #include "utils.h"
 
@@ -33,6 +36,14 @@ public:
     ~MainBackendWorker();
     bool isBusy();
     void stopWorker();
+
+    //速切战斗子线程
+    QThread m_fastSwitchFightBackendThread;
+    FastSwitchFightBackendWorker m_fastSwitchFightBackendWorker;
+
+    // 不切人战斗子线程
+    QThread m_noSwitchFightBackendThread;
+    NoSwitchFightBackendWorker m_noSwitchFightBackendWorker;
 
 private:
     QAtomicInt m_isRunning;   //原子int 防止多线程冲突
@@ -92,15 +103,9 @@ private:
     static QAtomicInt startNoSwitchFight;  // 开启不切人战斗
     static QAtomicInt isPickUp;    // 拾取成功
     static QAtomicInt rebootCount;  // 重启计数
+    static std::atomic<float> absorbThres;   // 声骸文字吸收 图像判断阈值
 
 
-    //速切战斗子线程
-    QThread m_fastSwitchFightBackendThread;
-    FastSwitchFightBackendWorker m_fastSwitchFightBackendWorker;
-
-    // 不切人战斗子线程
-    QThread m_noSwitchFightBackendThread;
-    NoSwitchFightBackendWorker m_noSwitchFightBackendWorker;
 
 };
 

@@ -9,6 +9,8 @@
 #include <QMutexLocker>
 #include <QtGlobal>
 
+#include "utils.h"
+
 
 class NoSwitchFightBackendWorker : public QObject
 {

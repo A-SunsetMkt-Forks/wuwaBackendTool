@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // 连接热键信号到槽
     connect(hotKeyFilter, &GlobalHotKeyFilter::hotKeyPressed, this, &MainWindow::onHotKeyActivated);
 
+    // 连接 测试面板
+    connect(ui->debugPanel, &DebugForm::startTestFastSwitch, &this->m_mainBackendWorker.m_fastSwitchFightBackendWorker, &FastSwitchFightBackendWorker::testStartFight);
+
 }
 
 MainWindow::~MainWindow()

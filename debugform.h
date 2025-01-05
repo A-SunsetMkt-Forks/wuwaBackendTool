@@ -28,6 +28,9 @@ private:
     bool isVisibleShow = false;
     QVector<QWidget*> lockWidgetList;
 
+signals:
+    void startTestFastSwitch();
+
 public slots:
     // 测试图像匹配功能
     void on_testFindPic_clicked();
@@ -40,6 +43,9 @@ public slots:
     void on_testPress2_clicked();
     // 测试按字母M
     void on_testPressM_clicked();
+
+    // 测试两种战斗
+    void on_testFastSwitch_clicked();
 };
 
 #endif // DEBUGFORM_H

@@ -92,7 +92,7 @@
     <property name="geometry">
      <rect>
       <x>810</x>
-      <y>600</y>
+      <y>590</y>
       <width>201</width>
       <height>41</height>
      </rect>
@@ -105,13 +105,14 @@
     <property name="geometry">
      <rect>
       <x>810</x>
-      <y>650</y>
+      <y>640</y>
       <width>201</width>
-      <height>51</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="text">
-     <string>中止脚本运行</string>
+     <string>中止脚本运行
+ALT+F12</string>
     </property>
    </widget>
   </widget>

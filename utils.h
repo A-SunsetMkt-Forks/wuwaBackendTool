@@ -61,6 +61,7 @@ public:
 
     // 点击客户端的某个位置 鼠标左键
     static bool clickWindowClientArea(HWND hwnd, int x, int y);
+    static bool clickWindowClient(HWND hwnd);
     // 点击客户端的某个位置 鼠标中键
     static bool middleClickWindowClientArea(HWND hwnd, int x, int y);
 

@@ -9,6 +9,8 @@
 #include <QMutexLocker>
 #include <QtGlobal>
 
+#include "utils.h"
+
 class FastSwitchFightBackendWorker : public QObject
 {
     Q_OBJECT
@@ -25,6 +27,8 @@ signals:
 
 public slots:
     void startFight();
+
+    void testStartFight();
 };
 
 #endif // FASTSWITCHFIGHTBACKENDWORKER_H
