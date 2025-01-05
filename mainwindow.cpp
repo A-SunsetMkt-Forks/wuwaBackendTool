@@ -200,10 +200,10 @@ void MainWindow::onStartSpecialBossDone(const bool& isNormalEnd, const QString& 
     ui->isBusyBox->setChecked(false);
 
     if(isNormalEnd){
-        QMessageBox::information(this, "特殊boss正常结束", msg);
+        //QMessageBox::information(this, "特殊boss正常结束", msg);
     }
     else{
-        QMessageBox::critical(this, "特殊boss异常结束", msg);
+        //QMessageBox::critical(this, "特殊boss异常结束", msg);
     }
 
     qInfo() << QString("onStartSpecialBossDone, result %1, msg %2").arg(isNormalEnd).arg(msg);

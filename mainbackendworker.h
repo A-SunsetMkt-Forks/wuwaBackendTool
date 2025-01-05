@@ -51,7 +51,7 @@ private:
 
     void skipMonthCard();    // 领取月卡
     void pickUpEchoIsBossDied();  // 捡声骸后判断boss是否死亡
-    void quitRover();   // 退出无妄者
+    bool quitRover();   // 退出无妄者
 
 signals:
     // 完成测试后台流程
@@ -72,8 +72,11 @@ public slots:
 
 private:
     // 按键精灵的执行过程
-    // 副本BOSS单刷 363行 捡声骸判断
+    // 副本BOSS单刷 389行 捡声骸判断
     bool isPickUpEcho(const int& pickUpEchoRange);
+
+    // 副本BOSS单刷 373行 捡声骸后判断boss是否死亡
+    bool pickupEchoJudgeBossDead();
 
     // 副本BOSS单刷  398行 锁定敌人
     bool lockEnemy();
@@ -104,6 +107,12 @@ private:
     static QAtomicInt isPickUp;    // 拾取成功
     static QAtomicInt rebootCount;  // 重启计数
     static std::atomic<float> absorbThres;   // 声骸文字吸收 图像判断阈值
+
+    static QAtomicInt monthCardJudge;  // 月卡判断
+
+    static QAtomicInt pickUpEchoJudgeLeftTarget;  // 捡声骸后判断左边的目标
+    static QAtomicInt pickUpEchoJudgeBossHpBar;  // 捡声骸后判断boss血条
+    static QAtomicInt pickUpEchoJudgeRestartFight;  // 捡声骸后判断boss血条
 
 
 

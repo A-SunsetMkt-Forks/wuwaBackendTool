@@ -11,6 +11,12 @@ QAtomicInt MainBackendWorker::startNoSwitchFight;
 QAtomicInt MainBackendWorker::isPickUp;
 QAtomicInt MainBackendWorker::rebootCount;
 std::atomic<float> MainBackendWorker::absorbThres;
+QAtomicInt MainBackendWorker::monthCardJudge;
+
+QAtomicInt MainBackendWorker::pickUpEchoJudgeLeftTarget;  // 捡声骸后判断左边的目标
+QAtomicInt MainBackendWorker::pickUpEchoJudgeBossHpBar;  // 捡声骸后判断boss血条
+QAtomicInt MainBackendWorker::pickUpEchoJudgeRestartFight;  // 捡声骸后判断boss血条
+
 // 实现部分
 MainBackendWorker::MainBackendWorker(QObject* parent)
     : QObject(parent)  // 初始化基类 QObject
@@ -62,11 +68,12 @@ void MainBackendWorker::stopWorker(){
 
 void MainBackendWorker::skipMonthCard(){
     QDateTime dateTime = QDateTime::currentDateTime();
-    /*
-    // 对应副本BOSS单刷1122V10 源文件 265行 Function 月卡跳过
-    if(dateTime.time().hour() == 4 && dateTime.time().minute() == 0){
+
+    if(dateTime.time().hour() == 4 && dateTime.time().minute() >= 0 && dateTime.time().minute() <= 5 && MainBackendWorker::monthCardJudge.load() == 0){
+        //如果时间在4点00到4点05，并且还没有执行过 月卡跳过
         // 循环5次
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i < 5 && isBusy(); i++){
+            qInfo() << QString("");
             // 按下ALT
             Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
             Sleep(200);
@@ -77,22 +84,69 @@ void MainBackendWorker::skipMonthCard(){
             // 松开ALT
             Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
         }
+        if(!isBusy()){
+            return;
+        }
+        MainBackendWorker::monthCardJudge.store(1);
     }
-    else if(dateTime.time().hour() == 4 && dateTime.time().minute() == 1){
-
-    }
-    */
-    // 不再使用上述方法 改用图像检测
-
-
 }
 
 void MainBackendWorker::pickUpEchoIsBossDied(){
 
 }
 
-void MainBackendWorker::quitRover(){
+bool MainBackendWorker::quitRover(){
+    qInfo() << "退出无妄者";
+    for(int i = 0; i < 5 && isBusy(); i++){
+        Utils::keyPress(Utils::hwnd, VK_ESCAPE, 1);
+        Sleep(100);
 
+        for(int j = 0; j < 5 && isBusy(); j++){
+            cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            int x, y;
+            bool isFindPic = Utils::findPic(capImg, \
+                                            cv::imread(QString("%1/副本打完boss重新挑战.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED), \
+                                            0.8, x, y);   // 755 423 959 479
+            if(isFindPic){
+                Sleep(500);
+                break;
+            }
+        }
+        if(!isBusy()){
+            return true;
+        }
+
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        int x, y;
+        bool isFindPic = Utils::findPic(capImg, \
+                                        cv::imread(QString("%1/副本打完boss重新挑战.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED), \
+                                        0.8, x, y);  // 755 423 959 479
+        if(isFindPic){
+            for(int j = 0; j < 5 && isBusy();j++){
+                Sleep(100);
+                Utils::clickWindowClientArea(Utils::hwnd, 858, 448);
+            }
+            if(!isBusy()){
+                return true;
+            }
+        }
+        else{
+            skipMonthCard();
+            for(int j = 0; j < 3 && isBusy(); j++){
+                Sleep(300);
+                Utils::clickWindowClientArea(Utils::hwnd, 623, 573);
+            }
+            if(!isBusy()){
+                return true;
+            }
+        }
+
+    }
+    if(!isBusy()){
+        return true;
+    }
+
+    return true;
 }
 
 void MainBackendWorker::onStartTest1(){
@@ -295,7 +349,7 @@ void MainBackendWorker::onStartSpecialBoss(const SpecialBossSetting& setting, co
 
 
 bool MainBackendWorker::isPickUpEcho(const int& pickUpEchoRange){
-    // 在按键精灵源码这是一个sub 也就是void函数 没有返回值 363行
+    // 在按键精灵源码这是一个sub 也就是void函数 没有返回值 389行
     if(!MainBackendWorker::isPickUp.load()){
         for (int i = 0; i < pickUpEchoRange && isBusy(); i++) {
             for(int j = 0; j < 2; j++){
@@ -332,6 +386,26 @@ bool MainBackendWorker::isPickUpEcho(const int& pickUpEchoRange){
     }
 
     return true;   // 不关心返回值
+}
+
+bool MainBackendWorker::pickupEchoJudgeBossDead(){
+    qInfo() << QString("MainBackendWorker::pickupEchoJudgeBossDead 捡声骸后判断boss是否死亡");
+
+    cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+    int x, y;
+    bool isFindPic = Utils::findPic(capImg, \
+                                    cv::imread(QString("%1/720bosslv.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED), \
+                                    0.9, x, y);
+
+    if(isFindPic){
+        pickUpEchoJudgeLeftTarget.store(2);
+    }
+    else{
+        pickUpEchoJudgeLeftTarget.store(0);
+    }
+
+    pickUpEchoJudgeRestartFight.store(pickUpEchoJudgeLeftTarget.load());
+    qDebug() << QString("捡声骸后判断是否重新战斗 %1").arg(pickUpEchoJudgeRestartFight.load());
 }
 
 bool MainBackendWorker::lockEnemy(){
