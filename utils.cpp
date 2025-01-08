@@ -74,9 +74,56 @@ bool Utils::isWuwaRunning(){
     }
 }
 
+QStringList Utils::getAllWindowTitles(){
+    QStringList windowTitles;
+
+    // 枚举所有窗口，传递 QStringList 的地址
+    EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&windowTitles));
+
+    return windowTitles;
+}
+
+BOOL CALLBACK Utils::EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+    // 将 lParam 转换为 QStringList 的指针
+    QStringList* windowTitles = reinterpret_cast<QStringList*>(lParam);
+
+    // 获取窗口标题长度
+    int length = GetWindowTextLength(hwnd);
+    if (length == 0) return TRUE; // 跳过没有标题的窗口
+
+    // 获取窗口标题
+    wchar_t* buffer = new wchar_t[length + 1];
+    GetWindowText(hwnd, buffer, length + 1);
+
+    // 将标题存入 QStringList
+    windowTitles->append(QString::fromWCharArray(buffer));
+    delete[] buffer;
+
+    return TRUE; // 返回 TRUE 继续枚举
+}
+
+// 通过窗口标题获取句柄和 PID
+bool Utils::getWindowHandleAndPID(const QString& windowTitle, HWND& hwnd, DWORD& pid) {
+    // 使用 FindWindow 查找窗口句柄
+    hwnd = FindWindow(nullptr, (LPCWSTR)windowTitle.utf16());
+    if (!hwnd) {
+        qWarning() << "Window not found for title:" << windowTitle;
+        return false;
+    }
+
+    // 获取进程 ID
+    DWORD threadId = GetWindowThreadProcessId(hwnd, &pid);
+    if (threadId == 0) {
+        qWarning() << "Failed to get process ID for window title:" << windowTitle;
+        return false;
+    }
+
+    return true;
+}
+
 // 捕获窗口内容并转换为 QImage
 QImage Utils::captureWindowToQImage(HWND hwnd, const DWORD mode) {
-    if(!isWuwaRunning()) {
+    if(hwnd == nullptr || !IsWindow(hwnd)){
         return QImage();
     }
 
@@ -136,7 +183,7 @@ QImage Utils::captureWindowToQImage(HWND hwnd, const DWORD mode) {
 
 
 bool Utils::sendKeyToWindow(HWND hwnd, int vkCode, int keyStatus) {
-    if (!isWuwaRunning()) {
+    if(hwnd == nullptr || !IsWindow(hwnd)){
         return false;
     }
 
@@ -154,7 +201,7 @@ bool Utils::sendKeyToWindow(HWND hwnd, int vkCode, int keyStatus) {
 }
 
 bool Utils::keyPress(HWND hwnd, int vkCode, int times){
-    if (!isWuwaRunning()) {
+    if(hwnd == nullptr || !IsWindow(hwnd)){
         return false;
     }
 
@@ -185,7 +232,7 @@ bool Utils::isRunningAsAdmin() {
 
 // 模拟鼠标点击目标窗口的客户区坐标
 bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
-    if (!isWuwaRunning()) {
+    if(hwnd == nullptr || !IsWindow(hwnd)){
         return false;
     }
 
@@ -216,7 +263,7 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
 }
 
 bool Utils::clickWindowClient(HWND hwnd) {
-    if (!isWuwaRunning()) {
+    if(hwnd == nullptr || !IsWindow(hwnd)){
         return false;
     }
 
@@ -241,7 +288,7 @@ bool Utils::clickWindowClient(HWND hwnd) {
 
 // 模拟鼠标中键点击目标窗口的客户区坐标
 bool Utils::middleClickWindowClientArea(HWND hwnd, int x, int y) {
-    if (!isWuwaRunning()) {
+    if(hwnd == nullptr || !IsWindow(hwnd)){
         return false;
     }
 
@@ -338,8 +385,28 @@ cv::Mat Utils::qImage2CvMat(const QImage& image) {
 
 bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY) {
     if (sourceImage.empty() || templateImage.empty()) {
-        std::cerr << "Error: Image(s) could not be loaded." << std::endl;
-        return false;
+        qWarning() << QString("findpic input image is emtpy");
+        outX = -1;
+        outY = -1;
+        return false; // 匹配失败
+    }
+
+    // 如果源图像是 8UC4，则转换为 8UC3
+    if (sourceImage.type() == CV_8UC4) {
+        cv::cvtColor(sourceImage, sourceImage, cv::COLOR_BGRA2BGR);
+    }
+
+    // 如果模板图像是 8UC4，则转换为 8UC3
+    if (templateImage.type() == CV_8UC4) {
+        cv::cvtColor(templateImage, templateImage, cv::COLOR_BGRA2BGR);
+    }
+
+    // 检查图像类型是否一致
+    if (sourceImage.type() != templateImage.type()) {
+        qWarning()  << "Error: Source and template image types do not match.";
+        outX = -1;
+        outY = -1;
+        return false; // 匹配失败
     }
 
     // 创建结果矩阵

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>768</height>
+    <height>769</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,16 +17,25 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>1001</width>
+      <x>6</x>
+      <y>6</y>
+      <width>1011</width>
       <height>521</height>
      </rect>
     </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="GeneralPanel" name="generalPanel">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <attribute name="title">
       <string>通用面板</string>
      </attribute>
@@ -41,13 +50,18 @@
       <string>调试面板</string>
      </attribute>
     </widget>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>声骸锁定</string>
+     </attribute>
+    </widget>
    </widget>
    <widget class="QPlainTextEdit" name="logPlainText">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>540</y>
-      <width>791</width>
+      <x>6</x>
+      <y>543</y>
+      <width>871</width>
       <height>171</height>
      </rect>
     </property>
@@ -58,10 +72,10 @@
    <widget class="QComboBox" name="logLevelBox">
     <property name="geometry">
      <rect>
-      <x>810</x>
+      <x>880</x>
       <y>540</y>
-      <width>201</width>
-      <height>41</height>
+      <width>131</width>
+      <height>31</height>
      </rect>
     </property>
     <item>
@@ -91,9 +105,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>810</x>
-      <y>590</y>
-      <width>201</width>
+      <x>880</x>
+      <y>580</y>
+      <width>131</width>
       <height>41</height>
      </rect>
     </property>
@@ -104,9 +118,9 @@
    <widget class="QPushButton" name="stopBtn">
     <property name="geometry">
      <rect>
-      <x>810</x>
+      <x>880</x>
       <y>640</y>
-      <width>201</width>
+      <width>131</width>
       <height>71</height>
      </rect>
     </property>

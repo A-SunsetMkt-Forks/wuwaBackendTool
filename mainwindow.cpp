@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -29,6 +29,10 @@ MainWindow::MainWindow(QWidget *parent) :
         qDebug() << "Program is NOT running as Administrator." ;
     }
 
+    // 启动自动切换背景图线程
+    m_autoChangeWallpaperBackendWorker.moveToThread(&m_autoChangeWallpaperBackendThread);
+    m_autoChangeWallpaperBackendThread.start();
+
     // 启动后台线程
     m_mainBackendWorker.moveToThread(&m_mainBackendThread);
     m_mainBackendThread.start();
@@ -54,6 +58,65 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // 连接 测试面板
     connect(ui->debugPanel, &DebugForm::startTestFastSwitch, &this->m_mainBackendWorker.m_fastSwitchFightBackendWorker, &FastSwitchFightBackendWorker::testStartFight);
+    connect(ui->debugPanel, &DebugForm::startTestRebootGame, &this->m_mainBackendWorker, &MainBackendWorker::onStartTestRebootGame);
+
+
+    //连接 更新壁纸
+    connect(&this->m_autoChangeWallpaperBackendWorker, &AutoChangeWallpaperBackendworker::sendImageAsWallpaper, this, &MainWindow::onSendImageAsWallpaper);
+    connect(this, &MainWindow::startChangeWallpaper, &this->m_autoChangeWallpaperBackendWorker, &AutoChangeWallpaperBackendworker::startWorker);
+    emit startChangeWallpaper();
+
+    // ui某些控件改透明
+    ui->tabWidget->setAttribute(Qt::WA_StyledBackground, true);
+    ui->tabWidget->setStyleSheet("background: transparent;");
+
+    ui->centralWidget->setStyleSheet(
+        "QWidget { background: transparent; }"
+        "QTabWidget::pane { background: transparent; }"
+        "QTabBar::tab { background: transparent; }"
+        "QStackedWidget { background: transparent; }"
+        // 根据需要添加更多的组件类型
+    );
+
+    ui->tabWidget->setStyleSheet(
+        "QTabWidget::pane { background: transparent; }"
+        "QTabBar::tab { background: transparent; }"
+        "QStackedWidget { background: transparent; }"
+    );
+
+    // 特别处理 QTabWidget
+    QTabWidget* tabWidget = ui->centralWidget->findChild<QTabWidget*>();
+    if (tabWidget) {
+        tabWidget->setAttribute(Qt::WA_StyledBackground, true);
+        tabWidget->setStyleSheet("background: transparent;");
+
+        // 设置 QTabBar 透明
+        QTabBar* tabBar = tabWidget->findChild<QTabBar*>();
+        if (tabBar) {
+            qDebug() << QString("set tabBar %1 as background: transparent;").arg(tabBar->objectName());
+            tabBar->setAttribute(Qt::WA_StyledBackground, true);
+            tabBar->setStyleSheet("background: transparent;");
+
+        }
+
+        // 设置 QStackedWidget 透明
+        QStackedWidget* stackedWidget = tabWidget->findChild<QStackedWidget*>();
+        if (stackedWidget) {
+            qDebug() << QString("set stackedWidget %1 as background: transparent;").arg(stackedWidget->objectName());
+            stackedWidget->setAttribute(Qt::WA_StyledBackground, true);
+            stackedWidget->setStyleSheet("background: transparent;");
+            setWidgetsTransparent(stackedWidget);
+        }
+
+        // 设置每个标签页的内容透明
+        for (int i = 0; i < tabWidget->count(); ++i) {
+            QWidget* page = tabWidget->widget(i);
+            if (page) {
+                qDebug() << QString("set page %1 as background: transparent;").arg(page->objectName());
+                setWidgetsTransparent(page);
+            }
+        }
+    }
 
 }
 
@@ -64,6 +127,10 @@ MainWindow::~MainWindow()
     qApp->removeNativeEventFilter(hotKeyFilter);
     delete hotKeyFilter;
 
+    // 停止自动切换壁纸
+    m_autoChangeWallpaperBackendWorker.stopWorker();
+    m_autoChangeWallpaperBackendThread.quit();
+    m_autoChangeWallpaperBackendThread.wait();
 
     // 停止后台线程
     m_mainBackendWorker.stopWorker();
@@ -207,5 +274,41 @@ void MainWindow::onStartSpecialBossDone(const bool& isNormalEnd, const QString& 
     }
 
     qInfo() << QString("onStartSpecialBossDone, result %1, msg %2").arg(isNormalEnd).arg(msg);
+}
+
+// 更新壁纸
+void MainWindow::onSendImageAsWallpaper(const QImage& img){
+    if (img.isNull()) {
+        qWarning() << "Image is null. Cannot set as wallpaper.";
+        return;
+    }
+
+
+
+    // 获取 centralWidget 的大小
+    QSize targetSize = ui->centralWidget->size();
+
+    // 转换 QImage 为 QPixmap，并进行缩放（使用 Bicubic 插值）
+    QPixmap pixmap = QPixmap::fromImage(img.scaled(targetSize, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+
+    // 设置背景到 centralWidget
+    QPalette palette = ui->centralWidget->palette();
+    palette.setBrush(QPalette::Window, QBrush(pixmap));
+    ui->centralWidget->setPalette(palette);
+    ui->centralWidget->setAutoFillBackground(true);
+
+    qDebug() << "Wallpaper successfully updated.";
+}
+
+void MainWindow::setWidgetsTransparent(QWidget* widget) {
+    if (!widget) return;
+
+    widget->setAttribute(Qt::WA_StyledBackground, true);
+    widget->setStyleSheet("background: transparent;");
+
+    const QList<QWidget*> children = widget->findChildren<QWidget*>();
+    for (QWidget* child : children) {
+        setWidgetsTransparent(child);
+    }
 }
 

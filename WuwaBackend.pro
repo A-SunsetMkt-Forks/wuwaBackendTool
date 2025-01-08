@@ -60,7 +60,11 @@ SOURCES += \
     settingparams.cpp \
     debugform.cpp \
     fastswitchfightbackendworker.cpp \
-    noswitchfightbackendworker.cpp
+    noswitchfightbackendworker.cpp \
+    echolockentriespanel.cpp \
+    abstractentrypanel.cpp \
+    entrypanel.cpp \
+    autochangewallpaperbackendworker.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -74,13 +78,20 @@ HEADERS += \
     settingparams.h \
     debugform.h \
     fastswitchfightbackendworker.h \
-    noswitchfightbackendworker.h
+    noswitchfightbackendworker.h \
+    echolockentriespanel.h \
+    abstractentrypanel.h \
+    entrypanel.h \
+    autochangewallpaperbackendworker.h
 
 FORMS += \
         mainwindow.ui \
     generalpanel.ui \
     speicalbosswidget.ui \
-    debugform.ui
+    debugform.ui \
+    echolockentriespanel.ui \
+    abstractentrypanel.ui \
+    entrypanel.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

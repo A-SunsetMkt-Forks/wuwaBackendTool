@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QThread>
+#include <QStackedWidget>
 
 // 标准C++库
 #include <iostream>
@@ -27,6 +28,8 @@
 #include "mainbackendworker.h"  // 后台线程
 #include "globalhotkeyfilter.h"   // 允许全局快捷键 停止脚本程序
 #include "settingparams.h"    // 每种应用场景都有自己的一套参数
+
+#include "autochangewallpaperbackendworker.h"   // 自动切换背景图
 
 namespace Ui {
 class MainWindow;
@@ -50,6 +53,10 @@ private:
     QThread m_mainBackendThread;
     MainBackendWorker m_mainBackendWorker;
 
+    // 自动切换背景
+    QThread m_autoChangeWallpaperBackendThread;
+    AutoChangeWallpaperBackendworker m_autoChangeWallpaperBackendWorker;
+
     // 全局注册快捷键 ALT F12 停止脚本
     GlobalHotKeyFilter* hotKeyFilter;
     const int toggleHotKeyId = 1; // Alt + F12 的热键 ID
@@ -63,6 +70,8 @@ signals:
     // 转发信号 请求后台线程执行
     void startSpecialBoss(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
 
+    // 开启自动更新壁纸
+    void startChangeWallpaper();
 
 private slots:
     void on_getGameWin_clicked();
@@ -85,6 +94,10 @@ private slots:
 
     // 后台线程结束
     void onStartSpecialBossDone(const bool& isNormalEnd, const QString& msg, const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
+
+    // 更新壁纸
+    void onSendImageAsWallpaper(const QImage& img);
+    void setWidgetsTransparent(QWidget* widget);
 
 };
 

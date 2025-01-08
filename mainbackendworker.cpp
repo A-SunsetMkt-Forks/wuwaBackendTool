@@ -344,6 +344,126 @@ void MainBackendWorker::onStartSpecialBoss(const SpecialBossSetting& setting, co
         if(isSpecialBossClosing(true, false, QString("用户中止脚本"), setting, rebootGameSetting)) return;
         return;
     }
+}
+
+// 测试重启游戏
+void MainBackendWorker::onStartTestRebootGame(const QString& launcherWindowTitle){
+    m_isRunning.store(1);
+    qInfo() << QString("MainBackendWorker::onStartTestRebootGame title : %1").arg(launcherWindowTitle);
+
+    HWND launcherHandle;
+    DWORD launcherPID;
+    if(!Utils::getWindowHandleAndPID(launcherWindowTitle, launcherHandle, launcherPID)){
+        qWarning() << QString("failed to getWindowHandleAndPID %1").arg(launcherWindowTitle);
+        return;
+    }
+
+    qDebug() << "Window handle:" << launcherHandle;
+    qDebug() << "Process ID:" << launcherPID;
+
+    // 关闭游戏
+    bool isInit = Utils::initWuwaHwnd();
+    if(!isInit){
+        qWarning() << "Failed to bind wuwa game hwnd";
+        m_isRunning.store(0);
+        return;
+    }
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+    AttachThreadInput(currentThreadId, threadId, TRUE);
+    SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
+
+
+    QTimer closeTimer;
+    closeTimer.start();
+    PostMessage(Utils::hwnd, WM_CLOSE, 0, 0);  //SendMessage(Utils::hwnd, WM_CLOSE, 0, 0);
+    AttachThreadInput(currentThreadId, threadId, FALSE);
+
+    while(isBusy()){
+        if(Utils::isWuwaRunning()){
+            Sleep(50);
+        }
+        else{
+            break;
+        }
+    }
+    if(!isBusy()){
+        return;
+    }
+
+    for(int i = 0; i<10; i++){
+        Sleep(1000);
+        qDebug() << QString("waiting...");
+        // ##### 后面改为判断 找启动器的按钮图像 符合就按
+    }
+    // 已经完成关闭 从启动器开启软件
+    if(!IsWindow(launcherHandle)){
+        qWarning() << "launcher is not activated";
+        m_isRunning.store(0);
+        return;
+    }
+
+    DWORD launcherThreadId = GetWindowThreadProcessId(launcherHandle, nullptr);
+    AttachThreadInput(currentThreadId, launcherThreadId, TRUE);
+
+    // 获取图像 resize为 1920 1140 （假设不同缩放DPI下 图像比例一致）
+    cv::Mat capLauncherImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(launcherHandle));
+    if(capLauncherImg.empty()){
+        qWarning() << "cap launcher img failed";
+        m_isRunning.store(0);
+        return;
+    }
+    if(capLauncherImg.channels() == 3){
+
+    }
+    else if(capLauncherImg.channels() == 4)  {
+        cv::cvtColor(capLauncherImg, capLauncherImg, cv::COLOR_BGRA2BGR);
+    }
+
+    cv::Mat resizeImg;
+    // 调整图像大小，使用双三次插值
+    cv::resize(capLauncherImg, resizeImg, cv::Size(1920, 1140), 0, 0, cv::INTER_CUBIC);
+    cv::Mat startGameBtn = cv::imread(QString("%1/启动游戏1920_1140.png").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    int x, y;
+    qDebug() << QString("resize Img type %1, startGameBtn Img type %2. size : %3, %4.  %5, %6")
+                .arg(QString::fromStdString(cv::typeToString(resizeImg.type())))
+                .arg(QString::fromStdString(cv::typeToString(startGameBtn.type())))
+                .arg(resizeImg.cols).arg(resizeImg.rows)
+                .arg(startGameBtn.cols).arg(startGameBtn.rows);
+
+    if(Utils::findPic(resizeImg, startGameBtn, 0.9, x, y)){
+        cv::Mat markedImg = resizeImg.clone();
+        cv::rectangle(
+                    markedImg,
+                    cv::Point(x, y),
+                    cv::Point(x + startGameBtn.cols, y + startGameBtn.rows),
+                    cv::Scalar(255, 0, 0), // 蓝色
+                    2 // 线条宽度
+                    );
+
+        cv::imwrite("findStartGameBtn.bmp", markedImg);
+    }
+    else{
+        qWarning() << "failed find startGameBtn";
+        m_isRunning.store(0);
+        return;
+    }
+
+    // 将找到的x y 缩放为用户真实的UI size
+    // 1000 500 -> 1920 1140
+    int actBtnTopLeftX = qRound(capLauncherImg.cols * static_cast<double>(x) / 1920.0);
+    int actBtnTopLeftY = qRound(capLauncherImg.rows * static_cast<double>(y) / 1140.0);
+    int actBtnWidth = qRound(capLauncherImg.cols * static_cast<double>(startGameBtn.cols) / 1920.0);
+    int actBtnHeight = qRound(capLauncherImg.rows * static_cast<double>(startGameBtn.rows) / 1140.0);
+    qInfo() << QString("going to click (%1, %2)").arg(actBtnTopLeftX + actBtnWidth / 2.0).arg(actBtnTopLeftY + actBtnHeight / 2.0);
+
+    SendMessage(launcherHandle, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
+    Utils::clickWindowClientArea(launcherHandle, actBtnTopLeftX + actBtnWidth / 2.0, actBtnTopLeftY + actBtnHeight / 2.0);
+
+    // 等待游戏启动
+
+    AttachThreadInput(currentThreadId, launcherThreadId, FALSE);
 
 }
 
@@ -678,6 +798,24 @@ bool MainBackendWorker::revive(){
             }
         }
         Sleep(100);
+        // ##### 20250107 新增
+        capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        cv::Mat retryImg = cv::imread(QString("%1/重新挑战.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        bool isFindRetry = Utils::findPic(capImg, retryImg, 0.8, x, y);  // 750,591,865,644
+        if(isFindRetry){
+            for(int i = 0; i < 4 && isBusy(); i++){
+                Sleep(500);
+                Utils::clickWindowClientArea(Utils::hwnd, 807, 610);
+                Sleep(500);
+                Utils::clickWindowClientArea(Utils::hwnd, 857, 450);
+                Sleep(500);
+            }
+            if(!isBusy()){
+                return true;
+            }
+        }
+
+        Sleep(200);
     }
     return true;
 }

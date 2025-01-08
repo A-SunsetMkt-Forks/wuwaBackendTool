@@ -6,6 +6,7 @@ GeneralPanel::GeneralPanel(QWidget *parent) :
     ui(new Ui::GeneralPanel)
 {
     ui->setupUi(this);
+
 }
 
 GeneralPanel::~GeneralPanel()

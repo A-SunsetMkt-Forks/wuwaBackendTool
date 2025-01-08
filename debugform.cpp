@@ -16,6 +16,8 @@ DebugForm::DebugForm(QWidget *parent) :
         widget->setVisible(false);
     }
 
+
+
 }
 
 DebugForm::~DebugForm()
@@ -171,5 +173,15 @@ void DebugForm::on_testPressM_clicked(){
 
 void DebugForm::on_testFastSwitch_clicked(){
     emit startTestFastSwitch();
+}
+
+void DebugForm::on_testRebootGame_clicked(){
+    qInfo() << "DebugForm::on_testRebootGame_clicked";
+    QStringList windowTitleList = Utils::getAllWindowTitles();
+    qDebug() << windowTitleList;
+    //onst QString title = "launcher";
+    const QString title = "鸣潮";
+    emit startTestRebootGame(title);
+
 }
 

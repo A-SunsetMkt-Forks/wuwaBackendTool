@@ -36,6 +36,13 @@ public:
     // judge if wuwa process is still running
     static bool isWuwaRunning();
 
+
+    // 枚举获取所有的窗体
+    static QStringList getAllWindowTitles();
+
+    // 输入窗体名 获取句柄和PID
+    static bool getWindowHandleAndPID(const QString& windowTitle, HWND& hwnd, DWORD& pid);
+
     static HWND hwnd;  // wuwa Handle to a Window
 
     // only support 1280 * 720 resolution
@@ -93,7 +100,7 @@ private:
     static QImage HBitmapToQImage(HBITMAP hBitmap, HDC hDC);
 
 
-
+    static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 
 };
 

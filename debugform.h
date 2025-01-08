@@ -29,7 +29,11 @@ private:
     QVector<QWidget*> lockWidgetList;
 
 signals:
+    // 片段测试 测试速切战斗
     void startTestFastSwitch();
+
+    // 测试重启游戏
+    void startTestRebootGame(const QString& launcherWindowTitle);
 
 public slots:
     // 测试图像匹配功能
@@ -46,6 +50,9 @@ public slots:
 
     // 测试两种战斗
     void on_testFastSwitch_clicked();
+
+    // 测试通过启动器重启游戏
+    void on_testRebootGame_clicked();
 };
 
 #endif // DEBUGFORM_H

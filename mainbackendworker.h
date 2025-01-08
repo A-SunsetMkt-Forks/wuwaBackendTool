@@ -9,6 +9,7 @@
 #include <QMutexLocker>
 #include <QtGlobal>
 #include <QThread>
+#include <QTimer>
 
 // 获取窗体 句柄
 #include <windows.h>
@@ -69,6 +70,9 @@ public slots:
 
     // 特殊boss 角和无妄者的刷取
     void onStartSpecialBoss(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
+
+    // 测试重启游戏
+    void onStartTestRebootGame(const QString& launcherWindowTitle);
 
 private:
     // 按键精灵的执行过程
