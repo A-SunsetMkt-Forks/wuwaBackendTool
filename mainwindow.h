@@ -97,7 +97,7 @@ private slots:
 
     // 更新壁纸
     void onSendImageAsWallpaper(const QImage& img);
-    void setWidgetsTransparent(QWidget* widget);
+
 
 };
 

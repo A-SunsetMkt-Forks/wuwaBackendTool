@@ -64,7 +64,8 @@ SOURCES += \
     echolockentriespanel.cpp \
     abstractentrypanel.cpp \
     entrypanel.cpp \
-    autochangewallpaperbackendworker.cpp
+    autochangewallpaperbackendworker.cpp \
+    welcomedialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -82,7 +83,8 @@ HEADERS += \
     echolockentriespanel.h \
     abstractentrypanel.h \
     entrypanel.h \
-    autochangewallpaperbackendworker.h
+    autochangewallpaperbackendworker.h \
+    welcomedialog.h
 
 FORMS += \
         mainwindow.ui \
@@ -91,7 +93,8 @@ FORMS += \
     debugform.ui \
     echolockentriespanel.ui \
     abstractentrypanel.ui \
-    entrypanel.ui
+    entrypanel.ui \
+    welcomedialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

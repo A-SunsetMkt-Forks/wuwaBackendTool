@@ -71,52 +71,44 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setStyleSheet("background: transparent;");
 
     ui->centralWidget->setStyleSheet(
-        "QWidget { background: transparent; }"
-        "QTabWidget::pane { background: transparent; }"
-        "QTabBar::tab { background: transparent; }"
-        "QStackedWidget { background: transparent; }"
-        // 根据需要添加更多的组件类型
-    );
+                "QWidget { background: transparent; }"
+                "QTabWidget::pane { background: transparent; }"
+                "QTabBar::tab { background: transparent; }"
+                "QStackedWidget { background: transparent; }"
+                // 根据需要添加更多的组件类型
+                );
 
+    /*
     ui->tabWidget->setStyleSheet(
         "QTabWidget::pane { background: transparent; }"
         "QTabBar::tab { background: transparent; }"
         "QStackedWidget { background: transparent; }"
     );
+    */
 
-    // 特别处理 QTabWidget
-    QTabWidget* tabWidget = ui->centralWidget->findChild<QTabWidget*>();
-    if (tabWidget) {
-        tabWidget->setAttribute(Qt::WA_StyledBackground, true);
-        tabWidget->setStyleSheet("background: transparent;");
+    ui->tabWidget->setStyleSheet(R"(
+                                 /* QTabWidget::pane 决定整个 tab 页区域的背景 */
+                                 QTabWidget::pane {
+                                 background: transparent;
+                                 border: none; /* 如果不想要边框可以去掉 */
+                                 }
 
-        // 设置 QTabBar 透明
-        QTabBar* tabBar = tabWidget->findChild<QTabBar*>();
-        if (tabBar) {
-            qDebug() << QString("set tabBar %1 as background: transparent;").arg(tabBar->objectName());
-            tabBar->setAttribute(Qt::WA_StyledBackground, true);
-            tabBar->setStyleSheet("background: transparent;");
+                                 /* QTabBar::tab 决定选项卡按钮的背景 */
+                                 QTabBar::tab {
+                                 background: transparent;
+                                 }
 
-        }
+                                 /* QStackedWidget 是显示 tab 页内容的容器 */
+                                 QStackedWidget {
+                                 background: transparent;
+                                 }
+                                 )");
 
-        // 设置 QStackedWidget 透明
-        QStackedWidget* stackedWidget = tabWidget->findChild<QStackedWidget*>();
-        if (stackedWidget) {
-            qDebug() << QString("set stackedWidget %1 as background: transparent;").arg(stackedWidget->objectName());
-            stackedWidget->setAttribute(Qt::WA_StyledBackground, true);
-            stackedWidget->setStyleSheet("background: transparent;");
-            setWidgetsTransparent(stackedWidget);
-        }
-
-        // 设置每个标签页的内容透明
-        for (int i = 0; i < tabWidget->count(); ++i) {
-            QWidget* page = tabWidget->widget(i);
-            if (page) {
-                qDebug() << QString("set page %1 as background: transparent;").arg(page->objectName());
-                setWidgetsTransparent(page);
-            }
-        }
-    }
+    // 3. 如果每个 tab 页本身（比如 tab1、tab2）还需要单独设置，可以再加：
+    ui->generalPanel->setStyleSheet("background: transparent;");
+    ui->generalPanel->setAttribute(Qt::WA_StyledBackground, true);
+    ui->debugPanel->setStyleSheet("background: transparent;");
+    ui->debugPanel->setAttribute(Qt::WA_StyledBackground, true);
 
 }
 
@@ -283,8 +275,42 @@ void MainWindow::onSendImageAsWallpaper(const QImage& img){
         return;
     }
 
+    // Step 1: 检查图像格式
+    if (img.format() != QImage::Format_RGB888) {
+        qWarning() << "Image format is not RGB888. Converting to RGB888.";
+    }
 
+    // 如果不是 RGB888，转换为 RGB888
+    QImage processedImg = img.convertToFormat(QImage::Format_RGB888);
 
+    qint64 totalR = 0, totalG = 0, totalB = 0;
+    int pixelCount = processedImg.width() * processedImg.height();
+
+    // Step 2: 遍历像素，逐字节读取 RGB 值
+    for (int y = 0; y < processedImg.height(); ++y) {
+        const uchar *line = processedImg.scanLine(y);
+        for (int x = 0; x < processedImg.width(); ++x) {
+            int index = x * 3; // RGB888 每个像素占用 3 字节
+            totalR += line[index];     // Red
+            totalG += line[index + 1]; // Green
+            totalB += line[index + 2]; // Blue
+        }
+    }
+
+    // Step 3: 计算平均 RGB 值
+    int avgR = totalR / pixelCount;
+    int avgG = totalG / pixelCount;
+    int avgB = totalB / pixelCount;
+
+    // Step 4: 计算亮度
+    int brightness = (avgR * 299 + avgG * 587 + avgB * 114) / 1000; // 加权亮度公式
+    QString textColor = (brightness < 128) ? "white" : "black"; // 根据亮度选择相反色
+
+    // Step 3: 动态设置全局样式表
+    QString styleSheet = QString("QWidget { color: %1; font-weight: bold; }").arg(textColor);
+    qApp->setStyleSheet(styleSheet);
+
+    // Step 4: 更新壁纸
     // 获取 centralWidget 的大小
     QSize targetSize = ui->centralWidget->size();
 
@@ -300,15 +326,4 @@ void MainWindow::onSendImageAsWallpaper(const QImage& img){
     qDebug() << "Wallpaper successfully updated.";
 }
 
-void MainWindow::setWidgetsTransparent(QWidget* widget) {
-    if (!widget) return;
-
-    widget->setAttribute(Qt::WA_StyledBackground, true);
-    widget->setStyleSheet("background: transparent;");
-
-    const QList<QWidget*> children = widget->findChildren<QWidget*>();
-    for (QWidget* child : children) {
-        setWidgetsTransparent(child);
-    }
-}
 

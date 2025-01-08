@@ -7,6 +7,8 @@ HWND Utils::hwnd = nullptr;
 const int Utils::CLIENT_WIDTH = 1280;
 const int Utils::CLIENT_HEIGHT = 720;
 
+const int Utils::WELCOME_SEC = 5;
+
 Utils::Utils()
 {
 

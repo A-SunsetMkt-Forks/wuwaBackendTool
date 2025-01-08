@@ -49,6 +49,9 @@ public:
     static const int CLIENT_WIDTH;
     static const int CLIENT_HEIGHT;
 
+    // 软件开启强制倒计时秒数
+    static const int WELCOME_SEC;
+
     // store images dir
     // 懒加载静态变量
     static const QString& IMAGE_DIR() {
