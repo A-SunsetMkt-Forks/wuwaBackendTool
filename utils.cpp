@@ -180,6 +180,20 @@ QImage Utils::captureWindowToQImage(HWND hwnd, const DWORD mode) {
     DeleteDC(hdcMemDC);
     ReleaseDC(hwnd, hdcWindow);
 
+    // 判断 QImage 类型并处理
+    if (image.format() == QImage::Format_RGB888) {
+        // 如果是 8UC3，直接返回
+        return image;
+    } else if (image.format() == QImage::Format_ARGB32 || image.format() == QImage::Format_ARGB32_Premultiplied) {
+        // 如果是 8UC4，则转换为 8UC3
+        QImage convertedImage = image.convertToFormat(QImage::Format_RGB888);
+        return convertedImage;
+    } else {
+        // 如果是其他类型，发出警告并返回空图像
+        qWarning() << "Unsupported image format. Returning an empty QImage.";
+        return QImage();
+    }
+
     return image;
 }
 
@@ -393,16 +407,6 @@ bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, do
         return false; // 匹配失败
     }
 
-    // 如果源图像是 8UC4，则转换为 8UC3
-    if (sourceImage.type() == CV_8UC4) {
-        cv::cvtColor(sourceImage, sourceImage, cv::COLOR_BGRA2BGR);
-    }
-
-    // 如果模板图像是 8UC4，则转换为 8UC3
-    if (templateImage.type() == CV_8UC4) {
-        cv::cvtColor(templateImage, templateImage, cv::COLOR_BGRA2BGR);
-    }
-
     // 检查图像类型是否一致
     if (sourceImage.type() != templateImage.type()) {
         qWarning()  << "Error: Source and template image types do not match.";
@@ -441,6 +445,7 @@ bool Utils::findColorEx(const cv::Mat& image, int x1, int y1, int x2, int y2, co
         outY = -1;
         return false;
     }
+
 
     // 转换颜色
     cv::Vec3b targetColor;

@@ -127,7 +127,7 @@ private:
 
     static QAtomicInt pickUpEchoJudgeLeftTarget;  // 捡声骸后判断左边的目标
     static QAtomicInt pickUpEchoJudgeBossHpBar;  // 捡声骸后判断boss血条
-    static QAtomicInt pickUpEchoJudgeRestartFight;  // 捡声骸后判断boss血条
+    static QAtomicInt pickUpEchoJudgeRestartFight;  // 捡声骸后判断是否重新战斗
 
 
 

@@ -276,6 +276,7 @@ void MainWindow::onStartSpecialBossDone(const bool& isNormalEnd, const QString& 
 
 // 更新壁纸
 void MainWindow::onSendImageAsWallpaper(const QImage& img){
+    return;
     if (img.isNull()) {
         qWarning() << "Image is null. Cannot set as wallpaper.";
         return;

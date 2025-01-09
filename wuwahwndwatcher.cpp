@@ -34,10 +34,12 @@ void WuwaHWNDWatcher::startWatcher(){
 
         // 月卡判断
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        cv::Mat monthCard = cv::imread(QString("%1/月卡判断.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        qDebug() << QString("月卡判断 capImg type %1, size(%2, %3). monthCard type %4, size(%5, %6)")
+                    .arg(QString::fromStdString(cv::typeToString( capImg.type()))).arg(capImg.cols).arg(capImg.rows)
+                    .arg(QString::fromStdString(cv::typeToString( monthCard.type() ))).arg(monthCard.cols).arg(monthCard.rows);
         int x, y;
-        bool isFindMonthCard = Utils::findPic(capImg, \
-                                              cv::imread(QString("%1/月卡判断.bmp").arg(Utils::IMAGE_DIR()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED), \
-                                              0.9, x, y);   // 479, 488, 632, 627
+        bool isFindMonthCard = Utils::findPic(capImg, monthCard, 0.9, x, y);   // 479, 488, 632, 627
         if(isFindMonthCard){
             qInfo() << QString("领取月卡奖励");
             for(int i = 0; i < 5; i++){

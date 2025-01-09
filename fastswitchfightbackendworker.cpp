@@ -35,10 +35,19 @@ void FastSwitchFightBackendWorker::startFight(){
 
             Utils::keyPress(Utils::hwnd, '1', 1);  // 切人
             Sleep(300);
+            if(!isBusy()){
+                break;
+            }
             Utils::keyPress(Utils::hwnd, '2', 1);  // 切人
             Sleep(300);
+            if(!isBusy()){
+                break;
+            }
             Utils::keyPress(Utils::hwnd, '3', 1);  // 切人
             Sleep(300);
+            if(!isBusy()){
+                break;
+            }
 
             Utils::clickWindowClient(Utils::hwnd);
             Sleep(100);
@@ -50,14 +59,20 @@ void FastSwitchFightBackendWorker::startFight(){
             const int teamSize = 3;
             for(int i = 0; i < teamSize && isBusy(); i++){
                 Utils::keyPress(Utils::hwnd, i + 1 + '0', 1);  // 切人
+                if(!isBusy()){ break; }
                 Sleep(300);
+                if(!isBusy()){ break; }
                 Utils::keyPress(Utils::hwnd, 'R', 1);
+                if(!isBusy()){ break; }
                 Sleep(100);
                 Utils::keyPress(Utils::hwnd, 'E', 1);
+                if(!isBusy()){ break; }
                 Sleep(100);
                 Utils::keyPress(Utils::hwnd, 'Q', 1);
+                if(!isBusy()){ break; }
                 Sleep(100);
                 Utils::clickWindowClient(Utils::hwnd);
+                if(!isBusy()){ break; }
                 Sleep(100);
                 Utils::clickWindowClient(Utils::hwnd);
                 Sleep(100);
