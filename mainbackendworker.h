@@ -28,6 +28,9 @@
 #include "fastswitchfightbackendworker.h"
 #include "noswitchfightbackendworker.h"
 
+// 闪退检测子线程 兼任领取月卡奖励
+#include "wuwahwndwatcher.h"
+
 class MainBackendWorker : public QObject
 {
     Q_OBJECT
@@ -36,7 +39,7 @@ public:
     explicit MainBackendWorker(QObject* parent = nullptr);  // 构造函数需要接受 QObject* 类型的参数
     ~MainBackendWorker();
     bool isBusy();
-    void stopWorker();
+
 
     //速切战斗子线程
     QThread m_fastSwitchFightBackendThread;
@@ -45,6 +48,11 @@ public:
     // 不切人战斗子线程
     QThread m_noSwitchFightBackendThread;
     NoSwitchFightBackendWorker m_noSwitchFightBackendWorker;
+
+    // 闪退检测
+    QThread m_wuwaWatcherThread;
+    WuwaHWNDWatcher m_wuwaWatcher;
+
 
 private:
     QAtomicInt m_isRunning;   //原子int 防止多线程冲突
@@ -63,8 +71,11 @@ signals:
     //  两种战斗子线程
     void startNoSwitchFightWorker();  // 开启不切人战斗线程
     void startFastSwitchFightWorker();  // 开启速切战斗线程
+    void startWuwaWatcher(); // 开启闪退检测线程
 
 public slots:
+    // 停止一切后台子线程
+    void stopWorker();
     // 简单测试 调试用
     void onStartTest1();
 

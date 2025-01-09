@@ -30,9 +30,13 @@ MainBackendWorker::MainBackendWorker(QObject* parent)
     m_noSwitchFightBackendWorker.moveToThread(&m_noSwitchFightBackendThread);
     m_noSwitchFightBackendThread.start();
 
+    m_wuwaWatcher.moveToThread(&m_wuwaWatcherThread);
+    m_wuwaWatcherThread.start();
 
     connect(this, &MainBackendWorker::startNoSwitchFightWorker, &m_noSwitchFightBackendWorker, &NoSwitchFightBackendWorker::startFight);
     connect(this, &MainBackendWorker::startFastSwitchFightWorker, &m_fastSwitchFightBackendWorker, &FastSwitchFightBackendWorker::startFight);
+    connect(this, &MainBackendWorker::startWuwaWatcher, &m_wuwaWatcher, &WuwaHWNDWatcher::startWatcher);
+    connect(&m_wuwaWatcher, &WuwaHWNDWatcher::stopMainBackendWorker, this, &MainBackendWorker::stopWorker);
 
 }
 
@@ -47,7 +51,9 @@ MainBackendWorker::~MainBackendWorker()
     m_noSwitchFightBackendThread.quit();
     m_noSwitchFightBackendThread.wait();
 
-
+    m_wuwaWatcher.stopWorker();
+    m_wuwaWatcherThread.quit();
+    m_wuwaWatcherThread.wait();
 }
 
 bool MainBackendWorker::isBusy(){
@@ -64,6 +70,7 @@ void MainBackendWorker::stopWorker(){
     m_isRunning.store(0);
     m_fastSwitchFightBackendWorker.stopWorker();
     m_noSwitchFightBackendWorker.stopWorker();
+    m_wuwaWatcher.stopWorker();
 }
 
 void MainBackendWorker::skipMonthCard(){
@@ -860,7 +867,6 @@ detectNoSwitch:
         int d = 1;
         int h = 1;
         int x, y;
-        // ##### 速切战斗线程ID = BeginThread(速切战斗线程)
         emit startFastSwitchFightWorker();
 
         while(isBusy()){   // do - loop
@@ -929,7 +935,6 @@ detectNoSwitch:
 
                 }
                 if(setting.startWithoutSwitch == 1){
-                    // ##### 调用不切人判断式
                     this->noSwitchExp(setting.startLeftHP);
                 }
                 Sleep(100);
@@ -984,7 +989,6 @@ detectNoSwitch:
                     }
                     // bool isFindColorEx = Utils::findColorEx(capImg, 1119, 669, 1152, 697, "FEFAF7", 0.6, x, y); ENDIF
                     if(setting.startWithoutSwitch == 1){
-                        // ##### 调用不切人判断式
                         this->noSwitchExp(setting.startLeftHP);
                     }
                     Sleep(100);
@@ -1016,7 +1020,6 @@ detectNoSwitch:
                     qDebug() << QString("重复判定继续战斗 %1").arg(MainBackendWorker::isContinueFight.load());
                     MainBackendWorker::isContinueFight.ref();
                     if(MainBackendWorker::isContinueFight.load() >= 4){
-                        // ##### 速切战斗线程ID = BeginThread(速切战斗线程)
                         emit startFastSwitchFightWorker();
 
                         MainBackendWorker::isContinueFight.store(0);
@@ -1190,7 +1193,6 @@ detectNoSwitch:
                     }
                 }
                 if(setting.startWithoutSwitch == 1){
-                    // ##### 调用不切人判断式
                     this->noSwitchExp(setting.startLeftHP);
                 }
                 Sleep(100);
@@ -1240,7 +1242,6 @@ detectNoSwitch:
                         }
                     }
                     if(setting.startWithoutSwitch == 1){
-                        // ##### 调用不切人判断式
                         this->noSwitchExp(setting.startLeftHP);
                     }
                     Sleep(100);

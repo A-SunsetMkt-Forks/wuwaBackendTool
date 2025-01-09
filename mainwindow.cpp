@@ -246,6 +246,12 @@ void MainWindow::checkSpecialBoss(const SpecialBossSetting& setting){
         return;
     }
 
+    // 检查此时是否正忙
+    if(m_mainBackendWorker.isBusy()){
+        QMessageBox::warning(this, "后台正忙", "请停止其他脚本，再启用本脚本");
+        return;
+    }
+
     // 从通用面板获取一些额外参数
     RebootGameSetting rebootGameSetting = ui->generalPanel->getRebootGameSetting();
     emit startSpecialBoss(setting, rebootGameSetting);

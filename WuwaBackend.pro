@@ -65,7 +65,8 @@ SOURCES += \
     abstractentrypanel.cpp \
     entrypanel.cpp \
     autochangewallpaperbackendworker.cpp \
-    welcomedialog.cpp
+    welcomedialog.cpp \
+    wuwahwndwatcher.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -84,7 +85,8 @@ HEADERS += \
     abstractentrypanel.h \
     entrypanel.h \
     autochangewallpaperbackendworker.h \
-    welcomedialog.h
+    welcomedialog.h \
+    wuwahwndwatcher.h
 
 FORMS += \
         mainwindow.ui \
