@@ -59,6 +59,12 @@ public:
         return imageDir;
     }
 
+    static const QString& IMAGE_DIR_EI() {
+        static const QString imageDir = QDir(QCoreApplication::applicationDirPath()).filePath("ElPsyKongroo");
+        return imageDir;
+    }
+
+
     // capture client image, time cost 5~15ms
     static QImage captureWindowToQImage(HWND hwnd, const DWORD mode = 0x00000003);
 
@@ -94,6 +100,8 @@ public:
     // "F48A94" 转换为颜色
     static bool hexToBGR(const QString& hexColor, cv::Vec3b& outColor);
 
+    // 调试使用 匹配图像成功 点击  做标记图并保存
+    static bool saveDebugImg(const cv::Mat& scrShot, const cv::Rect& templateRoi, const int& clickX, const int& clickY, const QString& hint);
 
 private:
     static const QString wuwaWindowTitle;

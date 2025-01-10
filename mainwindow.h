@@ -80,6 +80,9 @@ signals:
     // 开启自动更新壁纸
     void startChangeWallpaper();
 
+    // 要求后台线程锁定声骸
+    void startLockEcho(const LockEchoSetting& lockEchoSetting);
+
 private slots:
     void on_getGameWin_clicked();
 
@@ -104,6 +107,12 @@ private slots:
 
     // 更新壁纸
     void onSendImageAsWallpaper(const QImage& img);
+
+    // 启动声骸锁定
+    void on_startLockEcho_clicked();
+
+    // 声骸锁定结束
+    void onLockEchoDone(const bool& isNormalEnd, const QString& errMsg, const LockEchoSetting &lockEchoSetting);
 
 
 };

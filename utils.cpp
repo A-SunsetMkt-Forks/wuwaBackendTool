@@ -531,3 +531,50 @@ bool Utils::hexToBGR(const QString& hexColor, cv::Vec3b& outColor) {
     outColor = cv::Vec3b(b, g, r);
     return true;
 }
+
+bool Utils::saveDebugImg(const cv::Mat& scrShot, const cv::Rect& templateRoi, const int& clickX, const int& clickY, const QString& hint){
+    try {
+        // 检查输入图像是否为空
+        if (scrShot.empty()) {
+            qWarning() << "Input image is empty!";
+            return false;
+        }
+
+        // 转换图像为 8UC3 格式
+        cv::Mat img;
+        if (scrShot.channels() == 1) {
+            cv::cvtColor(scrShot, img, cv::COLOR_GRAY2BGR);
+        } else if (scrShot.channels() == 3) {
+            img = scrShot.clone();
+        } else {
+            qWarning() << "Unsupported image format!";
+            return false;
+        }
+
+        // 绘制蓝色矩形，线条宽度为 2
+        cv::rectangle(img, templateRoi, cv::Scalar(255, 0, 0), 2);
+
+        // 绘制红色实心圆，半径为 2
+        cv::circle(img, cv::Point(clickX, clickY), 2, cv::Scalar(0, 0, 255), cv::FILLED);
+
+        // 构造保存路径
+        QString outputPath = IMAGE_DIR_EI() + "/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_") + hint + ".bmp";
+
+        // 保存调试图像
+        if (!cv::imwrite(outputPath.toLocal8Bit().toStdString(), img)) {
+            qWarning() << "Failed to save debug image! " + outputPath;
+            return false;
+        }
+
+        return true;
+    } catch (const cv::Exception& e) {
+        qWarning() << "OpenCV exception:" << e.what();
+        return false;
+    } catch (const std::exception& e) {
+        qWarning() << "Standard exception:" << e.what();
+        return false;
+    } catch (...) {
+        qWarning() << "Unknown exception occurred!";
+        return false;
+    }
+}

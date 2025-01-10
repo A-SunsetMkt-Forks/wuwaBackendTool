@@ -41,6 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_mainBackendWorkerNew.moveToThread(&m_mainBackendNewThread);
     m_mainBackendNewThread.start();
 
+    // 锁定声骸
+    connect(this, &MainWindow::startLockEcho, &this->m_mainBackendWorkerNew, &MainBackendWorkerNew::onStartLockEcho);
+    connect(&this->m_mainBackendWorkerNew, &MainBackendWorkerNew::lockEchoDone, this, &MainWindow::onLockEchoDone);
+
     // test1的连接
     connect(this, &MainWindow::startTest1, &this->m_mainBackendWorker, &MainBackendWorker::onStartTest1);
     connect(&this->m_mainBackendWorker, &MainBackendWorker::startTest1Done, this, &MainWindow::onStartTest1Done);
@@ -143,6 +147,8 @@ void MainWindow::registerType(){
     qRegisterMetaType<QString>("QString");
     qRegisterMetaType<SpecialBossSetting>("SpecialBossSetting");
     qRegisterMetaType<RebootGameSetting>("RebootGameSetting");
+    qRegisterMetaType<LockEchoSetting>("LockEchoSetting");
+
 }
 
 void MainWindow::registerGlobalHotKey() {
@@ -250,7 +256,7 @@ void MainWindow::checkSpecialBoss(const SpecialBossSetting& setting){
     }
 
     // 检查此时是否正忙
-    if(m_mainBackendWorker.isBusy()){
+    if(m_mainBackendWorkerNew.isBusy() || m_mainBackendWorker.isBusy()){
         QMessageBox::warning(this, "后台正忙", "请停止其他脚本，再启用本脚本");
         return;
     }
@@ -337,3 +343,30 @@ void MainWindow::onSendImageAsWallpaper(const QImage& img){
 }
 
 
+void MainWindow::on_startLockEcho_clicked(){
+    qInfo() << QString("MainWindow::on_startLockEcho_clicked");
+
+    if(m_mainBackendWorkerNew.isBusy() || m_mainBackendWorker.isBusy()){
+        QMessageBox::warning(this, "有其他后台正忙", "请等待任务结束或手动停止后台任务，再启动锁定声骸");
+        return;
+    }
+
+    LockEchoSetting lockEchoSetting;
+    ui->isBusyBox->setChecked(true);
+    emit startLockEcho(lockEchoSetting);
+
+
+}
+
+void MainWindow::onLockEchoDone(const bool& isNormalEnd, const QString& errMsg, const LockEchoSetting &lockEchoSetting){
+    ui->isBusyBox->setChecked(false);
+
+    if(isNormalEnd){
+        QMessageBox::information(this, "锁定声骸结束", errMsg);
+    }
+    else{
+        QMessageBox::critical(this, "锁定声骸结束", errMsg);
+    }
+
+    qInfo() << QString("onLockEchoDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
+}
