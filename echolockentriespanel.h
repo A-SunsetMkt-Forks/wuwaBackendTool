@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "mainbackendworkernew.h"
+#include "abstractentrypanel.h"
 /*
 声骸锁定面板
 上面是套装分页
@@ -22,6 +23,8 @@ public:
     explicit EchoLockEntriesPanel(QWidget *parent = nullptr);
     ~EchoLockEntriesPanel();
     LockEchoSetting getLockEchoSettingFromUI();
+
+    void setLockEchoSetting2UI(const LockEchoSetting& setting);
 
 private:
     Ui::EchoLockEntriesPanel *ui;

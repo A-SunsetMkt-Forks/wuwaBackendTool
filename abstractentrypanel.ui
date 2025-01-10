@@ -112,7 +112,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QTabWidget" name="tabWidget">
+  <widget class="QTabWidget" name="costTabWidget">
    <property name="geometry">
     <rect>
      <x>20</x>

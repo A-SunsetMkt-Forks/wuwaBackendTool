@@ -353,6 +353,8 @@ void MainWindow::on_startLockEcho_clicked(){
     }
 
     LockEchoSetting lockEchoSetting = ui->echoLockEntriesPanel->getLockEchoSettingFromUI();
+    qInfo().noquote() << lockEchoSetting.toQString();
+
     ui->isBusyBox->setChecked(true);
     emit startLockEcho(lockEchoSetting);
 

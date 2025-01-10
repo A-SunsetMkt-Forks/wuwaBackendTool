@@ -2,6 +2,7 @@
 #define ABSTRACTENTRYPANEL_H
 
 #include <QWidget>
+#include "mainbackendworkernew.h"
 
 namespace Ui {
 class AbstractEntryPanel;
@@ -14,6 +15,8 @@ class AbstractEntryPanel : public QWidget
 public:
     explicit AbstractEntryPanel(QWidget *parent = nullptr);
     ~AbstractEntryPanel();
+    SingleEchoSetting getSingleEchoSettingFromUI();
+    void setSingleEchoSetting2UI(const SingleEchoSetting& setting);
 
 private:
     Ui::AbstractEntryPanel *ui;

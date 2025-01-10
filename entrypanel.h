@@ -2,6 +2,7 @@
 #define ENTRYPANEL_H
 
 #include <QWidget>
+#include "mainbackendworkernew.h"
 
 namespace Ui {
 class EntryPanel;
@@ -14,6 +15,8 @@ class EntryPanel : public QWidget
 public:
     explicit EntryPanel(QWidget *parent = nullptr);
     ~EntryPanel();
+    QVector<QString> getEntryMapfromUI();
+    void setEntryMap2UI(const QVector<QString>& entries);
 
 private:
     Ui::EntryPanel *ui;
