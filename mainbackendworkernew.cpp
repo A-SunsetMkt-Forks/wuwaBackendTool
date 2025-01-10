@@ -350,17 +350,39 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
     QElapsedTimer onePageTimeCost;
     onePageTimeCost.start();
     capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-    cv::Mat lockTrueMat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "lockTrue.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    cv::Mat lockFalseMat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "lockFalse.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    cv::Mat discardTrueMat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "discardTrue.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    cv::Mat discardFalseMat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "discardFalse.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat lockTrueMat = cv::imread(
+        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("lockTrue.bmp").toLocal8Bit().toStdString(),
+        cv::IMREAD_UNCHANGED
+    );
+    cv::Mat lockFalseMat = cv::imread(
+        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("lockFalse.bmp").toLocal8Bit().toStdString(),
+        cv::IMREAD_UNCHANGED
+    );
+    cv::Mat discardTrueMat = cv::imread(
+        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("discardTrue.bmp").toLocal8Bit().toStdString(),
+        cv::IMREAD_UNCHANGED
+    );
+    cv::Mat discardFalseMat = cv::imread(
+        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("discardFalse.bmp").toLocal8Bit().toStdString(),
+        cv::IMREAD_UNCHANGED
+    );
 
-    cv::Mat cost1Mat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "cost1.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    cv::Mat cost3Mat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "cost3.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    cv::Mat cost4Mat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "cost4.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat cost1Mat = cv::imread(
+        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost1.bmp").toLocal8Bit().toStdString(),
+        cv::IMREAD_UNCHANGED
+    );
+    cv::Mat cost3Mat = cv::imread(
+        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost3.bmp").toLocal8Bit().toStdString(),
+        cv::IMREAD_UNCHANGED
+    );
+    cv::Mat cost4Mat = cv::imread(
+        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost4.bmp").toLocal8Bit().toStdString(),
+        cv::IMREAD_UNCHANGED
+    );
 
-    for (int i = 0; i < maxColNum; i++) {
-        for (int j = 0; j < maxRowNum; j++) {
+
+    for (int i = 0; i < maxColNum && isBusy(); i++) {
+        for (int j = 0; j < maxRowNum && isBusy(); j++) {
             capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
             int x, y;
             // 声骸卡片 矩形位置
@@ -429,8 +451,10 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             }
 
             // 左键单击 选中当前声骸
+            Utils::moveMouseToClientArea(Utils::hwnd, echoRect.x + echoRect.width / 2,  echoRect.y + echoRect.height / 2);
+            Sleep(200);
             Utils::clickWindowClientArea(Utils::hwnd, echoRect.x + echoRect.width / 2,  echoRect.y + echoRect.height / 2);
-            Sleep(500);
+            Sleep(1000);
             capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
             // 先判断是什么COST
             maxSimilarity = 0.0;
@@ -441,11 +465,6 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             }
             // 当前套装的参数
             SingleEchoSetting singleEchoSetting = lockEchoSetting.echoSetName2singleSetting[bestEchoSetName];
-
-            //const cv::Rect isLockROI = {1121, 206, 27, 30};   //判断是否上锁的位置
-            //const cv::Rect isDiscardROI = {1191, 207, 27, 29};  //  判断是否丢弃了的位置
-            //const cv::Rect costROI = {1191, 138, 26, 21};   // COST 后面数字的位置
-            //const cv::Rect mainEntryROI = {870, 278, 230, 30}; // 主词条位置
             // 判断是否锁定
             bool isLock;
             double isLockTrueSimilarity = 0.0;
@@ -474,10 +493,10 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
                 continue;
             }
             else if(isDiscardTrueSimilarity > isDiscardFalseSimilarity){
-                isLock = true;
+                isDiscard = true;
             }
             else{
-                isLock = false;
+                isDiscard = false;
             }
 
             // 判断是COST？
@@ -503,12 +522,52 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             }
             else{
                 qWarning() << QString("%1 行  %2 列声骸无法判定COST").arg(i+1).arg(j+1);
-                continue;
+                //continue;
             }
 
             // 根据输入参数 是否要判断此声骸的主词条
+            QString thisEchoMsg = QString("%1行%2列声骸_之前是否锁定%3_之前是否丢弃%4_这是COST%5").arg(i+1).arg(j+1).arg(isLock?"是": "否").arg(isDiscard?"是": "否").arg(cost);
+            //qInfo() << thisEchoMsg;
 
+            if(singleEchoSetting.isLockJudge && isLock ||
+                    singleEchoSetting.isDiscardedJudge && isDiscard ||
+                    singleEchoSetting.isNormalJudge && (!isDiscard && !isLock)){
+                // 如果设置要求和实际判断结果符合
+                QVector<QString> entryList = singleEchoSetting.cost2EntryMap[cost];
+                if(entryList.empty()){
+                    // 没有词条需要判断
+                    continue;
+                }
 
+                // 最优先判断暴击伤害 容易和暴击率混淆
+                double entrySimilarity = 0.0;
+                cv::Mat criticalDMGIcon = entryName2entryIconMap["criticalDMG"].clone();
+                if(entryList.contains("criticalDMG") && Utils::findPic(capImg(mainEntryROI).clone(), criticalDMGIcon, 0.8, x, y, entrySimilarity)){
+                    qInfo() << QString("%1 套装所属 %2。需要暴击伤害词条，锁定. 相似系数%3").arg(thisEchoMsg).arg(bestEchoSetName).arg(entrySimilarity);
+                    Utils::keyPress(Utils::hwnd, 'C', 1);
+                    Sleep(300);
+                    continue;
+                }
+
+                for(auto entry : entryList){
+                    cv::Mat entryIcon = entryName2entryIconMap[entry].clone();
+                    if(Utils::findPic(capImg(mainEntryROI).clone(), entryIcon, 0.8, x, y, entrySimilarity)){
+                        qInfo() << QString("%1 套装所属 %2。需要%3词条，锁定. 相似系数%3").arg(thisEchoMsg).arg(bestEchoSetName).arg(entry).arg(entrySimilarity);
+                        Utils::keyPress(Utils::hwnd, 'C', 1);
+                        Sleep(300);
+                        continue;
+                    }
+                }
+                qInfo() << QString("%1 套装所属 %2。没有找到要的词条，丢弃").arg(thisEchoMsg).arg(bestEchoSetName);
+                Utils::keyPress(Utils::hwnd, 'Z', 1);
+                Sleep(300);
+                continue;
+            }
+            Sleep(200);
+        }
+
+        if(!isBusy()){
+            return true;
         }
     }
     qInfo() << QString("一页判断耗时%1 ms").arg(onePageTimeCost.elapsed());

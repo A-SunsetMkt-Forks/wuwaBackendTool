@@ -110,7 +110,7 @@ private:
 
     const cv::Rect isLockROI = {1121, 206, 27, 30};   //判断是否上锁的位置
     const cv::Rect isDiscardROI = {1191, 207, 27, 29};  //  判断是否丢弃了的位置
-    const cv::Rect costROI = {1191, 138, 26, 21};   // COST 后面数字的位置
+    const cv::Rect costROI = {1191, 138, 26, 23};   // COST 后面数字的位置
     const cv::Rect mainEntryROI = {870, 278, 230, 30}; // 主词条位置
 
 
