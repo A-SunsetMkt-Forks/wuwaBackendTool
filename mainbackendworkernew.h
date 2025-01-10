@@ -108,10 +108,12 @@ private:
     const int maxColNum = 6;    // 一个页面默认能显示6列4行
     const int maxRowNum = 4;
 
-    const cv::Rect isLockROI = {1121, 206, 27, 30};   //判断是否上锁的位置
-    const cv::Rect isDiscardROI = {1191, 207, 27, 29};  //  判断是否丢弃了的位置
+   // const cv::Rect isLockROI = {1121, 206, 27, 30};   //判断是否上锁的位置
+    //const cv::Rect isDiscardROI = {1191, 207, 27, 29};  //  判断是否丢弃了的位置
+    const cv::Rect isLockROI = {858, 77, 377, 278};   //判断是否上锁的位置
+    const cv::Rect isDiscardROI = {858, 77, 377, 278};  //  判断是否丢弃了的位置
     const cv::Rect costROI = {1191, 138, 26, 23};   // COST 后面数字的位置
-    const cv::Rect mainEntryROI = {870, 278, 230, 30}; // 主词条位置
+    const cv::Rect mainEntryROI = {870, 278, 230, 32}; // 主词条位置
 
 
     // 比如左上角的套装图标在全图就是 echoSetRoi.x + topLeftEchoROI.x echoSetRoi.y + topLeftEchoROI.y echoSetRoi.width echoSetRoi.height

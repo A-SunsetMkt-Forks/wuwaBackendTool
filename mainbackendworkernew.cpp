@@ -110,7 +110,8 @@ void MainBackendWorkerNew::initEntryName2IconMap(){
         entryName2entryIconMap[key] = icon;
 
         if (icon.empty()) {
-            qWarning() << QString("Failed to load %1 bmp file, -> %2").arg(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key)).arg(key);
+            QString filePath = QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg(key);
+            qWarning() << QString("Failed to load %1 bmp file, -> %2").arg(filePath).arg(key);
         }
     }
 }
@@ -404,7 +405,8 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             // 遍历判断是什么套装
             for (auto echoSetName : echoSet2echoSetIconMap.keys()) {
                 double similarity;
-                cv::Mat thisEchoRectRoiImg = capImg(echoSetRect).clone();
+                //cv::Mat thisEchoRectRoiImg = capImg(echoSetRect).clone();
+                cv::Mat thisEchoRectRoiImg = capImg(echoRect).clone();
                 if (Utils::findPic(thisEchoRectRoiImg, echoSet2echoSetIconMap[echoSetName], 0.6, x, y, similarity)) {
                     if (similarity > maxSimilarity) {
                         maxSimilarity = similarity;
@@ -416,8 +418,8 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             // 如果找到了相似度最大的套装
             if (!bestEchoSetName.isEmpty()) {
                 qInfo() << QString("%1 行 %2 列 是 %3 (相似度: %4)")
-                               .arg(i + 1)
                                .arg(j + 1)
+                               .arg(i + 1)
                                .arg(echoSetNameTranslationMap[bestEchoSetName])
                                .arg(maxSimilarity);
                 //markImg(cv::Rect(echoSetRect.x + 20, echoSetRect.y + 20, echoSet2echoSetIconMap[bestEchoSetName].cols, echoSet2echoSetIconMap[bestEchoSetName].rows))= echoSet2echoSetIconMap[bestEchoSetName];
@@ -443,8 +445,8 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             }
             else{
                 qWarning() << QString("%1 行 %2 列 是 %3 (相似度: %4)  未能找到合适的套装图标 ")
-                              .arg(i + 1)
                               .arg(j + 1)
+                              .arg(i + 1)
                               .arg(echoSetNameTranslationMap[bestEchoSetName])
                               .arg(maxSimilarity);
                 continue;  // 不进行词条判断
@@ -452,9 +454,9 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
 
             // 左键单击 选中当前声骸
             Utils::moveMouseToClientArea(Utils::hwnd, echoRect.x + echoRect.width / 2,  echoRect.y + echoRect.height / 2);
-            Sleep(200);
+            Sleep(100);
             Utils::clickWindowClientArea(Utils::hwnd, echoRect.x + echoRect.width / 2,  echoRect.y + echoRect.height / 2);
-            Sleep(1000);
+            Sleep(500);
             capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
             // 先判断是什么COST
             maxSimilarity = 0.0;
@@ -472,15 +474,10 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             Utils::findPic(capImg(isLockROI).clone(), lockTrueMat, 0.7, x, y, isLockTrueSimilarity);
             Utils::findPic(capImg(isLockROI).clone(), lockFalseMat, 0.7, x, y, isLockFalseSimilarity);
             if(isLockTrueSimilarity == 0.0 || isLockFalseSimilarity == 0.0){
-                qWarning() << QString("%1 行  %2 列声骸无法判定锁定状态").arg(i+1).arg(j+1);
+                qWarning() << QString("%1 行  %2 列声骸无法判定锁定状态").arg(j+1).arg(i+1);
                 continue;
             }
-            else if(isLockTrueSimilarity > isLockFalseSimilarity){
-                isLock = true;
-            }
-            else{
-                isLock = false;
-            }
+
 
             // 判断是否丢弃
             bool isDiscard;
@@ -489,14 +486,34 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             Utils::findPic(capImg(isDiscardROI).clone(), discardTrueMat, 0.7, x, y, isDiscardTrueSimilarity);
             Utils::findPic(capImg(isDiscardROI).clone(), discardFalseMat, 0.7, x, y, isDiscardFalseSimilarity);
             if(isDiscardTrueSimilarity == 0.0 || isDiscardFalseSimilarity == 0.0){
-                qWarning() << QString("%1 行  %2 列声骸无法判定丢弃状态").arg(i+1).arg(j+1);
+                qWarning() << QString("%1 行  %2 列声骸无法判定丢弃状态").arg(j+1).arg(i+1);
                 continue;
             }
-            else if(isDiscardTrueSimilarity > isDiscardFalseSimilarity){
+
+
+            if(isLockTrueSimilarity > isLockFalseSimilarity){
+                isLock = true;
+            }
+            else{
+                isLock = false;
+            }
+
+            if(isDiscardTrueSimilarity > isDiscardFalseSimilarity){
                 isDiscard = true;
             }
             else{
                 isDiscard = false;
+            }
+
+            if(isLock && isDiscard){
+                if(isLockTrueSimilarity > isDiscardTrueSimilarity){
+                    isLock = true;
+                    isDiscard = false;
+                }
+                else{
+                    isLock = false;
+                    isDiscard = true;
+                }
             }
 
             // 判断是COST？
@@ -521,13 +538,12 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
                 cost = 4;
             }
             else{
-                qWarning() << QString("%1 行  %2 列声骸无法判定COST").arg(i+1).arg(j+1);
+                qWarning() << QString("%1 行  %2 列声骸无法判定COST").arg(j+1).arg(i+1);
                 //continue;
             }
 
             // 根据输入参数 是否要判断此声骸的主词条
-            QString thisEchoMsg = QString("%1行%2列声骸_之前是否锁定%3_之前是否丢弃%4_这是COST%5").arg(i+1).arg(j+1).arg(isLock?"是": "否").arg(isDiscard?"是": "否").arg(cost);
-            //qInfo() << thisEchoMsg;
+            QString thisEchoMsg = QString("%1行%2列声骸_之前锁定 %3_之前丢弃%4_这是COST%5").arg(j+1).arg(i+1).arg(isLock?"是": "否").arg(isDiscard?"是": "否").arg(cost);
 
             if(singleEchoSetting.isLockJudge && isLock ||
                     singleEchoSetting.isDiscardedJudge && isDiscard ||
@@ -539,31 +555,45 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
                     continue;
                 }
 
+                bool isFoundEntry = false;
                 // 最优先判断暴击伤害 容易和暴击率混淆
                 double entrySimilarity = 0.0;
                 cv::Mat criticalDMGIcon = entryName2entryIconMap["criticalDMG"].clone();
-                if(entryList.contains("criticalDMG") && Utils::findPic(capImg(mainEntryROI).clone(), criticalDMGIcon, 0.8, x, y, entrySimilarity)){
-                    qInfo() << QString("%1 套装所属 %2。需要暴击伤害词条，锁定. 相似系数%3").arg(thisEchoMsg).arg(bestEchoSetName).arg(entrySimilarity);
-                    Utils::keyPress(Utils::hwnd, 'C', 1);
-                    Sleep(300);
+                if(entryList.contains("criticalDMG") && Utils::findPic(capImg, criticalDMGIcon, 0.8, x, y, entrySimilarity)){
+                    qInfo() << QString("%1. 套装所属 %2。需要暴击伤害词条，锁定. 相似系数%3").arg(thisEchoMsg).arg(bestEchoSetName).arg(entrySimilarity);
+                    isFoundEntry = true;
+                    if(!isLock){
+                        Utils::keyPress(Utils::hwnd, 'C', 1);
+                        Sleep(300);
+                    }
                     continue;
                 }
 
                 for(auto entry : entryList){
                     cv::Mat entryIcon = entryName2entryIconMap[entry].clone();
-                    if(Utils::findPic(capImg(mainEntryROI).clone(), entryIcon, 0.8, x, y, entrySimilarity)){
-                        qInfo() << QString("%1 套装所属 %2。需要%3词条，锁定. 相似系数%3").arg(thisEchoMsg).arg(bestEchoSetName).arg(entry).arg(entrySimilarity);
-                        Utils::keyPress(Utils::hwnd, 'C', 1);
-                        Sleep(300);
-                        continue;
+                    if(Utils::findPic(capImg, entryIcon, 0.8, x, y, entrySimilarity)){
+                        qInfo() << QString("%1. 套装所属 %2。需要%3词条，锁定. 相似系数%4").arg(thisEchoMsg).arg(bestEchoSetName).arg(entry).arg(entrySimilarity);
+                        isFoundEntry = true;
+                        if(!isLock){
+                            Utils::keyPress(Utils::hwnd, 'C', 1);
+                            Sleep(300);
+                        }
+                        break;
+                    }
+                    else{
+                        qInfo() << QString("%1 套装所属 %2。需要%3词条，相似系数不够. 相似系数%4").arg(thisEchoMsg).arg(bestEchoSetName).arg(entry).arg(entrySimilarity);
                     }
                 }
-                qInfo() << QString("%1 套装所属 %2。没有找到要的词条，丢弃").arg(thisEchoMsg).arg(bestEchoSetName);
-                Utils::keyPress(Utils::hwnd, 'Z', 1);
-                Sleep(300);
-                continue;
+
+                if(!isFoundEntry){
+                    qInfo() << QString("%1. 套装所属 %2。没有找到要的词条，丢弃").arg(thisEchoMsg).arg(bestEchoSetName);
+                    if(!isDiscard){
+                        Utils::keyPress(Utils::hwnd, 'Z', 1);
+                        Sleep(300);
+                    }
+                }
             }
-            Sleep(200);
+            Sleep(100);
         }
 
         if(!isBusy()){
