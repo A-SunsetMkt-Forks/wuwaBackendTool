@@ -52,6 +52,9 @@ private:
     // 注册非原生数据类型 便于传递信号和槽函数
     void registerType();
 
+    // 生成默认的声骸锁定参数 并应用到UI
+    void genDefaultLockEchoSetting();
+
     // 后台工作线程和后台工作器
     QThread m_mainBackendThread;
     MainBackendWorker m_mainBackendWorker;

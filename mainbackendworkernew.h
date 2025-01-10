@@ -76,6 +76,9 @@ private:
     // 启动时 初始化套装名字和图片列表
     void initEchoSetName2IconMap();
 
+    // 启动时 初始化词条名字和图片列表
+    void initEntryName2IconMap();
+
     // 尝试进入背包 如果找不到则3次ESC + 找背包   返回true表示被用户打断或找到了背包并点了进去。返回false表示没有找到背包
     bool enterBagInterface();
 
@@ -110,9 +113,13 @@ private:
     const cv::Rect echoSetRoi = {0, 97, 30, 30};  // ### 可考虑适度再放大 增加容错
 
     // 声骸套装名字
-    QVector<QString> echoSetNameVector;
+    QVector<QString> echoSetNameVector;   // 支持的套装列表
     QMap<QString, cv::Mat> echoSet2echoSetIconMap;      // 输入英文套装名 得到对应套装icon
     QMap<QString, QString> echoSetNameTranslationMap;   // 输入英文套装名 得到对应中文名
+
+    QVector<QString> entryNameVector;  // 支持的词条列表
+    QMap<QString, cv::Mat> entryName2entryIconMap;      // 输入英文套装名 得到对应词条icon
+    QMap<QString, QString> entryNameTranslationMap;   // 输入英文套装名 得到对应中文名
 };
 
 #endif // MAINBACKENDWORKERNEW_H

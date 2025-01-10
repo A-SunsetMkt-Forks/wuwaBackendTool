@@ -4,6 +4,7 @@ MainBackendWorkerNew::MainBackendWorkerNew(QObject *parent) : QObject(parent)
 {
     m_isRunning.store(0);
     initEchoSetName2IconMap();
+    initEntryName2IconMap();
 }
 
 bool MainBackendWorkerNew::isBusy(){
@@ -72,6 +73,46 @@ void MainBackendWorkerNew::initEchoSetName2IconMap(){
         }
     }
 
+}
+
+
+void MainBackendWorkerNew::initEntryName2IconMap(){
+    entryName2entryIconMap.clear();
+    entryNameVector = {
+        "havocDMG", "fusionDMG", "HPratio", "energyRegen", "aeroDMG",
+        "electroDMG", "defenceRatio", "attackRatio", "spectroDMG", "heal",
+        "criticalDMG", "criticalRatio", "glacioDMG"
+    };
+
+    // 初始化翻译映射
+    entryNameTranslationMap.insert("havocDMG", "湮灭伤害");
+    entryNameTranslationMap.insert("fusionDMG", "热熔伤害");
+    entryNameTranslationMap.insert("HPratio", "生命百分比");
+    entryNameTranslationMap.insert("energyRegen", "共鸣效率");
+    entryNameTranslationMap.insert("aeroDMG", "气动伤害");
+    entryNameTranslationMap.insert("electroDMG", "导电伤害");
+    entryNameTranslationMap.insert("defenceRatio", "防御百分比");
+    entryNameTranslationMap.insert("attackRatio", "攻击百分比");
+    entryNameTranslationMap.insert("spectroDMG", "衍射伤害");
+    entryNameTranslationMap.insert("heal", "治疗效果加成");
+    entryNameTranslationMap.insert("criticalDMG", "暴击伤害");
+    entryNameTranslationMap.insert("criticalRatio", "暴击率");
+    entryNameTranslationMap.insert("glacioDMG", "冷凝伤害");
+
+    // 遍历 QVector 加载图片
+    for (const QString &key : entryNameVector) {
+        cv::Mat icon = cv::imread(
+            QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key).toLocal8Bit().toStdString(),
+            cv::IMREAD_UNCHANGED
+        );
+
+        // 加入到 QMap 中
+        entryName2entryIconMap[key] = icon;
+
+        if (icon.empty()) {
+            qWarning() << QString("Failed to load %1 bmp file, -> %2").arg(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key)).arg(key);
+        }
+    }
 }
 
 void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSetting){

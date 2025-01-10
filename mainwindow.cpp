@@ -30,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
         qDebug() << "Program is NOT running as Administrator." ;
     }
 
+    // 为锁定声骸填充默认参数
+    genDefaultLockEchoSetting();
+
     // 启动自动切换背景图线程
     m_autoChangeWallpaperBackendWorker.moveToThread(&m_autoChangeWallpaperBackendThread);
     m_autoChangeWallpaperBackendThread.start();
@@ -150,6 +153,33 @@ void MainWindow::registerType(){
     qRegisterMetaType<LockEchoSetting>("LockEchoSetting");
     qRegisterMetaType<SingleEchoSetting>("SingleEchoSetting");
 
+}
+
+void MainWindow::genDefaultLockEchoSetting(){
+    auto setting = ui->echoLockEntriesPanel->getLockEchoSettingFromUI();
+    for(auto echoSet: setting.echoSetName2singleSetting.keys()){
+        SingleEchoSetting &echoSetSetting = setting.echoSetName2singleSetting[echoSet];
+        if(echoSet == "freezingFrost"){
+             // 今州冰套
+             echoSetSetting.islevel5 = true;
+             echoSetSetting.isLockJudge = true;
+             echoSetSetting.isDiscardedJudge = true;
+             echoSetSetting.isNormalJudge = true;
+             // 今州冰套 C1
+             QVector<QString> c1entries = { "attackRatio"};
+             echoSetSetting.cost2EntryMap[1] = c1entries;
+
+             // 今州冰套C3
+             QVector<QString> c3entries = { "glacioDMG", "energyRegen"};
+             echoSetSetting.cost2EntryMap[3] = c3entries;
+
+             // 今州冰套C4
+             QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
+             echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+    }
+    qInfo().noquote() << setting.toQString();
+    ui->echoLockEntriesPanel->setLockEchoSetting2UI(setting);
 }
 
 void MainWindow::registerGlobalHotKey() {
