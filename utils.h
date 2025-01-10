@@ -77,9 +77,18 @@ public:
 
     // 点击客户端的某个位置 鼠标左键
     static bool clickWindowClientArea(HWND hwnd, int x, int y);
+    static bool clickWindowClientArea2(HWND hwnd, int x, int y);
+    // 向窗体发送单击指令
     static bool clickWindowClient(HWND hwnd);
+    // 向窗体发送拖拽指令
+    static bool dragWindowClient(HWND hwnd, int startx, int starty, int endx, int endy);
+    static bool dragWindowClient2(HWND hwnd, int startx, int starty, int endx, int endy);
+    static bool dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy);
     // 点击客户端的某个位置 鼠标中键
     static bool middleClickWindowClientArea(HWND hwnd, int x, int y);
+
+    // 移动鼠标到指定坐标
+    static bool moveMouseToClientArea(HWND hwnd, int x, int y);
 
     // get if it's admin
     static bool isRunningAsAdmin();

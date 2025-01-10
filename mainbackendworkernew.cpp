@@ -170,8 +170,26 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
             if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
 
             // 核心代码 处理当前页面的所有声骸
-            if(!lockOnePageEcho()){
-                if(isLockEchoStop(true, false, QString("锁定某页面声骸时出错"), lockEchoSetting)) return;
+            for(int iPage = 0; iPage < 3 && isBusy(); iPage++){
+                if(!lockOnePageEcho()){
+                    if(isLockEchoStop(true, false, QString("锁定%1页面声骸时出错").arg(iPage), lockEchoSetting)) return;
+                }
+
+                qInfo() << QString("翻页");
+                /*
+                for(int j = 0; j < 4 & isBusy(); j++){
+                    //this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, 300, 15);
+                    this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, echoRowMargin, 50);
+                    Sleep(1000);
+                }
+                */
+                this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + 3*echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, 3*echoRowMargin, 100);
+                if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
+                Sleep(1000);
+                this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin+2, topLeftEchoROI.x, topLeftEchoROI.y, echoRowMargin, 100);
+                if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
+                Sleep(1000);
+                // 截屏 和上一页对比 相似度 > 0.95认为已经结束了
             }
             // 检查用户是否打断
             if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
@@ -311,8 +329,9 @@ bool MainBackendWorkerNew::lockOnePageEcho(){
         }
     }
 
+    QElapsedTimer onePageTimeCost;
+    onePageTimeCost.start();
     capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-
     for (int i = 0; i < maxColNum; i++) {
         for (int j = 0; j < maxRowNum; j++) {
             int x, y;
@@ -378,7 +397,73 @@ bool MainBackendWorkerNew::lockOnePageEcho(){
             }
         }
     }
-
+    qInfo() << QString("一页判断耗时%1 ms").arg(onePageTimeCost.elapsed());
     Utils::saveDebugImg(markImg, cv::Rect(), -1, -1, "声骸格子");
+    return true;
+}
+
+bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy, int steps, int stepPauseMs) {
+    if (hwnd == nullptr || !IsWindow(hwnd)) {
+        qWarning() << "Invalid window handle.";
+        return false;
+    }
+
+    // 将起始点转换为屏幕坐标
+    POINT startPoint = { startx, starty };
+    if (!ClientToScreen(hwnd, &startPoint)) {
+        qWarning() << "Failed to convert start point to screen coordinates.";
+        return false;
+    }
+
+    // 将终点转换为屏幕坐标
+    POINT endPoint = { endx, endy };
+    if (!ClientToScreen(hwnd, &endPoint)) {
+        qWarning() << "Failed to convert end point to screen coordinates.";
+        return false;
+    }
+
+    // 移动鼠标到起始点
+    if (!SetCursorPos(startPoint.x, startPoint.y)) {
+        qWarning() << "Failed to move mouse to start position.";
+        return false;
+    }
+    Sleep(50); // 缓冲时间
+
+    // 模拟按下鼠标左键
+    LPARAM startLParam = MAKELPARAM(startx, starty);
+    PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, startLParam);
+    Sleep(200); // 模拟按住时间
+
+    // 模拟拖拽过程
+    for (int i = 1; i <= steps && isBusy(); ++i) {
+        int intermediateX = startPoint.x + (endPoint.x - startPoint.x) * i / steps;
+        int intermediateY = startPoint.y + (endPoint.y - startPoint.y) * i / steps;
+
+        if (!SetCursorPos(intermediateX, intermediateY)) {
+            qWarning() << "Failed to move mouse during drag.";
+            return false;
+        }
+
+        LPARAM intermediateLParam = MAKELPARAM(startx + (endx - startx) * i / steps,
+                                               starty + (endy - starty) * i / steps);
+        PostMessage(hwnd, WM_MOUSEMOVE, MK_LBUTTON, intermediateLParam);
+        Sleep(stepPauseMs); // 每步的延迟  默认50
+
+        if(i == steps){
+            Sleep(1000);
+        }
+    }
+    if(!isBusy()){
+        return true;
+    }
+
+    // 模拟松开鼠标左键
+    LPARAM endLParam = MAKELPARAM(endx, endy);
+    PostMessage(hwnd, WM_LBUTTONUP, 0, endLParam);
+    Sleep(50); // 缓冲时间
+
+    qDebug() << "Simulated drag from (" << startx << ", " << starty << ") to ("
+             << endx << ", " << endy << ")";
+
     return true;
 }

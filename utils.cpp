@@ -278,6 +278,176 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
     return true;
 }
 
+bool Utils::clickWindowClientArea2(HWND hwnd, int x, int y){
+    if (hwnd == nullptr || !IsWindow(hwnd)) {
+        return false;
+    }
+
+    QMutexLocker locker(&m_locker);
+
+    // 使用 moveMouseToClientArea 将鼠标移动到指定客户区坐标
+    if (!Utils::moveMouseToClientArea(hwnd, x, y)) {
+        qWarning() << "Failed to move mouse to client area coordinates.";
+        return false;
+    }
+
+    // 将客户区坐标转换为屏幕坐标
+    POINT clientPoint = { x, y };
+    if (!ClientToScreen(hwnd, &clientPoint)) {
+        qWarning() << "Failed to convert client area coordinates to screen coordinates.";
+        return false;
+    }
+
+    // 如果 x, y 是“客户区坐标”，则直接组合到 lParam
+    LPARAM lParam = MAKELPARAM(x, y);
+
+    // 发送鼠标按下消息
+    PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
+    Sleep(20);  // 给消息处理留一点缓冲时间
+
+    // 发送鼠标松开消息
+    PostMessage(hwnd, WM_LBUTTONUP, 0, lParam);
+    Sleep(20);
+
+    qDebug() << "Simulated click at client area coordinates: ("
+             << x << ", " << y << ")";
+
+    return true;
+}
+
+bool Utils::dragWindowClient(HWND hwnd, int startx, int starty, int endx, int endy) {
+    if (hwnd == nullptr || !IsWindow(hwnd)) {
+        return false;
+    }
+
+    QMutexLocker locker(&m_locker);
+
+    // 将起始和终点的客户区坐标转换为屏幕坐标
+    POINT startPoint = { startx, starty };
+    POINT endPoint = { endx, endy };
+
+    if (!ClientToScreen(hwnd, &startPoint)) {
+        qWarning() << "Failed to convert start point coordinates to screen coordinates.";
+        return false;
+    }
+
+    if (!ClientToScreen(hwnd, &endPoint)) {
+        qWarning() << "Failed to convert end point coordinates to screen coordinates.";
+        return false;
+    }
+
+    // 计算起点和终点的 lParam 值
+    LPARAM startLParam = MAKELPARAM(startx, starty);
+    LPARAM endLParam = MAKELPARAM(endx, endy);
+
+    // 发送鼠标按下消息
+    PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, startLParam);
+    Sleep(200);  // 按住左键一段时间
+
+    // 模拟鼠标移动到终点
+    PostMessage(hwnd, WM_MOUSEMOVE, MK_LBUTTON, endLParam);
+    Sleep(500);  // 确保移动过程被处理
+
+    // 发送鼠标松开消息
+    PostMessage(hwnd, WM_LBUTTONUP, 0, endLParam);
+    Sleep(200);
+
+    qDebug() << "Simulated drag from (" << startx << ", " << starty << ") to ("
+             << endx << ", " << endy << ")";
+
+    return true;
+}
+
+bool Utils::dragWindowClient2(HWND hwnd, int startx, int starty, int endx, int endy) {
+    if (hwnd == nullptr || !IsWindow(hwnd)) {
+        return false;
+    }
+
+    QMutexLocker locker(&m_locker);
+
+    // 移动鼠标到起始点
+    if (!Utils::moveMouseToClientArea(hwnd, startx, starty)) {
+        qWarning() << "Failed to move mouse to start position.";
+        return false;
+    }
+
+    // 将起点客户区坐标转换为屏幕坐标
+    POINT startPoint = { startx, starty };
+    if (!ClientToScreen(hwnd, &startPoint)) {
+        qWarning() << "Failed to convert start position to screen coordinates.";
+        return false;
+    }
+
+    LPARAM startLParam = MAKELPARAM(startx, starty);
+
+    // 模拟按下鼠标左键
+    PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, startLParam);
+    Sleep(200);  // 模拟按住一段时间
+
+    // 移动鼠标到终点
+    if (!Utils::moveMouseToClientArea(hwnd, endx, endy)) {
+        qWarning() << "Failed to move mouse to end position.";
+        // 模拟松开鼠标以防止意外问题
+        PostMessage(hwnd, WM_LBUTTONUP, 0, startLParam);
+        return false;
+    }
+
+    // 将终点客户区坐标转换为屏幕坐标
+    POINT endPoint = { endx, endy };
+    if (!ClientToScreen(hwnd, &endPoint)) {
+        qWarning() << "Failed to convert end position to screen coordinates.";
+        // 模拟松开鼠标以防止意外问题
+        PostMessage(hwnd, WM_LBUTTONUP, 0, startLParam);
+        return false;
+    }
+
+    LPARAM endLParam = MAKELPARAM(endx, endy);
+
+    // 模拟鼠标移动
+    PostMessage(hwnd, WM_MOUSEMOVE, MK_LBUTTON, endLParam);
+    Sleep(500);  // 模拟移动缓冲时间
+
+    // 模拟松开鼠标左键
+    PostMessage(hwnd, WM_LBUTTONUP, 0, endLParam);
+    Sleep(200);  // 模拟移动缓冲时间
+
+    qDebug() << "Simulated drag from (" << startx << ", " << starty << ") to ("
+             << endx << ", " << endy << ")";
+
+    return true;
+}
+
+
+
+
+
+// 移动鼠标指针到目标窗口的客户区坐标
+bool Utils::moveMouseToClientArea(HWND hwnd, int x, int y) {
+    if (hwnd == nullptr || !IsWindow(hwnd)) {
+        return false;
+    }
+
+    QMutexLocker locker(&m_locker);
+
+    // 将客户区坐标转换为屏幕坐标
+    POINT clientPoint = { x, y };
+    if (!ClientToScreen(hwnd, &clientPoint)) {
+        qWarning() << "Failed to convert client area coordinates to screen coordinates.";
+        return false;
+    }
+
+    // 使用 SetCursorPos 将鼠标移动到目标位置（屏幕坐标）
+    if (!SetCursorPos(clientPoint.x, clientPoint.y)) {
+        qWarning() << "Failed to move mouse to target position.";
+        return false;
+    }
+
+    qDebug() << "Mouse moved to client area coordinates: ("
+             << x << ", " << y << ")";
+
+    return true;
+}
+
 bool Utils::clickWindowClient(HWND hwnd) {
     if(hwnd == nullptr || !IsWindow(hwnd)){
         return false;

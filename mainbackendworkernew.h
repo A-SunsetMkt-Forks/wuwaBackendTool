@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QAtomicInt>
 #include <QDebug>
+#include <QElapsedTimer>
 #include "utils.h"
 
 struct LockEchoSetting{
@@ -35,6 +36,9 @@ private:
     // 处理一个页面的声骸
     bool lockOnePageEcho();
 
+    // 慢速拖动 越慢越容易成功
+    bool dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy, int steps, int stepPauseMs);
+
 signals:
     void lockEchoDone(const bool& isNormalEnd, const QString& errMsg, const LockEchoSetting &lockEchoSetting);
 
@@ -48,14 +52,15 @@ private:
     const cv::Rect searchEchoIconROI = {1, 62, 102, 640};  //  在背包画面左侧区域找声骸图标
     const cv::Rect topLeftEchoROI = {136, 79, 102, 125};   // 进入声骸页面后 最左上角默认声骸的位置
     const int echoColMargin = 111;   // 向右移动 需要向右挪动
-    const int echoRowMargin = 137;   // 向下移动 需要向下挪动
+    const int echoRowMargin = 137;   // 向下移动 需要向下挪动  20250110 1505 是137  137是静态更准的，但是移动拖拽鼠标似乎需要+2
     const int maxColNum = 6;    // 一个页面默认能显示6列4行
     const int maxRowNum = 4;
 
-    const cv::Rect echoSetRoi = {2, 99, 26, 26};   // 比如左上角的套装图标在全图就是 echoSetRoi.x + topLeftEchoROI.x echoSetRoi.y + topLeftEchoROI.y echoSetRoi.width echoSetRoi.height
+    // 比如左上角的套装图标在全图就是 echoSetRoi.x + topLeftEchoROI.x echoSetRoi.y + topLeftEchoROI.y echoSetRoi.width echoSetRoi.height
+    // 20250110 1509 {2, 99, 26, 26}
+    const cv::Rect echoSetRoi = {0, 97, 30, 30};
 
     // 声骸套装名字
-
     QMap<QString, cv::Mat> echoSet2echoSetIconMap;      // 输入英文套装名 得到对应套装icon
     QMap<QString, QString> echoSetNameTranslationMap;   // 输入英文套装名 得到对应中文名
 };
