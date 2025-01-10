@@ -22,7 +22,7 @@ void MainBackendWorkerNew::stopWorker(){
 
 void MainBackendWorkerNew::initEchoSetName2IconMap(){
     echoSet2echoSetIconMap.clear();
-    QVector<QString> echoSetNameVector = {
+    echoSetNameVector = {
         "freezingFrost", // 凝夜白霜  今州冰套
         "moltenRift",    // 熔山裂谷  今州火套
         "voidThunder",   // 彻空冥雷  今州雷套
@@ -40,23 +40,6 @@ void MainBackendWorkerNew::initEchoSetName2IconMap(){
         "tidebreakingCourage" // 无惧浪涛之勇 黎纳汐塔共鸣效率增伤套
     };
 
-    /*
-    const QString freezingFrost = "freezingFrost";  // 凝夜白霜  今州冰套
-    const QString moltenRift = "moltenRift";        // 熔山裂谷  今州火套
-    const QString voidThunder = "voidThunder";      // 彻空冥雷  今州雷套
-    const QString sierraGale = "sierraGale";        // 啸谷长风  今州风套
-    const QString celestialLight = "celestialLight";   // 浮星祛暗  今州光套
-    const QString sunSinkingEclipse = "sunSinkingEclipse"; // 沉日劫明  今州暗套
-    const QString rejuvenatingGlow = "rejuvenatingGlow";  // 隐世回光 今州奶套
-    const QString moonlitClouds = "moonlitClouds";        // 轻云出月 今州共鸣
-    const QString lingeringTunes = "lingeringTunes";      // 不绝余音 今州攻击
-
-    const QString frostyResolve = "frostyResolve";        // 凌冽决断之心 黎纳汐塔冰套
-    const QString eternalRadiance = "eternalRadiance";    // 此间永驻之光 黎纳汐塔光套
-    const QString midnightVeil = "midnightVeil";    // 幽夜隐匿之帷 黎纳汐塔暗套
-    const QString empyreanAnthem = "empyreanAnthem";    // 高天共奏之曲 黎纳汐塔共鸣协同攻击套
-    const QString tidebreakingCourage = "tidebreakingCourage";  // 无惧浪涛之勇 黎纳汐塔共鸣效率增伤套
-    */
 
     // 初始化翻译映射
     echoSetNameTranslationMap.insert("freezingFrost", "凝夜白霜");
@@ -170,25 +153,28 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
             if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
 
             // 核心代码 处理当前页面的所有声骸
-            for(int iPage = 0; iPage < 3 && isBusy(); iPage++){
+            for(int iPage = 0; iPage < 10 && isBusy(); iPage++){
                 if(!lockOnePageEcho()){
                     if(isLockEchoStop(true, false, QString("锁定%1页面声骸时出错").arg(iPage), lockEchoSetting)) return;
                 }
 
                 qInfo() << QString("翻页");
-                /*
                 for(int j = 0; j < 4 & isBusy(); j++){
                     //this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, 300, 15);
-                    this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, echoRowMargin, 50);
+                    this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, echoRowMargin, 20);
                     Sleep(1000);
+                    this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + 12, topLeftEchoROI.x, topLeftEchoROI.y, 12, 20);
                 }
-                */
+                // this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + 10, topLeftEchoROI.x, topLeftEchoROI.y, 10, 50);
+                /*
                 this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + 3*echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, 3*echoRowMargin, 100);
                 if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
                 Sleep(1000);
-                this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin+2, topLeftEchoROI.x, topLeftEchoROI.y, echoRowMargin, 100);
+
+                this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin+5, topLeftEchoROI.x, topLeftEchoROI.y, echoRowMargin, 100);
                 if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
                 Sleep(1000);
+                */
                 // 截屏 和上一页对比 相似度 > 0.95认为已经结束了
             }
             // 检查用户是否打断
@@ -436,6 +422,9 @@ bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, 
 
     // 模拟拖拽过程
     for (int i = 1; i <= steps && isBusy(); ++i) {
+        if(i < 3){
+            //Sleep(500);
+        }
         int intermediateX = startPoint.x + (endPoint.x - startPoint.x) * i / steps;
         int intermediateY = startPoint.y + (endPoint.y - startPoint.y) * i / steps;
 

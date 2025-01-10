@@ -7,10 +7,19 @@
 #include <QElapsedTimer>
 #include "utils.h"
 
+// 某个声骸套装的设置
+struct SingleEchoSetting{
+    bool isDiscardedJudge = true;  // true表示丢弃的 参与判断
+    bool isLockJudge = true;      // true表示锁定的 参与判断
+    bool isNormalJudge = true;    // true表示普通的 参与判断
+};
+Q_DECLARE_METATYPE(SingleEchoSetting)
+
+// 总设置
 struct LockEchoSetting{
+    QMap<QString, SingleEchoSetting> echoSetName2singleSetting; // 通过声骸套装名可以索引得到设置
 
 };
-// 声明为 Qt 元类型
 Q_DECLARE_METATYPE(LockEchoSetting)
 
 class MainBackendWorkerNew : public QObject
@@ -58,9 +67,10 @@ private:
 
     // 比如左上角的套装图标在全图就是 echoSetRoi.x + topLeftEchoROI.x echoSetRoi.y + topLeftEchoROI.y echoSetRoi.width echoSetRoi.height
     // 20250110 1509 {2, 99, 26, 26}
-    const cv::Rect echoSetRoi = {0, 97, 30, 30};
+    const cv::Rect echoSetRoi = {0, 97, 30, 30};  // ### 可考虑适度再放大 增加容错
 
     // 声骸套装名字
+    QVector<QString> echoSetNameVector;
     QMap<QString, cv::Mat> echoSet2echoSetIconMap;      // 输入英文套装名 得到对应套装icon
     QMap<QString, QString> echoSetNameTranslationMap;   // 输入英文套装名 得到对应中文名
 };
