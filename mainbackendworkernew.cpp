@@ -195,7 +195,7 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
 
             // 核心代码 处理当前页面的所有声骸
             for(int iPage = 0; iPage < 10 && isBusy(); iPage++){
-                if(!lockOnePageEcho()){
+                if(!lockOnePageEcho(lockEchoSetting)){
                     if(isLockEchoStop(true, false, QString("锁定%1页面声骸时出错").arg(iPage), lockEchoSetting)) return;
                 }
 
@@ -319,7 +319,7 @@ bool MainBackendWorkerNew::enterEchoInterface(){
 
 }
 
-bool MainBackendWorkerNew::lockOnePageEcho(){
+bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSetting){
     // 等待声骸打开动画
     for (int j = 0; j < 5 && isBusy(); j++) {
         Sleep(300); // 等待动画完成
@@ -350,13 +350,26 @@ bool MainBackendWorkerNew::lockOnePageEcho(){
     QElapsedTimer onePageTimeCost;
     onePageTimeCost.start();
     capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+    cv::Mat lockTrueMat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "lockTrue.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat lockFalseMat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "lockFalse.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat discardTrueMat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "discardTrue.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat discardFalseMat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "discardFalse.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+
+    cv::Mat cost1Mat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "cost1.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat cost3Mat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "cost3.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat cost4Mat = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), "cost4.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+
     for (int i = 0; i < maxColNum; i++) {
         for (int j = 0; j < maxRowNum; j++) {
+            capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
             int x, y;
+            // 声骸卡片 矩形位置
             cv::Rect echoRect = cv::Rect(topLeftEchoROI.x + i * echoColMargin,
                                          topLeftEchoROI.y + j * echoRowMargin,
                                          topLeftEchoROI.width,
                                          topLeftEchoROI.height);
+
+            // 声骸卡片 左下角的套装图标
             cv::Rect echoSetRect = cv::Rect(echoRect.x + echoSetRoi.x,
                                             echoRect.y + echoSetRoi.y,
                                             echoSetRoi.width,
@@ -412,7 +425,90 @@ bool MainBackendWorkerNew::lockOnePageEcho(){
                               .arg(j + 1)
                               .arg(echoSetNameTranslationMap[bestEchoSetName])
                               .arg(maxSimilarity);
+                continue;  // 不进行词条判断
             }
+
+            // 左键单击 选中当前声骸
+            Utils::clickWindowClientArea(Utils::hwnd, echoRect.x + echoRect.width / 2,  echoRect.y + echoRect.height / 2);
+            Sleep(500);
+            capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            // 先判断是什么COST
+            maxSimilarity = 0.0;
+            QString costIdx;  // cost1 cost3
+            if(!lockEchoSetting.echoSetName2singleSetting.contains(bestEchoSetName)){
+                qWarning() << QString("输入参数不支持 %1 套装").arg(bestEchoSetName);
+                continue;
+            }
+            // 当前套装的参数
+            SingleEchoSetting singleEchoSetting = lockEchoSetting.echoSetName2singleSetting[bestEchoSetName];
+
+            //const cv::Rect isLockROI = {1121, 206, 27, 30};   //判断是否上锁的位置
+            //const cv::Rect isDiscardROI = {1191, 207, 27, 29};  //  判断是否丢弃了的位置
+            //const cv::Rect costROI = {1191, 138, 26, 21};   // COST 后面数字的位置
+            //const cv::Rect mainEntryROI = {870, 278, 230, 30}; // 主词条位置
+            // 判断是否锁定
+            bool isLock;
+            double isLockTrueSimilarity = 0.0;
+            double isLockFalseSimilarity = 0.0;
+            Utils::findPic(capImg(isLockROI).clone(), lockTrueMat, 0.7, x, y, isLockTrueSimilarity);
+            Utils::findPic(capImg(isLockROI).clone(), lockFalseMat, 0.7, x, y, isLockFalseSimilarity);
+            if(isLockTrueSimilarity == 0.0 || isLockFalseSimilarity == 0.0){
+                qWarning() << QString("%1 行  %2 列声骸无法判定锁定状态").arg(i+1).arg(j+1);
+                continue;
+            }
+            else if(isLockTrueSimilarity > isLockFalseSimilarity){
+                isLock = true;
+            }
+            else{
+                isLock = false;
+            }
+
+            // 判断是否丢弃
+            bool isDiscard;
+            double isDiscardTrueSimilarity = 0.0;
+            double isDiscardFalseSimilarity = 0.0;
+            Utils::findPic(capImg(isDiscardROI).clone(), discardTrueMat, 0.7, x, y, isDiscardTrueSimilarity);
+            Utils::findPic(capImg(isDiscardROI).clone(), discardFalseMat, 0.7, x, y, isDiscardFalseSimilarity);
+            if(isDiscardTrueSimilarity == 0.0 || isDiscardFalseSimilarity == 0.0){
+                qWarning() << QString("%1 行  %2 列声骸无法判定丢弃状态").arg(i+1).arg(j+1);
+                continue;
+            }
+            else if(isDiscardTrueSimilarity > isDiscardFalseSimilarity){
+                isLock = true;
+            }
+            else{
+                isLock = false;
+            }
+
+            // 判断是COST？
+            int cost;
+            double isCost1Similarity = 0.0;
+            double isCost3Similarity = 0.0;
+            double isCost4Similarity = 0.0;
+            Utils::findPic(capImg(costROI).clone(), cost1Mat, 0.7, x, y, isCost1Similarity);
+            Utils::findPic(capImg(costROI).clone(), cost3Mat, 0.7, x, y, isCost3Similarity);
+            Utils::findPic(capImg(costROI).clone(), cost4Mat, 0.7, x, y, isCost4Similarity);
+            if(isCost1Similarity == 0.0 || isCost3Similarity == 0.0 || isCost4Similarity == 0.0){
+                qWarning() << QString("%1 行  %2 列声骸无法判定COST").arg(i+1).arg(j+1);
+                continue;
+            }
+            else if(isCost1Similarity > isCost3Similarity && isCost1Similarity > isCost4Similarity){
+                cost = 1;
+            }
+            else if(isCost3Similarity > isCost1Similarity && isCost3Similarity > isCost4Similarity){
+                cost = 3;
+            }
+            else if(isCost4Similarity > isCost1Similarity && isCost4Similarity > isCost3Similarity){
+                cost = 4;
+            }
+            else{
+                qWarning() << QString("%1 行  %2 列声骸无法判定COST").arg(i+1).arg(j+1);
+                continue;
+            }
+
+            // 根据输入参数 是否要判断此声骸的主词条
+
+
         }
     }
     qInfo() << QString("一页判断耗时%1 ms").arg(onePageTimeCost.elapsed());

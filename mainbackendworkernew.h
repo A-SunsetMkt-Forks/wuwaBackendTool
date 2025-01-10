@@ -86,7 +86,7 @@ private:
     bool enterEchoInterface();
 
     // 处理一个页面的声骸
-    bool lockOnePageEcho();
+    bool lockOnePageEcho(const LockEchoSetting& lockEchoSetting);
 
     // 慢速拖动 越慢越容易成功
     bool dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy, int steps, int stepPauseMs);
@@ -107,6 +107,12 @@ private:
     const int echoRowMargin = 137;   // 向下移动 需要向下挪动  20250110 1505 是137  137是静态更准的，但是移动拖拽鼠标似乎需要+2
     const int maxColNum = 6;    // 一个页面默认能显示6列4行
     const int maxRowNum = 4;
+
+    const cv::Rect isLockROI = {1121, 206, 27, 30};   //判断是否上锁的位置
+    const cv::Rect isDiscardROI = {1191, 207, 27, 29};  //  判断是否丢弃了的位置
+    const cv::Rect costROI = {1191, 138, 26, 21};   // COST 后面数字的位置
+    const cv::Rect mainEntryROI = {870, 278, 230, 30}; // 主词条位置
+
 
     // 比如左上角的套装图标在全图就是 echoSetRoi.x + topLeftEchoROI.x echoSetRoi.y + topLeftEchoROI.y echoSetRoi.width echoSetRoi.height
     // 20250110 1509 {2, 99, 26, 26}
