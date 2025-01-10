@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>917</width>
-    <height>230</height>
+    <width>1160</width>
+    <height>308</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,91 +17,150 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
-     <width>880</width>
-     <height>191</height>
+     <y>0</y>
+     <width>1291</width>
+     <height>301</height>
     </rect>
    </property>
    <property name="title">
     <string>主属性 可多选</string>
    </property>
-   <widget class="QCheckBox" name="checkBox_11">
+   <widget class="QScrollArea" name="scrollArea">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>181</width>
-      <height>16</height>
+      <y>20</y>
+      <width>1121</width>
+      <height>271</height>
      </rect>
     </property>
-    <property name="text">
-     <string>生命百分比</string>
+    <property name="widgetResizable">
+     <bool>true</bool>
     </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox_12">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>40</y>
-      <width>191</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>攻击百分比</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox_13">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>90</y>
-      <width>191</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>普攻百分比</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox_14">
-    <property name="geometry">
-     <rect>
-      <x>500</x>
-      <y>40</y>
-      <width>251</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>暴击百分比</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox_15">
-    <property name="geometry">
-     <rect>
-      <x>500</x>
-      <y>90</y>
-      <width>301</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>暴击伤害百分比</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox_17">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>191</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>共鸣效率百分比</string>
-    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1119</width>
+       <height>269</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBox_16">
+        <property name="text">
+         <string>暴击率</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="checkBox_18">
+        <property name="text">
+         <string>暴击伤害</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="checkBox_13">
+        <property name="text">
+         <string>攻击力</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QCheckBox" name="checkBox_14">
+        <property name="text">
+         <string>攻击力百分比</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QCheckBox" name="checkBox_17">
+        <property name="text">
+         <string>共鸣效率</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkBox_11">
+        <property name="text">
+         <string>生命值</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="checkBox_19">
+        <property name="text">
+         <string>生命百分比</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QCheckBox" name="checkBox_12">
+        <property name="text">
+         <string>防御力</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QCheckBox" name="checkBox_20">
+        <property name="text">
+         <string>防御力百分比</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QCheckBox" name="checkBox_15">
+        <property name="text">
+         <string>治疗效果加成</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="checkBox_26">
+        <property name="text">
+         <string>冷凝伤害</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="checkBox_21">
+        <property name="text">
+         <string>热熔伤害</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="checkBox_24">
+        <property name="text">
+         <string>导电伤害</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QCheckBox" name="checkBox_22">
+        <property name="text">
+         <string>气动伤害</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4">
+       <widget class="QCheckBox" name="checkBox_23">
+        <property name="text">
+         <string>衍射伤害</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <widget class="QCheckBox" name="checkBox_25">
+        <property name="text">
+         <string>湮灭伤害</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
   </widget>
  </widget>

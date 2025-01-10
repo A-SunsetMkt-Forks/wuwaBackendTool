@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>769</height>
+    <width>1366</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>6</x>
-      <y>6</y>
-      <width>1011</width>
-      <height>521</height>
+      <x>-10</x>
+      <y>0</y>
+      <width>1361</width>
+      <height>591</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -30,7 +30,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="GeneralPanel" name="generalPanel">
      <property name="styleSheet">
@@ -50,7 +50,7 @@
       <string>调试面板</string>
      </attribute>
     </widget>
-    <widget class="QWidget" name="tab">
+    <widget class="EchoLockEntriesPanel" name="echoLockEntriesPanel">
      <attribute name="title">
       <string>声骸锁定</string>
      </attribute>
@@ -60,9 +60,9 @@
     <property name="geometry">
      <rect>
       <x>6</x>
-      <y>543</y>
+      <y>603</y>
       <width>871</width>
-      <height>171</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="readOnly">
@@ -73,7 +73,7 @@
     <property name="geometry">
      <rect>
       <x>880</x>
-      <y>540</y>
+      <y>600</y>
       <width>131</width>
       <height>31</height>
      </rect>
@@ -106,9 +106,9 @@
     <property name="geometry">
      <rect>
       <x>880</x>
-      <y>580</y>
+      <y>630</y>
       <width>131</width>
-      <height>41</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -119,9 +119,9 @@
     <property name="geometry">
      <rect>
       <x>880</x>
-      <y>640</y>
+      <y>660</y>
       <width>131</width>
-      <height>71</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
@@ -135,7 +135,7 @@ ALT+F12</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>1366</width>
      <height>17</height>
     </rect>
    </property>
@@ -168,6 +168,12 @@ ALT+F12</string>
    <class>DebugForm</class>
    <extends>QWidget</extends>
    <header location="global">debugform.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EchoLockEntriesPanel</class>
+   <extends>QWidget</extends>
+   <header location="global">echolockentriespanel.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

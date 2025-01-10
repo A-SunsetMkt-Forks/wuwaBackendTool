@@ -11,6 +11,9 @@
 #include <QThread>
 #include <QStackedWidget>
 
+// 新开的后台工作线程
+#include "mainbackendworkernew.h"
+
 // 标准C++库
 #include <iostream>
 
@@ -56,6 +59,10 @@ private:
     // 自动切换背景
     QThread m_autoChangeWallpaperBackendThread;
     AutoChangeWallpaperBackendworker m_autoChangeWallpaperBackendWorker;
+
+    // 新的后台工作线程
+    QThread m_mainBackendNewThread;
+    MainBackendWorkerNew m_mainBackendWorkerNew;
 
     // 全局注册快捷键 ALT F12 停止脚本
     GlobalHotKeyFilter* hotKeyFilter;

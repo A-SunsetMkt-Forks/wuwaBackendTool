@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // debug 重定向
     DebugMessageHandler::instance().setPlainTextEdit(ui->logPlainText);
     qInstallMessageHandler(DebugMessageHandler::messageHandler);
+    DebugMessageHandler::instance().setLogLevel(QtMsgType::QtInfoMsg);
     connect(ui->logPlainText, &QPlainTextEdit::textChanged, [this]() {
         QScrollBar *scrollBar = ui->logPlainText->verticalScrollBar();
         scrollBar->setValue(scrollBar->maximum());
@@ -36,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // 启动后台线程
     m_mainBackendWorker.moveToThread(&m_mainBackendThread);
     m_mainBackendThread.start();
+
+    m_mainBackendWorkerNew.moveToThread(&m_mainBackendNewThread);
+    m_mainBackendNewThread.start();
 
     // test1的连接
     connect(this, &MainWindow::startTest1, &this->m_mainBackendWorker, &MainBackendWorker::onStartTest1);
@@ -66,50 +70,44 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, &MainWindow::startChangeWallpaper, &this->m_autoChangeWallpaperBackendWorker, &AutoChangeWallpaperBackendworker::startWorker);
     emit startChangeWallpaper();
 
-    // ui某些控件改透明
-    ui->tabWidget->setAttribute(Qt::WA_StyledBackground, true);
-    ui->tabWidget->setStyleSheet("background: transparent;");
+    const bool isTransparentBkg = false;
+    if(isTransparentBkg){
+        // ui某些控件改透明
+        ui->tabWidget->setAttribute(Qt::WA_StyledBackground, true);
+        ui->tabWidget->setStyleSheet("background: transparent;");
 
-    ui->centralWidget->setStyleSheet(
-                "QWidget { background: transparent; }"
-                "QTabWidget::pane { background: transparent; }"
-                "QTabBar::tab { background: transparent; }"
-                "QStackedWidget { background: transparent; }"
-                // 根据需要添加更多的组件类型
-                );
+        ui->centralWidget->setStyleSheet(
+                    "QWidget { background: transparent; }"
+                    "QTabWidget::pane { background: transparent; }"
+                    "QTabBar::tab { background: transparent; }"
+                    "QStackedWidget { background: transparent; }"
+                    // 根据需要添加更多的组件类型
+                    );
 
-    /*
-    ui->tabWidget->setStyleSheet(
-        "QTabWidget::pane { background: transparent; }"
-        "QTabBar::tab { background: transparent; }"
-        "QStackedWidget { background: transparent; }"
-    );
-    */
+        ui->tabWidget->setStyleSheet(R"(
+                                     /* QTabWidget::pane 决定整个 tab 页区域的背景 */
+                                     QTabWidget::pane {
+                                     background: transparent;
+                                     border: none; /* 如果不想要边框可以去掉 */
+                                     }
 
-    ui->tabWidget->setStyleSheet(R"(
-                                 /* QTabWidget::pane 决定整个 tab 页区域的背景 */
-                                 QTabWidget::pane {
-                                 background: transparent;
-                                 border: none; /* 如果不想要边框可以去掉 */
-                                 }
+                                     /* QTabBar::tab 决定选项卡按钮的背景 */
+                                     QTabBar::tab {
+                                     background: transparent;
+                                     }
 
-                                 /* QTabBar::tab 决定选项卡按钮的背景 */
-                                 QTabBar::tab {
-                                 background: transparent;
-                                 }
+                                     /* QStackedWidget 是显示 tab 页内容的容器 */
+                                     QStackedWidget {
+                                     background: transparent;
+                                     }
+                                     )");
 
-                                 /* QStackedWidget 是显示 tab 页内容的容器 */
-                                 QStackedWidget {
-                                 background: transparent;
-                                 }
-                                 )");
-
-    // 3. 如果每个 tab 页本身（比如 tab1、tab2）还需要单独设置，可以再加：
-    ui->generalPanel->setStyleSheet("background: transparent;");
-    ui->generalPanel->setAttribute(Qt::WA_StyledBackground, true);
-    ui->debugPanel->setStyleSheet("background: transparent;");
-    ui->debugPanel->setAttribute(Qt::WA_StyledBackground, true);
-
+        // 3. 如果每个 tab 页本身（比如 tab1、tab2）还需要单独设置，可以再加：
+        ui->generalPanel->setStyleSheet("background: transparent;");
+        ui->generalPanel->setAttribute(Qt::WA_StyledBackground, true);
+        ui->debugPanel->setStyleSheet("background: transparent;");
+        ui->debugPanel->setAttribute(Qt::WA_StyledBackground, true);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -128,6 +126,10 @@ MainWindow::~MainWindow()
     m_mainBackendWorker.stopWorker();
     m_mainBackendThread.quit();
     m_mainBackendThread.wait();
+
+    m_mainBackendWorkerNew.stopWorker();
+    m_mainBackendNewThread.quit();
+    m_mainBackendNewThread.wait();
 
     delete ui;
 }
@@ -208,6 +210,7 @@ void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& msg){
 
 void MainWindow::on_stopBtn_clicked(){
     m_mainBackendWorker.stopWorker();
+    m_mainBackendWorkerNew.stopWorker();
 }
 
 

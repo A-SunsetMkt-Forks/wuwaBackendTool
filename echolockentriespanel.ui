@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>997</width>
-    <height>497</height>
+    <width>1361</width>
+    <height>591</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>961</width>
-     <height>471</height>
+     <width>1221</width>
+     <height>571</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -35,6 +35,19 @@
      <string>湮灭</string>
     </attribute>
    </widget>
+  </widget>
+  <widget class="QPushButton" name="startLockEcho">
+   <property name="geometry">
+    <rect>
+     <x>1240</x>
+     <y>480</y>
+     <width>111</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始</string>
+   </property>
   </widget>
  </widget>
  <customwidgets>
