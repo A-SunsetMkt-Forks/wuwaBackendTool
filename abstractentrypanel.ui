@@ -36,21 +36,21 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="isDiscardJudge">
        <property name="text">
         <string>弃置参与判断</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_2">
+      <widget class="QCheckBox" name="isLockJudge">
        <property name="text">
         <string>锁定参与判断</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_3">
+      <widget class="QCheckBox" name="isNormalJudge">
        <property name="text">
         <string>普通参与判断</string>
        </property>
@@ -82,28 +82,28 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QCheckBox" name="checkBox_4">
+      <widget class="QCheckBox" name="level2">
        <property name="text">
         <string>二星</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_5">
+      <widget class="QCheckBox" name="level3">
        <property name="text">
         <string>三星</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_6">
+      <widget class="QCheckBox" name="level4">
        <property name="text">
         <string>四星</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_7">
+      <widget class="QCheckBox" name="level5">
        <property name="text">
         <string>五星</string>
        </property>
@@ -122,19 +122,19 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>1</number>
    </property>
-   <widget class="EntryPanel" name="tab">
+   <widget class="EntryPanel" name="cost1">
     <attribute name="title">
      <string>COST1</string>
     </attribute>
    </widget>
-   <widget class="EntryPanel" name="tab_2">
+   <widget class="EntryPanel" name="cost3">
     <attribute name="title">
      <string>COST3</string>
     </attribute>
    </widget>
-   <widget class="EntryPanel" name="tab_3">
+   <widget class="EntryPanel" name="cost4">
     <attribute name="title">
      <string>COST4</string>
     </attribute>

@@ -148,6 +148,7 @@ void MainWindow::registerType(){
     qRegisterMetaType<SpecialBossSetting>("SpecialBossSetting");
     qRegisterMetaType<RebootGameSetting>("RebootGameSetting");
     qRegisterMetaType<LockEchoSetting>("LockEchoSetting");
+    qRegisterMetaType<SingleEchoSetting>("SingleEchoSetting");
 
 }
 
@@ -351,7 +352,7 @@ void MainWindow::on_startLockEcho_clicked(){
         return;
     }
 
-    LockEchoSetting lockEchoSetting;
+    LockEchoSetting lockEchoSetting = ui->echoLockEntriesPanel->getLockEchoSettingFromUI();
     ui->isBusyBox->setChecked(true);
     emit startLockEcho(lockEchoSetting);
 

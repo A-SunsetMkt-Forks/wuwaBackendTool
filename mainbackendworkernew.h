@@ -12,6 +12,13 @@ struct SingleEchoSetting{
     bool isDiscardedJudge = true;  // true表示丢弃的 参与判断
     bool isLockJudge = true;      // true表示锁定的 参与判断
     bool isNormalJudge = true;    // true表示普通的 参与判断
+
+    bool islevel2 = false;     // 2星默认不判断
+    bool islevel3 = false;     // 3星默认不判断
+    bool islevel4 = false;     // 4星默认不判断
+    bool islevel5 = false;     // 5星默认不判断
+
+    QMap<int, QVector<QString>> cost2EntryMap;  // 通过cost 1 3 4可以索引得到想要的词条
 };
 Q_DECLARE_METATYPE(SingleEchoSetting)
 

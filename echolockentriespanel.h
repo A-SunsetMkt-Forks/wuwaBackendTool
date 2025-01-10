@@ -2,7 +2,7 @@
 #define ECHOLOCKENTRIESPANEL_H
 
 #include <QWidget>
-
+#include "mainbackendworkernew.h"
 /*
 声骸锁定面板
 上面是套装分页
@@ -21,6 +21,7 @@ class EchoLockEntriesPanel : public QWidget
 public:
     explicit EchoLockEntriesPanel(QWidget *parent = nullptr);
     ~EchoLockEntriesPanel();
+    LockEchoSetting getLockEchoSettingFromUI();
 
 private:
     Ui::EchoLockEntriesPanel *ui;

@@ -409,10 +409,12 @@ bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, 
     }
 
     // 移动鼠标到起始点
+
     if (!SetCursorPos(startPoint.x, startPoint.y)) {
         qWarning() << "Failed to move mouse to start position.";
         return false;
     }
+
     Sleep(50); // 缓冲时间
 
     // 模拟按下鼠标左键

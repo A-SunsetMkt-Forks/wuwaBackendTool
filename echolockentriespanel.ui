@@ -25,14 +25,74 @@
    <property name="currentIndex">
     <number>1</number>
    </property>
-   <widget class="AbstractEntryPanel" name="tab">
+   <widget class="AbstractEntryPanel" name="freezingFrost">
     <attribute name="title">
-     <string>青云出月</string>
+     <string extracomment="今州冰套">凝夜白霜</string>
     </attribute>
    </widget>
-   <widget class="AbstractEntryPanel" name="tab_2">
+   <widget class="AbstractEntryPanel" name="moltenRift">
     <attribute name="title">
-     <string>湮灭</string>
+     <string extracomment="今州火套">熔山裂谷</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="voidThunder">
+    <attribute name="title">
+     <string>彻空冥雷</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="sierraGale">
+    <attribute name="title">
+     <string>啸谷长风</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="celestialLight">
+    <attribute name="title">
+     <string>浮星祛暗</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="sunSinkingEclipse">
+    <attribute name="title">
+     <string>沉日劫明</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="rejuvenatingGlow">
+    <attribute name="title">
+     <string>隐世回光</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="moonlitClouds">
+    <attribute name="title">
+     <string>轻云出月</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="lingeringTunes">
+    <attribute name="title">
+     <string>不绝余音</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="frostyResolve">
+    <attribute name="title">
+     <string>凌冽决断之心</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="eternalRadiance">
+    <attribute name="title">
+     <string>此间永驻之光</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="midnightVeil">
+    <attribute name="title">
+     <string>幽夜隐匿之帷</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="empyreanAnthem">
+    <attribute name="title">
+     <string>高天共奏之曲</string>
+    </attribute>
+   </widget>
+   <widget class="AbstractEntryPanel" name="tidebreakingCourage">
+    <attribute name="title">
+     <string>无惧浪涛之勇</string>
     </attribute>
    </widget>
   </widget>
