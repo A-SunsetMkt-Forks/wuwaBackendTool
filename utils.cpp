@@ -436,6 +436,46 @@ bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, do
     return false; // 匹配失败
 }
 
+bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY, double& similarity) {
+    similarity = 0.0;
+    if (sourceImage.empty() || templateImage.empty()) {
+        qWarning() << QString("findpic input image is emtpy");
+        outX = -1;
+        outY = -1;
+        return false; // 匹配失败
+    }
+
+    // 检查图像类型是否一致
+    if (sourceImage.type() != templateImage.type()) {
+        qWarning()  << "Error: Source and template image types do not match.";
+        outX = -1;
+        outY = -1;
+        return false; // 匹配失败
+    }
+
+    // 创建结果矩阵
+    cv::Mat result;
+    cv::matchTemplate(sourceImage, templateImage, result, cv::TM_CCOEFF_NORMED);
+
+    // 查找结果中最大匹配值
+    double minVal, maxVal;
+    cv::Point minLoc, maxLoc;
+    cv::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc);
+    similarity = maxVal;
+    // 检查是否超过阈值
+    if (maxVal >= threshold) {
+        outX = maxLoc.x;
+        outY = maxLoc.y;
+        return true; // 匹配成功
+    }
+
+    outX = -1;
+    outY = -1;
+    return false; // 匹配失败
+}
+
+
+
 // 在图像中查找指定颜色
 bool Utils::findColorEx(const cv::Mat& image, int x1, int y1, int x2, int y2, const QString& hexColor, double tolerance, int& outX, int& outY) {
     // 检查 tolerance 是否在有效范围 [0, 1]

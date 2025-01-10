@@ -23,6 +23,9 @@ public:
 private:
     QAtomicInt m_isRunning;   //原子int 防止多线程冲突
 
+    // 启动时 初始化套装名字和图片列表
+    void initEchoSetName2IconMap();
+
     // 尝试进入背包 如果找不到则3次ESC + 找背包   返回true表示被用户打断或找到了背包并点了进去。返回false表示没有找到背包
     bool enterBagInterface();
 
@@ -49,25 +52,12 @@ private:
     const int maxColNum = 6;    // 一个页面默认能显示6列4行
     const int maxRowNum = 4;
 
-    const cv::Rect echoSetRoi = {2, 101, 24, 24};   // 比如左上角的套装图标在全图就是 echoSetRoi.x + topLeftEchoROI.x echoSetRoi.y + topLeftEchoROI.y echoSetRoi.width echoSetRoi.height
+    const cv::Rect echoSetRoi = {2, 99, 26, 26};   // 比如左上角的套装图标在全图就是 echoSetRoi.x + topLeftEchoROI.x echoSetRoi.y + topLeftEchoROI.y echoSetRoi.width echoSetRoi.height
 
     // 声骸套装名字
-    const QString freezingFrost = "freezingFrost";  // 凝夜白霜  今州冰套
-    const QString moltenRift = "moltenRift";        // 熔山裂谷  今州火套
-    const QString voidThunder = "voidThunder";      // 彻空冥雷  今州雷套
-    const QString sierraGale = "sierraGale";        // 啸谷长风  今州风套
-    const QString celestialLight = "celestialLight";   // 浮星祛暗  今州光套
-    const QString sunSinkingEclipse = "sunSinkingEclipse"; // 沉日劫明  今州暗套
-    const QString rejuvenatingGlow = "rejuvenatingGlow";  // 隐世回光 今州奶套
-    const QString moonlitClouds = "moonlitClouds";        // 轻云出月 今州共鸣
-    const QString lingeringTunes = "lingeringTunes";      // 不绝余音 今州攻击
 
-    const QString frostyResolve = "frostyResolve";        // 凌冽决断之心 黎纳汐塔冰套
-    const QString eternalRadiance = "eternalRadiance";    // 此间永驻之光 黎纳汐塔光套
-    const QString midnightVeil = "midnightVeil";    // 幽夜隐匿之帷 黎纳汐塔暗套
-    const QString empyreanAnthem = "empyreanAnthem";    // 高天共奏之曲 黎纳汐塔共鸣协同攻击套
-    const QString tidebreakingCourage = "tidebreakingCourage";  // 无惧浪涛之勇 黎纳汐塔共鸣效率增伤套
-
+    QMap<QString, cv::Mat> echoSet2echoSetIconMap;      // 输入英文套装名 得到对应套装icon
+    QMap<QString, QString> echoSetNameTranslationMap;   // 输入英文套装名 得到对应中文名
 };
 
 #endif // MAINBACKENDWORKERNEW_H

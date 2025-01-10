@@ -86,6 +86,7 @@ public:
 
     // 对应按键精灵的FindPic
     static bool findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY);
+    static bool findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY, double& similarity);
 
     // 对应按键精灵的FindColorEx
     static bool findColorEx(const cv::Mat& image, int x1, int y1, int x2, int y2, const QString& hexColor, double tolerance, int& outX, int& outY);

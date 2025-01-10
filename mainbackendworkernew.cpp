@@ -3,6 +3,7 @@
 MainBackendWorkerNew::MainBackendWorkerNew(QObject *parent) : QObject(parent)
 {
     m_isRunning.store(0);
+    initEchoSetName2IconMap();
 }
 
 bool MainBackendWorkerNew::isBusy(){
@@ -17,6 +18,77 @@ bool MainBackendWorkerNew::isBusy(){
 void MainBackendWorkerNew::stopWorker(){
     m_isRunning.store(0);
     qInfo() << QString("MainBackendWorkerNew 线程结束");
+}
+
+void MainBackendWorkerNew::initEchoSetName2IconMap(){
+    echoSet2echoSetIconMap.clear();
+    QVector<QString> echoSetNameVector = {
+        "freezingFrost", // 凝夜白霜  今州冰套
+        "moltenRift",    // 熔山裂谷  今州火套
+        "voidThunder",   // 彻空冥雷  今州雷套
+        "sierraGale",    // 啸谷长风  今州风套
+        "celestialLight", // 浮星祛暗  今州光套
+        "sunSinkingEclipse", // 沉日劫明  今州暗套
+        "rejuvenatingGlow", // 隐世回光 今州奶套
+        "moonlitClouds", // 轻云出月 今州共鸣
+        "lingeringTunes", // 不绝余音 今州攻击
+
+        "frostyResolve", // 凌冽决断之心 黎纳汐塔冰套
+        "eternalRadiance", // 此间永驻之光 黎纳汐塔光套
+        "midnightVeil", // 幽夜隐匿之帷 黎纳汐塔暗套
+        "empyreanAnthem", // 高天共奏之曲 黎纳汐塔共鸣协同攻击套
+        "tidebreakingCourage" // 无惧浪涛之勇 黎纳汐塔共鸣效率增伤套
+    };
+
+    /*
+    const QString freezingFrost = "freezingFrost";  // 凝夜白霜  今州冰套
+    const QString moltenRift = "moltenRift";        // 熔山裂谷  今州火套
+    const QString voidThunder = "voidThunder";      // 彻空冥雷  今州雷套
+    const QString sierraGale = "sierraGale";        // 啸谷长风  今州风套
+    const QString celestialLight = "celestialLight";   // 浮星祛暗  今州光套
+    const QString sunSinkingEclipse = "sunSinkingEclipse"; // 沉日劫明  今州暗套
+    const QString rejuvenatingGlow = "rejuvenatingGlow";  // 隐世回光 今州奶套
+    const QString moonlitClouds = "moonlitClouds";        // 轻云出月 今州共鸣
+    const QString lingeringTunes = "lingeringTunes";      // 不绝余音 今州攻击
+
+    const QString frostyResolve = "frostyResolve";        // 凌冽决断之心 黎纳汐塔冰套
+    const QString eternalRadiance = "eternalRadiance";    // 此间永驻之光 黎纳汐塔光套
+    const QString midnightVeil = "midnightVeil";    // 幽夜隐匿之帷 黎纳汐塔暗套
+    const QString empyreanAnthem = "empyreanAnthem";    // 高天共奏之曲 黎纳汐塔共鸣协同攻击套
+    const QString tidebreakingCourage = "tidebreakingCourage";  // 无惧浪涛之勇 黎纳汐塔共鸣效率增伤套
+    */
+
+    // 初始化翻译映射
+    echoSetNameTranslationMap.insert("freezingFrost", "凝夜白霜");
+    echoSetNameTranslationMap.insert("moltenRift", "熔山裂谷");
+    echoSetNameTranslationMap.insert("voidThunder", "彻空冥雷");
+    echoSetNameTranslationMap.insert("sierraGale", "啸谷长风");
+    echoSetNameTranslationMap.insert("celestialLight", "浮星祛暗");
+    echoSetNameTranslationMap.insert("sunSinkingEclipse", "沉日劫明");
+    echoSetNameTranslationMap.insert("rejuvenatingGlow", "隐世回光");
+    echoSetNameTranslationMap.insert("moonlitClouds", "轻云出月");
+    echoSetNameTranslationMap.insert("lingeringTunes", "不绝余音");
+    echoSetNameTranslationMap.insert("frostyResolve", "凌冽决断之心");
+    echoSetNameTranslationMap.insert("eternalRadiance", "此间永驻之光");
+    echoSetNameTranslationMap.insert("midnightVeil", "幽夜隐匿之帷");
+    echoSetNameTranslationMap.insert("empyreanAnthem", "高天共奏之曲");
+    echoSetNameTranslationMap.insert("tidebreakingCourage", "无惧浪涛之勇");
+
+    // 遍历 QVector 加载图片
+    for (const QString &key : echoSetNameVector) {
+        cv::Mat icon = cv::imread(
+            QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key).toLocal8Bit().toStdString(),
+            cv::IMREAD_UNCHANGED
+        );
+
+        // 加入到 QMap 中
+        echoSet2echoSetIconMap[key] = icon;
+
+        if(icon.empty()){
+            qWarning() << QString("failed to load %1 bmp file, -> %2").arg(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key)).arg(key);
+        }
+    }
+
 }
 
 void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSetting){
@@ -184,23 +256,23 @@ bool MainBackendWorkerNew::enterEchoInterface(){
 
     if(Utils::findPic(capImg(searchEchoIconROI).clone(), echoYellowImg, 0.9, x, y)){
         cv::Rect echoIconRoi = cv::Rect(x + searchEchoIconROI.x, y + searchEchoIconROI.y, echoWhiteImg.cols, echoWhiteImg.rows);
-        Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+        //Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
         Sleep(500);
         Utils::clickWindowClientArea(Utils::hwnd, echoIconRoi.x + echoIconRoi.width / 2, echoIconRoi.y + echoIconRoi.height / 2);
         Sleep(500);
         Utils::saveDebugImg(capImg, echoIconRoi, echoIconRoi.x + echoIconRoi.width / 2, echoIconRoi.y + echoIconRoi.height / 2, "进入背包后找到了声骸图标 点击黄色图标");
-        Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
+        //Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
         return true;
     }
 
     if(Utils::findPic(capImg(searchEchoIconROI).clone(), echoWhiteImg, 0.9, x, y)){
         cv::Rect echoIconRoi = cv::Rect(x + searchEchoIconROI.x, y + searchEchoIconROI.y, echoWhiteImg.cols, echoWhiteImg.rows);
-        Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+        //Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
         Sleep(500);
         Utils::clickWindowClientArea(Utils::hwnd, echoIconRoi.x + echoIconRoi.width / 2, echoIconRoi.y + echoIconRoi.height / 2);
         Sleep(500);
         Utils::saveDebugImg(capImg, echoIconRoi, echoIconRoi.x + echoIconRoi.width / 2, echoIconRoi.y + echoIconRoi.height / 2, "进入背包后找到了声骸图标 点击白色图标");
-        Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
+        //Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
         return true;
     }
     else{
@@ -238,9 +310,75 @@ bool MainBackendWorkerNew::lockOnePageEcho(){
 
         }
     }
+
+    capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+
+    for (int i = 0; i < maxColNum; i++) {
+        for (int j = 0; j < maxRowNum; j++) {
+            int x, y;
+            cv::Rect echoRect = cv::Rect(topLeftEchoROI.x + i * echoColMargin,
+                                         topLeftEchoROI.y + j * echoRowMargin,
+                                         topLeftEchoROI.width,
+                                         topLeftEchoROI.height);
+            cv::Rect echoSetRect = cv::Rect(echoRect.x + echoSetRoi.x,
+                                            echoRect.y + echoSetRoi.y,
+                                            echoSetRoi.width,
+                                            echoSetRoi.height);
+
+            // 存储相似度最大的套装
+            double maxSimilarity = 0.0;
+            QString bestEchoSetName;
+
+            // 遍历判断是什么套装
+            for (auto echoSetName : echoSet2echoSetIconMap.keys()) {
+                double similarity;
+                cv::Mat thisEchoRectRoiImg = capImg(echoSetRect).clone();
+                if (Utils::findPic(thisEchoRectRoiImg, echoSet2echoSetIconMap[echoSetName], 0.6, x, y, similarity)) {
+                    if (similarity > maxSimilarity) {
+                        maxSimilarity = similarity;
+                        bestEchoSetName = echoSetName;
+                    }
+                }
+            }
+
+            // 如果找到了相似度最大的套装
+            if (!bestEchoSetName.isEmpty()) {
+                qInfo() << QString("%1 行 %2 列 是 %3 (相似度: %4)")
+                               .arg(i + 1)
+                               .arg(j + 1)
+                               .arg(echoSetNameTranslationMap[bestEchoSetName])
+                               .arg(maxSimilarity);
+                //markImg(cv::Rect(echoSetRect.x + 20, echoSetRect.y + 20, echoSet2echoSetIconMap[bestEchoSetName].cols, echoSet2echoSetIconMap[bestEchoSetName].rows))= echoSet2echoSetIconMap[bestEchoSetName];
+                //cv::putText(markImg, bestEchoSetName.toLocal8Bit().toStdString(), cv::Point(x + echoSetRect.x, y + echoSetRect.y), cv::FONT_HERSHEY_SIMPLEX, 1.0,  cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+                if (!bestEchoSetName.isEmpty() && echoSet2echoSetIconMap.contains(bestEchoSetName)) {
+                    cv::Mat icon = echoSet2echoSetIconMap[bestEchoSetName];
+                    int startX = echoSetRect.x + 20;
+                    int startY = echoSetRect.y + 20;
+
+                    for (int row = 0; row < icon.rows; row++) {
+                        for (int col = 0; col < icon.cols; col++) {
+                            int targetX = startX + col;
+                            int targetY = startY + row;
+
+                            // 检查目标位置是否在 markImg 范围内
+                            if (targetX >= 0 && targetX < markImg.cols && targetY >= 0 && targetY < markImg.rows) {
+                                // 复制像素值
+                                markImg.at<cv::Vec3b>(targetY, targetX) = icon.at<cv::Vec3b>(row, col);
+                            }
+                        }
+                    }
+                }
+            }
+            else{
+                qWarning() << QString("%1 行 %2 列 是 %3 (相似度: %4)  未能找到合适的套装图标 ")
+                              .arg(i + 1)
+                              .arg(j + 1)
+                              .arg(echoSetNameTranslationMap[bestEchoSetName])
+                              .arg(maxSimilarity);
+            }
+        }
+    }
+
     Utils::saveDebugImg(markImg, cv::Rect(), -1, -1, "声骸格子");
-
-
-
     return true;
 }
