@@ -177,6 +177,151 @@ void MainWindow::genDefaultLockEchoSetting(){
              QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
              echoSetSetting.cost2EntryMap[4] = c4entries;
         }
+        else if(echoSet == "moltenRift"){
+            // 今州火套
+            echoSetSetting.islevel5 = true;
+            echoSetSetting.isLockJudge = true;
+            echoSetSetting.isDiscardedJudge = true;
+            echoSetSetting.isNormalJudge = true;
+
+            QVector<QString> c1entries = { "attackRatio"};
+            echoSetSetting.cost2EntryMap[1] = c1entries;
+
+
+            QVector<QString> c3entries = { "fusionDMG", "energyRegen"};
+            echoSetSetting.cost2EntryMap[3] = c3entries;
+
+
+            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
+            echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+        else if(echoSet == "voidThunder"){
+            // 今州雷套
+            echoSetSetting.islevel5 = true;
+            echoSetSetting.isLockJudge = true;
+            echoSetSetting.isDiscardedJudge = true;
+            echoSetSetting.isNormalJudge = true;
+
+            QVector<QString> c1entries = { "attackRatio"};
+            echoSetSetting.cost2EntryMap[1] = c1entries;
+
+
+            QVector<QString> c3entries = { "electroDMG", "energyRegen"};
+            echoSetSetting.cost2EntryMap[3] = c3entries;
+
+
+            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
+            echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+        else if(echoSet == "sierraGale"){
+            // 今州风套
+            echoSetSetting.islevel5 = true;
+            echoSetSetting.isLockJudge = true;
+            echoSetSetting.isDiscardedJudge = true;
+            echoSetSetting.isNormalJudge = true;
+
+            QVector<QString> c1entries = { "attackRatio"};
+            echoSetSetting.cost2EntryMap[1] = c1entries;
+
+
+            QVector<QString> c3entries = { "aeroDMG", "energyRegen"};
+            echoSetSetting.cost2EntryMap[3] = c3entries;
+
+
+            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
+            echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+        else if(echoSet == "celestialLight"){
+            // 今州光套
+            echoSetSetting.islevel5 = true;
+            echoSetSetting.isLockJudge = true;
+            echoSetSetting.isDiscardedJudge = true;
+            echoSetSetting.isNormalJudge = true;
+
+            QVector<QString> c1entries = { "attackRatio"};
+            echoSetSetting.cost2EntryMap[1] = c1entries;
+
+
+            QVector<QString> c3entries = { "spectroDMG", "energyRegen"};
+            echoSetSetting.cost2EntryMap[3] = c3entries;
+
+
+            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
+            echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+        else if(echoSet == "sunSinkingEclipse"){
+            // 今州暗套
+            echoSetSetting.islevel5 = true;
+            echoSetSetting.isLockJudge = true;
+            echoSetSetting.isDiscardedJudge = true;
+            echoSetSetting.isNormalJudge = true;
+
+            QVector<QString> c1entries = { "attackRatio"};
+            echoSetSetting.cost2EntryMap[1] = c1entries;
+
+
+            QVector<QString> c3entries = { "havocDMG", "energyRegen"};
+            echoSetSetting.cost2EntryMap[3] = c3entries;
+
+
+            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
+            echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+        else if(echoSet == "rejuvenatingGlow"){
+            // 今州治疗套
+            echoSetSetting.islevel5 = true;
+            echoSetSetting.isLockJudge = true;
+            echoSetSetting.isDiscardedJudge = true;
+            echoSetSetting.isNormalJudge = true;
+
+            QVector<QString> c1entries = { "attackRatio", "HPratio"};
+            echoSetSetting.cost2EntryMap[1] = c1entries;
+
+
+            QVector<QString> c3entries = { "heal", "energyRegen", "HPratio"};
+            echoSetSetting.cost2EntryMap[3] = c3entries;
+
+
+            QVector<QString> c4entries = { "criticalDMG", "criticalRatio", "heal"};
+            echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+        else if(echoSet == "moonlitClouds"){
+            // 今州共鸣
+            echoSetSetting.islevel5 = true;
+            echoSetSetting.isLockJudge = true;
+            echoSetSetting.isDiscardedJudge = true;
+            echoSetSetting.isNormalJudge = true;
+
+            QVector<QString> c1entries = { "attackRatio"};
+            echoSetSetting.cost2EntryMap[1] = c1entries;
+
+
+            QVector<QString> c3entries = {"energyRegen", "electroDMG", "glacioDMG"};
+            echoSetSetting.cost2EntryMap[3] = c3entries;
+
+
+            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
+            echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+        else if(echoSet == "lingeringTunes"){
+            // 今州攻击
+            echoSetSetting.islevel5 = true;
+            echoSetSetting.isLockJudge = true;
+            echoSetSetting.isDiscardedJudge = true;
+            echoSetSetting.isNormalJudge = true;
+
+            QVector<QString> c1entries = { "attackRatio"};
+            echoSetSetting.cost2EntryMap[1] = c1entries;
+
+
+            QVector<QString> c3entries = {"energyRegen", "attackRaio"};
+            echoSetSetting.cost2EntryMap[3] = c3entries;
+
+
+            QVector<QString> c4entries = { "criticalDMG", "criticalRatio", "attackRaio"};
+            echoSetSetting.cost2EntryMap[4] = c4entries;
+        }
+
     }
     qInfo().noquote() << setting.toQString();
     ui->echoLockEntriesPanel->setLockEchoSetting2UI(setting);
