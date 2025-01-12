@@ -332,12 +332,9 @@ bool Utils::scrollWindowClientArea(HWND hwnd, int x, int y, int delta) {
         return false;
     }
 
-    // 将客户区坐标转为 LPARAM 格式
+    // 构造 lParam 和 wParam
     LPARAM lParam = MAKELPARAM(x, y);
-
-    // wParam 的低 16 位表示滚轮的方向和幅度
-    // delta > 0 表示向上滚动，delta < 0 表示向下滚动
-    WPARAM wParam = MAKELONG(0, delta);
+    WPARAM wParam = MAKEWPARAM(0, delta);  // 可选支持修饰键，低位目前保留为 0
 
     // 发送滚轮滚动消息
     PostMessage(hwnd, WM_MOUSEWHEEL, wParam, lParam);

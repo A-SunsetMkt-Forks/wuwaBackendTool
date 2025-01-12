@@ -30,7 +30,7 @@ private:
     // 尝试进入背包 如果找不到则3次ESC + 找背包   返回true表示被用户打断或找到了背包并点了进去。返回false表示没有找到背包
     bool enterBagInterface();
 
-    // 尝试进入声骸面板
+    // 尝试进入声骸面板 必须已经进入了背包面板 才能进入声骸面板
     bool enterEchoInterface();
 
     // 处理一个页面的声骸
@@ -40,9 +40,32 @@ private:
     bool dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy, int steps, int stepPauseMs);
 
     // 工具函数，不断轮询 设置最大等待时间和轮询间隔，必须以指定匹配度找到模板。如果没找到则存储错误信息供反馈
-    bool loopFindPic(const cv::Mat& capImg, const cv::Mat& templateImg, const double& requireSimilarity, \
+    bool loopFindPic(const cv::Mat& templateImg, const double& requireSimilarity, \
                      const int &maxWaitMs, const int &refreshMs, const QString& ifFailedMsg, double& similarity, \
                      int& x, int& y, int& timeCostMs);
+
+    // 轮刷boss的总准备工作 完成后应该是在残像探寻界面
+    bool normalBossPreperation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+
+    // 尝试恢复到默认界面 便于下一步找索拉指南或其他目标物
+    bool backToMain();
+
+    // 进入索拉指南 必须首先已经在主界面
+    bool enterSolaGuide();
+
+    // 进入残像探寻 必须已经在索拉指南
+    bool enterEchoList();
+
+    // 刷某boss 起点是残像探寻 终点是拾取后  // 未来补齐： 月卡 重启游戏 复活   // 最多允许进行300s
+    bool oneBossLoop(const NormalBossSetting &normalBossSetting, const NormalBossEnum& bossName, QString& errMsg);
+
+    // 刷dragonOfDirge 叹息之龙 准备工作 从残像探寻 到锁定boss
+    bool dragonOfDirgePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 刷crownLess 无冠者 准备工作 从残像探寻 到锁定boss
+    bool crownLessPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 刷异构武装 异构武装 准备工作 从残像探寻 到锁定boss
+    bool sentryConstructPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+
 
 signals:
     // 锁定声骸完成
@@ -90,6 +113,20 @@ private:
     QVector<QString> entryNameVector;  // 支持的词条列表
     QMap<QString, cv::Mat> entryName2entryIconMap;      // 输入英文套装名 得到对应词条icon
     QMap<QString, QString> entryNameTranslationMap;   // 输入英文套装名 得到对应中文名
+
+
+    // 轮刷boss相关
+    unsigned int pickUpNormalBossEcho = 0;
+    const int defaultRefreshMs = 250;  // 默认轮询截图间隔
+    const int defaultMaxWaitMs = 1500;   // 轮询最大等待时间
+    const cv::Point scrollEchoListPos = {534, 117};  // echo列表向下滚动滚轮的鼠标位置
+
+    // 拖拽 可以稍快 无需太精确 寻找残像 翻页 530 549 -> 530 189
+    const cv::Point scrollEchoListsStartPos = {530, 549};
+    const cv::Point scrollEchoListsEndPos = {530, 189};
+    const cv::Point scrollEchoListsWaitPos = {51, 386};  // 防止挡住或改变图像
+
+
 };
 
 #endif // MAINBACKENDWORKERNEW_H

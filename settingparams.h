@@ -151,19 +151,53 @@ struct LockEchoSetting{
 Q_DECLARE_METATYPE(LockEchoSetting)
 
 // 普通boss设定
-struct NormalBossSetting{
-    bool dragonOfDirge = true;  // 叹息古龙
-    //bool lorelei;        // 罗蕾莱  这个比较特殊 需要走路才能到  暂时搁置
-    bool sentryConstruct = true;  // 异构武装
+enum class NormalBossEnum {
+    DragonOfDirge,     // 叹息古龙
+    SentryConstruct,   // 异构武装
+    Crownless          // 无冠者
+};
 
-    bool crownless = true;  // 无冠者
+struct NormalBossSetting {
+    QMap<NormalBossEnum, bool> bossSettings;
 
+    // 默认构造函数，初始化每个 Boss 的默认值
+    NormalBossSetting() {
+        bossSettings[NormalBossEnum::DragonOfDirge] = true;
+        bossSettings[NormalBossEnum::SentryConstruct] = true;
+        bossSettings[NormalBossEnum::Crownless] = true;
+    }
+
+    // 将枚举值转换为英文名称
+    static QString Enum2QString(NormalBossEnum boss) {
+        switch (boss) {
+            case NormalBossEnum::DragonOfDirge:
+                return "dragonOfDirge";
+            case NormalBossEnum::SentryConstruct:
+                return "sentryConstruct";
+            case NormalBossEnum::Crownless:
+                return "crownless";
+            default:
+                return "unknown";
+        }
+    }
+
+    // 转换为 QString 的方法
     QString toQString() const {
         QString result;
-        result += "叹息古龙: " + QString(dragonOfDirge ? "是" : "否") + "\n";
-        result += "异构武装: " + QString(sentryConstruct ? "是" : "否") + "\n";
-        result += "无冠者: " + QString(crownless ? "是" : "否") + "\n";
+        result += "叹息古龙: " + QString(bossSettings[NormalBossEnum::DragonOfDirge] ? "是" : "否") + "\n";
+        result += "异构武装: " + QString(bossSettings[NormalBossEnum::SentryConstruct] ? "是" : "否") + "\n";
+        result += "无冠者: " + QString(bossSettings[NormalBossEnum::Crownless] ? "是" : "否") + "\n";
         return result;
+    }
+
+    // 根据枚举值查询是否需要打某个 Boss
+    bool isBossEnabled(NormalBossEnum boss) const {
+        return bossSettings.value(boss, false);
+    }
+
+    // 设置某个 Boss 是否开启
+    void setBossEnabled(NormalBossEnum boss, bool enabled) {
+        bossSettings[boss] = enabled;
     }
 };
 Q_DECLARE_METATYPE(NormalBossSetting)

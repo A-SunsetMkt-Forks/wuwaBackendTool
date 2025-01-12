@@ -55,6 +55,9 @@ private:
     // 生成默认的声骸锁定参数 并应用到UI
     void genDefaultLockEchoSetting();
 
+    // 生成默认的声骸锁定参数 并应用到UI
+    void genDefaultNormalBossSetting();
+
     // 后台工作线程和后台工作器
     QThread m_mainBackendThread;
     MainBackendWorker m_mainBackendWorker;

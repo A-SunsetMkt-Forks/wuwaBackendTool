@@ -33,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // 为锁定声骸填充默认参数
     genDefaultLockEchoSetting();
 
+    // 为普通boss填充默认参数
+    genDefaultNormalBossSetting();
+
     // 启动自动切换背景图线程
     m_autoChangeWallpaperBackendWorker.moveToThread(&m_autoChangeWallpaperBackendThread);
     m_autoChangeWallpaperBackendThread.start();
@@ -164,6 +167,12 @@ void MainWindow::genDefaultLockEchoSetting(){
     ui->echoLockEntriesPanel->genDefaultSetting(setting);
     qInfo().noquote() << setting.toQString();
     ui->echoLockEntriesPanel->setLockEchoSetting2UI(setting);
+}
+
+void MainWindow::genDefaultNormalBossSetting(){
+    NormalBossSetting setting;
+    qInfo().noquote() << setting.toQString();
+    ui->normalBossPanel->setNormalBossSetting2UI(setting);
 }
 
 void MainWindow::registerGlobalHotKey() {
