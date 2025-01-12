@@ -5,6 +5,20 @@ MainBackendWorkerNew::MainBackendWorkerNew(QObject *parent) : QObject(parent)
     m_isRunning.store(0);
     initEchoSetName2IconMap();
     initEntryName2IconMap();
+
+    // 初始化后台战斗线程
+    m_fightBackendWorkerNew.moveToThread(&m_fightThread);
+    m_fightThread.start();
+    connect(this, &MainBackendWorkerNew::startFight, &this->m_fightBackendWorkerNew, &FightBackendWorkerNew::onStartFight);
+
+}
+
+MainBackendWorkerNew::~MainBackendWorkerNew()
+{
+    m_fightBackendWorkerNew.stopWorker();
+    m_fightThread.quit();
+    m_fightThread.wait();
+
 }
 
 bool MainBackendWorkerNew::isBusy(){
@@ -17,6 +31,7 @@ bool MainBackendWorkerNew::isBusy(){
 }
 
 void MainBackendWorkerNew::stopWorker(){
+    m_fightBackendWorkerNew.stopWorker();
     m_isRunning.store(0);
     qInfo() << QString("MainBackendWorkerNew 线程结束");
 }
@@ -573,6 +588,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
 
     // 保证已经锁定了boss
     // 战斗代码
+
 
 
     // 拾取声骸  记得计数+1

@@ -5,8 +5,10 @@
 #include <QAtomicInt>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QThread>
 #include "utils.h"
 #include "settingparams.h"
+#include "fightbackendworkernew.h"
 
 
 
@@ -15,6 +17,7 @@ class MainBackendWorkerNew : public QObject
     Q_OBJECT
 public:
     explicit MainBackendWorkerNew(QObject *parent = nullptr);
+    ~MainBackendWorkerNew();
     bool isBusy();
     void stopWorker();
 
@@ -78,6 +81,9 @@ signals:
     // 轮刷boss完成
     void normalBossDone(const bool& isNormalEnd, const QString& errMsg, const NormalBossSetting &normalBossSetting);
 
+    // 要求战斗线程开始工作
+    void startFight();
+
 public slots:
     // 响应UI要求 开始自动锁定声骸
     void onStartLockEcho(const LockEchoSetting &lockEchoSetting);
@@ -129,6 +135,10 @@ private:
     const cv::Point scrollEchoListsStartPos = {530, 549};
     const cv::Point scrollEchoListsEndPos = {530, 189};
     const cv::Point scrollEchoListsWaitPos = {51, 386};  // 防止挡住或改变图像
+
+    // 战斗线程
+    QThread m_fightThread;
+    FightBackendWorkerNew m_fightBackendWorkerNew;
 
 
 };

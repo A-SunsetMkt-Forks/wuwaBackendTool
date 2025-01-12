@@ -68,7 +68,8 @@ SOURCES += \
     welcomedialog.cpp \
     wuwahwndwatcher.cpp \
     mainbackendworkernew.cpp \
-    normalbosspanel.cpp
+    normalbosspanel.cpp \
+    fightbackendworkernew.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -90,7 +91,8 @@ HEADERS += \
     welcomedialog.h \
     wuwahwndwatcher.h \
     mainbackendworkernew.h \
-    normalbosspanel.h
+    normalbosspanel.h \
+    fightbackendworkernew.h
 
 FORMS += \
         mainwindow.ui \
