@@ -477,7 +477,7 @@ bool MainBackendWorkerNew::backToMain(){
     for(int i = 0; i < 4 && isBusy(); i++){
         double similarity;
         int x, y, timeCostMs;
-        bool isFind = loopFindPic(missionImg, 0.8, defaultMaxWaitMs, 250, "未能找到背包按钮 尝试esc后 继续寻找", similarity, x, y, timeCostMs);
+        bool isFind = loopFindPic(missionImg, 0.75, defaultMaxWaitMs, 250, "未能找到背包按钮 尝试esc后 继续寻找", similarity, x, y, timeCostMs);
         if(!isBusy()){
             return true;
         }
@@ -650,11 +650,23 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
             isAbsorb = true;
+            capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity);
+
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
             Sleep(250);
-            Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+            //Sleep(250);
+            //Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
             Sleep(1000);
+            Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+            Sleep(500);
+            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+            Sleep(250);
         }
+    }
+    if(!isBusy()){
+        return true;
     }
 
     if(isAbsorb) {pickUpNormalBossEcho = pickUpNormalBossEcho + 1;}
@@ -1322,7 +1334,7 @@ bool MainBackendWorkerNew::loopFindPic(const cv::Mat& templateImg, const double&
         similarity = std::max(similarity, tempSimilarity);
 
         if(!isBusy()){
-            qWarning() << "break by user. Similarity:" << similarity;
+            //qWarning() << "break by user. Similarity:" << similarity;
             return false;
         }
         // 等待下一次轮询
@@ -1337,7 +1349,7 @@ bool MainBackendWorkerNew::loopFindPic(const cv::Mat& templateImg, const double&
 
     // 返回超时状态
     timeCostMs = timer.elapsed();
-    qWarning() << "Failed to find template within the specified time limit. Similarity:" << similarity;
+    //qWarning() << "Failed to find template within the specified time limit. Similarity:" << similarity;
     return false;
 
 }

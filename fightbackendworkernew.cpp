@@ -23,14 +23,14 @@ void FightBackendWorkerNew::stopWorker(){
 
 void FightBackendWorkerNew::pauseWorker(){
     m_isPause.store(1);
-    qInfo() << QString("FightBackendWorkerNew 战斗子线程 暂停工作");
+    //qInfo() << QString("FightBackendWorkerNew 战斗子线程 暂停工作");
 }
 
 void FightBackendWorkerNew::resumeWorker(){
     if(isBusy()){
         m_isPause.store(0);
     }
-    qInfo() << QString("FightBackendWorkerNew 战斗子线程 恢复工作");
+    //qInfo() << QString("FightBackendWorkerNew 战斗子线程 恢复工作");
 }
 
 

@@ -150,56 +150,90 @@ struct LockEchoSetting{
 };
 Q_DECLARE_METATYPE(LockEchoSetting)
 
-// 普通boss设定
+// Boss枚举  少了乌龟
 enum class NormalBossEnum {
-    DragonOfDirge,     // 叹息古龙
-    SentryConstruct,   // 异构武装
-    Crownless          // 无冠者
+    DragonOfDirge,            // 叹息古龙
+    SentryConstruct,          // 异构武装
+    Crownless,                // 无冠者
+    Lorelei,                  // 罗蕾莱
+    FallacyOfNoReturn,        // 无归的谬误
+    FeilianBeringal,          // 飞廉之猩
+    ImpermanenceHeron,        // 无常凶鹭
+    InfernoRider,             // 燎照之骑
+    LampylumenMyriad,         // 辉萤军势
+    MechAbomination,          // 机械聚偶
+    MourningAix,              // 哀声鸷
+    TempestMephis,            // 云闪之鳞
+    ThunderingMephis,         // 朔雷之鳞
+    NightmareCrownless,       // 梦魇无冠者
+    NightmareFeilianBeringal, // 梦魇飞廉之猩
+    NightmareImpermanenceHeron, // 梦魇无常凶鹭
+    NightmareInfernoRider,    // 梦魇燎照之骑士
+    NightmareMourningAix,     // 梦魇哀声鸷
+    NightmareTempestMephis,   // 梦魇云闪之鳞
+    NightmareThunderingMephis // 梦魇朔雷之鳞
 };
 
+// Boss设置结构
 struct NormalBossSetting {
     QMap<NormalBossEnum, bool> bossSettings;
 
-    // 默认构造函数，初始化每个 Boss 的默认值
+    // 默认构造函数，初始化所有Boss为启用
     NormalBossSetting() {
-        bossSettings[NormalBossEnum::DragonOfDirge] = true;
-        bossSettings[NormalBossEnum::SentryConstruct] = true;
-        bossSettings[NormalBossEnum::Crownless] = true;
+        for (int i = static_cast<int>(NormalBossEnum::DragonOfDirge);
+             i <= static_cast<int>(NormalBossEnum::NightmareThunderingMephis); ++i) {
+            bossSettings[static_cast<NormalBossEnum>(i)] = true;
+        }
     }
 
     // 将枚举值转换为英文名称
     static QString Enum2QString(NormalBossEnum boss) {
         switch (boss) {
-            case NormalBossEnum::DragonOfDirge:
-                return "dragonOfDirge";
-            case NormalBossEnum::SentryConstruct:
-                return "sentryConstruct";
-            case NormalBossEnum::Crownless:
-                return "crownless";
-            default:
-                return "unknown";
+            case NormalBossEnum::DragonOfDirge: return "dragonOfDirge";
+            case NormalBossEnum::SentryConstruct: return "sentryConstruct";
+            case NormalBossEnum::Crownless: return "crownless";
+            case NormalBossEnum::Lorelei: return "lorelei";
+            case NormalBossEnum::FallacyOfNoReturn: return "fallacyOfNoReturn";
+            case NormalBossEnum::FeilianBeringal: return "feilianBeringal";
+            case NormalBossEnum::ImpermanenceHeron: return "impermanenceHeron";
+            case NormalBossEnum::InfernoRider: return "infernoRider";
+            case NormalBossEnum::LampylumenMyriad: return "lampylumenMyriad";
+            case NormalBossEnum::MechAbomination: return "mechAbomination";
+            case NormalBossEnum::MourningAix: return "mourningAix";
+            case NormalBossEnum::TempestMephis: return "tempestMephis";
+            case NormalBossEnum::ThunderingMephis: return "thunderingMephis";
+            case NormalBossEnum::NightmareCrownless: return "nightmareCrownless";
+            case NormalBossEnum::NightmareFeilianBeringal: return "nightmareFeilianBeringal";
+            case NormalBossEnum::NightmareImpermanenceHeron: return "nightmareImpermanenceHeron";
+            case NormalBossEnum::NightmareInfernoRider: return "nightmareInfernoRider";
+            case NormalBossEnum::NightmareMourningAix: return "nightmareMourningAix";
+            case NormalBossEnum::NightmareTempestMephis: return "nightmareTempestMephis";
+            case NormalBossEnum::NightmareThunderingMephis: return "nightmareThunderingMephis";
+            default: return "unknown";
         }
     }
 
     // 转换为 QString 的方法
     QString toQString() const {
         QString result;
-        result += "叹息古龙: " + QString(bossSettings[NormalBossEnum::DragonOfDirge] ? "是" : "否") + "\n";
-        result += "异构武装: " + QString(bossSettings[NormalBossEnum::SentryConstruct] ? "是" : "否") + "\n";
-        result += "无冠者: " + QString(bossSettings[NormalBossEnum::Crownless] ? "是" : "否") + "\n";
+        for (auto it = bossSettings.begin(); it != bossSettings.end(); ++it) {
+            result += Enum2QString(it.key()) + ": " + (it.value() ? "是" : "否") + "\n";
+        }
         return result;
     }
 
-    // 根据枚举值查询是否需要打某个 Boss
+    // 查询某个Boss是否启用
     bool isBossEnabled(NormalBossEnum boss) const {
         return bossSettings.value(boss, false);
     }
 
-    // 设置某个 Boss 是否开启
+    // 设置某个Boss的启用状态
     void setBossEnabled(NormalBossEnum boss, bool enabled) {
         bossSettings[boss] = enabled;
     }
 };
+
 Q_DECLARE_METATYPE(NormalBossSetting)
+
 
 #endif // SETTINGPARAMS_H
