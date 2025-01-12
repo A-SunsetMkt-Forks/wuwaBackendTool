@@ -577,6 +577,24 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
         break;
 
+    case NormalBossEnum::FallacyOfNoReturn:
+        if(!fallacyOfNoReturnPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::ImpermanenceHeron:
+        if(!impermanenceHeronPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::InfernoRider:
+        if(!infernoRiderPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
     default:
         qWarning() << QString("未针对boss %1 做战斗适配").arg(NormalBossSetting::Enum2QString(bossName));
         return false;
@@ -706,7 +724,7 @@ bool MainBackendWorkerNew::dragonOfDirgePreparation(const NormalBossSetting &nor
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("已经锁定 %1").arg("叹息之龙");
-            Sleep(1500);
+            Sleep(500);
             break;
         }
 
@@ -719,6 +737,7 @@ bool MainBackendWorkerNew::dragonOfDirgePreparation(const NormalBossSetting &nor
     }
 
     if(!isTraced){
+
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
     }
     return isTraced;
@@ -762,7 +781,7 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
             if(loopFindPic(bossTitle, 0.8, 5*1000, 250, "触发了声弦，但没等到无冠者", similarity, x, y, timeCostMs)){
                 Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
                 qInfo() << QString("已经锁定 %1").arg("无冠者");
-                Sleep(1500);
+                Sleep(500);
                 return true;
             }
             else{
@@ -774,7 +793,7 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
     }
 
     // 没找到声弦 要么被用户中断 要么就是没找到
-    if(isBusy()){
+    if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
         return true;
     }
@@ -821,11 +840,155 @@ bool MainBackendWorkerNew::sentryConstructPreparation(const NormalBossSetting &n
         // 鼠标中键 锁定
         Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
         qInfo() << QString("已经锁定 %1").arg("异构武装");
-        Sleep(1500);
+        Sleep(500);
         return true;
     }
 
 }
+
+bool MainBackendWorkerNew::fallacyOfNoReturnPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "fallacyOfNoReturn", "无归的谬误", errMsg);
+
+    // 往前冲8秒 然后站着判断 超过8秒没出title 就退了
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+    for(int i = 0; i < 16 && isBusy(); i++){
+        Sleep(500);
+    }
+
+    if(!isBusy()){
+        return true;
+    }
+
+    // 站着 最多等8秒
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    double similarity;
+    int x, y, timeCostMs;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("fallacyOfNoReturnTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    if(!loopFindPic(bossTitle, 0.8, 8*1000, 500, "fallacyOfNoReturn_isnot_shown_up", similarity, x, y, timeCostMs)){
+        if(!isBusy()){
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            return true;
+        }
+        qWarning() << QString("can't find fallacyOfNoReturn's title");
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        return false;
+    }
+    else{
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        // 等待7.5秒再锁定
+        for(int i = 0; i < 15 && isBusy(); i++){
+            Sleep(500);
+        }
+
+        if(!isBusy()) return true;
+
+        // 鼠标中键 锁定
+        Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+        qInfo() << QString("lock %1").arg("fallacyOfNoReturn");
+        Sleep(500);
+        return true;
+    }
+}
+
+bool MainBackendWorkerNew::impermanenceHeronPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "impermanenceHeron", "无常凶鹭", errMsg);
+
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+
+    // 如果跑了 N秒没找到 认为失败 跳过
+    const int maxRunFindBossMs = 10*1000;
+    const int detectBossPeroidMs = 500;
+
+    QElapsedTimer timer;
+    timer.start();
+
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("impermanenceHeronTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isTraced = false;
+    while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+        int x, y;
+        double similarity;
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                return true;
+            }
+
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            // 找到boss title了
+            isTraced = true;
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+            qInfo() << QString("已经锁定 %1").arg("无常凶鹭");
+            Sleep(500);
+            break;
+        }
+
+        Sleep(detectBossPeroidMs);
+    }
+
+    if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        return true;
+    }
+
+    if(!isTraced){
+
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    }
+    return isTraced;
+}
+
+bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "infernoRider", "燎照之骑", errMsg);
+
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+
+    // 如果跑了 N秒没找到 认为失败 跳过
+    const int maxRunFindBossMs = 10*1000;
+    const int detectBossPeroidMs = 500;
+
+    QElapsedTimer timer;
+    timer.start();
+
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("infernoRiderTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isTraced = false;
+    while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+        int x, y;
+        double similarity;
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                return true;
+            }
+
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            // 找到boss title了
+            isTraced = true;
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+            qInfo() << QString("已经锁定 %1").arg("燎照之骑");
+            Sleep(500);
+            break;
+        }
+
+        Sleep(detectBossPeroidMs);
+    }
+
+    if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        return true;
+    }
+
+    if(!isTraced){
+
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    }
+    return isTraced;
+}
+
+
 
 
 bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSetting &normalBossSetting, \

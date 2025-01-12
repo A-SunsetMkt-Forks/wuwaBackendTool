@@ -72,7 +72,12 @@ private:
     bool crownLessPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 刷异构武装 异构武装 准备工作 从传送到boss面前 到锁定boss
     bool sentryConstructPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
-
+    // 刷无归的谬误 准备工作 从传送到boss面前  到锁定boss
+    bool fallacyOfNoReturnPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 无常凶鹭
+    bool impermanenceHeronPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 燎照之骑
+    bool infernoRiderPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
 signals:
     // 锁定声骸完成

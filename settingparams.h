@@ -182,7 +182,7 @@ struct NormalBossSetting {
     NormalBossSetting() {
         for (int i = static_cast<int>(NormalBossEnum::DragonOfDirge);
              i <= static_cast<int>(NormalBossEnum::NightmareThunderingMephis); ++i) {
-            bossSettings[static_cast<NormalBossEnum>(i)] = true;
+            bossSettings[static_cast<NormalBossEnum>(i)] = false;
         }
     }
 
