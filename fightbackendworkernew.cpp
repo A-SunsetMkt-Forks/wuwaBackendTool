@@ -52,33 +52,33 @@ void FightBackendWorkerNew::onStartFight(){
         return isBusy();
     };
 
-    const int waitMs = 250;
+    const int waitMs = 100;
     while(isBusy()){
         const int teamSize = 3;
         for(int i = 0; i < teamSize && isBusy(); i++){\
             if(!checkPause()) break;
             Utils::keyPress(Utils::hwnd, i + 1 + '0', 1);  // 切人
-            Sleep(250);
+            Sleep(waitMs);
 
             if(!checkPause()) break;
             Utils::keyPress(Utils::hwnd, 'R', 1);
-            Sleep(250);
+            Sleep(waitMs);
 
             if(!checkPause()) break;
             Utils::keyPress(Utils::hwnd, 'E', 1);
-            Sleep(250);
+            Sleep(waitMs);
 
             if(!checkPause()) break;
             Utils::keyPress(Utils::hwnd, 'Q', 1);
-            Sleep(250);
+            Sleep(waitMs);
 
             if(!checkPause()) break;
             Utils::clickWindowClient(Utils::hwnd);
-            Sleep(250);
+            Sleep(waitMs);
 
             if(!checkPause()) break;
             Utils::clickWindowClient(Utils::hwnd);
-            Sleep(250);
+            Sleep(waitMs);
         }
     }
 

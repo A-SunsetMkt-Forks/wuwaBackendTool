@@ -588,10 +588,77 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
 
     // 保证已经锁定了boss
     // 战斗代码
+    QElapsedTimer timer;
+    timer.start();
+    const int maxFightMs = 300000;  // 最多一个boss允许战斗300秒
+    emit startFight();
 
+    // 每隔250ms判断boss状态
+    // 能检测到背包图标 检测不到bosstitle 说明boss 死了 停止战斗
+    // 能检测到背包图标 检测得到bosstitle 说明boss还活着 继续锤 恢复战斗
+    // 检测不到背包图标 检测不到bosstitle 说明在放大招 暂停战斗
+    cv::Mat bossTitle = cv::imread(QString("%1/%2Title.bmp").arg(Utils::IMAGE_DIR_EI()).arg(NormalBossSetting::Enum2QString(bossName)).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    int titleX, titleY;
+    double similarityTitle;
 
+    cv::Mat bagImg = cv::imread(QString("%1/bag.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    int bagX, bagY;
+    double similarityBag;
+    int voteBossDead = 0;
+    while(isBusy() && timer.elapsed() < 300000){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        bool isFindTitle = Utils::findPic(capImg, bossTitle, 0.6, titleX, titleY, similarityTitle);
+        bool isFindBag = Utils::findPic(capImg, bagImg, 0.7, bagX, bagY, similarityBag);
+
+        if(isFindBag && isFindTitle){
+            voteBossDead = 0;
+            m_fightBackendWorkerNew.resumeWorker();
+        }
+        else if(isFindBag && !isFindTitle){
+            voteBossDead = voteBossDead + 1;
+            m_fightBackendWorkerNew.pauseWorker();
+            if(voteBossDead > 3){
+                m_fightBackendWorkerNew.stopWorker();
+                Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);  // 回正视角 面向声骸
+                Utils::saveDebugImg(capImg, cv::Rect(), 0 ,0, QString("认为boss死亡_背包匹配度_%1__boss标题匹配度_%2").arg(similarityBag).arg(similarityTitle));
+                Sleep(1000);
+                qInfo() << QString("战斗完成");
+                break;
+            }
+        }
+        else if(!isFindBag && !isFindTitle){
+            m_fightBackendWorkerNew.pauseWorker();
+        }
+    }
+
+    if(!isBusy()){
+        return true;
+    }
+
+    if(timer.elapsed() >= 300000){
+        return true;
+    }
 
     // 拾取声骸  记得计数+1
+    cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+    int absorbX, absorbY;
+    double absorbSimilarity;
+    bool isAbsorb = false;
+    for(int i = 0; i < 10 && isBusy(); i++){
+        Sleep(500);
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
+            isAbsorb = true;
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
+            Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+            Sleep(1000);
+        }
+    }
+
+    if(isAbsorb) {pickUpNormalBossEcho = pickUpNormalBossEcho + 1;}
+    qInfo() << QString("拾取声骸数 %1").arg(pickUpNormalBossEcho);
 
     return true;
 }
