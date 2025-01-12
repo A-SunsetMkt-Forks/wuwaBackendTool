@@ -748,3 +748,52 @@ bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, 
 
     return true;
 }
+
+bool MainBackendWorkerNew::loopFindPic(const cv::Mat& capImg, const cv::Mat& templateImg, const double& requireSimilarity, \
+                 const int &maxWaitMs, const int &refreshMs, const QString& ifFailedMsg, double& similarity, \
+                 int& x, int& y, int& timeCostMs){
+
+    QElapsedTimer timer;
+    timer.start();
+
+    similarity = 0.0;
+    x = -1;
+    y = -1;
+    timeCostMs = 0;
+
+    // 验证输入参数的有效性
+    if (capImg.empty() || templateImg.empty() || requireSimilarity <= 0.0 || requireSimilarity > 1.0) {
+        qWarning() << "Invalid input parameters for loopFindPic.";
+        return false;
+    }
+
+    while (timer.elapsed() < maxWaitMs) {
+        // 每次循环尝试匹配模板
+        int tempX = -1, tempY = -1;
+        double tempSimilarity = 0.0;
+
+        if (Utils::findPic(capImg, templateImg, requireSimilarity, tempX, tempY, tempSimilarity)) {
+            // 成功匹配，更新结果并返回
+            x = tempX;
+            y = tempY;
+            similarity = tempSimilarity;
+            timeCostMs = timer.elapsed();
+            return true;
+        }
+
+        // 更新匹配相似度
+        similarity = std::max(similarity, tempSimilarity);
+
+        // 等待下一次轮询
+        Sleep(refreshMs);
+    }
+
+    // 超时未找到，保存调试图像
+    Utils::saveDebugImg(capImg, cv::Rect(), x, y, ifFailedMsg);
+
+    // 返回超时状态
+    timeCostMs = timer.elapsed();
+    qWarning() << "Failed to find template within the specified time limit. Similarity:" << similarity;
+    return false;
+
+}

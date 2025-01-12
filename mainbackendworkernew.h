@@ -39,6 +39,11 @@ private:
     // 慢速拖动 越慢越容易成功
     bool dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy, int steps, int stepPauseMs);
 
+    // 工具函数，不断轮询 设置最大等待时间和轮询间隔，必须以指定匹配度找到模板。如果没找到则存储错误信息供反馈
+    bool loopFindPic(const cv::Mat& capImg, const cv::Mat& templateImg, const double& requireSimilarity, \
+                     const int &maxWaitMs, const int &refreshMs, const QString& ifFailedMsg, double& similarity, \
+                     int& x, int& y, int& timeCostMs);
+
 signals:
     // 锁定声骸完成
     void lockEchoDone(const bool& isNormalEnd, const QString& errMsg, const LockEchoSetting &lockEchoSetting);
