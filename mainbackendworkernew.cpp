@@ -219,6 +219,83 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
     return;
 }
 
+void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBossSetting){
+    m_isRunning.store(1);
+
+    qInfo() << QString("MainBackendWorkerNew::onStartNormalBoss");
+
+    // 初始化句柄
+    bool isInit = Utils::initWuwaHwnd();
+    if(!isInit){
+        emit normalBossDone(false, QString("未能初始化鸣潮窗口句柄"), normalBossSetting);
+        m_isRunning.store(0);
+        return;
+    }
+
+    bool isWuwaRunning = Utils::isWuwaRunning();
+    if(!isWuwaRunning){
+        emit normalBossDone(false, QString("未能初始化鸣潮窗口句柄"), normalBossSetting);
+        m_isRunning.store(0);
+        return;
+    }
+
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+
+    // 每一步都需要执行该检查 封装为匿名函数
+    auto isNormalBossStop = [&](bool isAbort, bool isNormalEnd, const QString& msg, const NormalBossSetting &normalBossSetting) {
+        bool isWuwaRunning = Utils::isWuwaRunning();
+        if(!isWuwaRunning){
+            // 鸣潮已经被关闭 异常结束
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            emit normalBossDone(false, QString("鸣潮已经被关闭"), normalBossSetting);
+            m_isRunning.store(0);
+            return true;
+        }
+
+        if(!isBusy()){
+            // 用户中止 正常结束
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            emit normalBossDone(true, QString("用户停止"), normalBossSetting);
+            m_isRunning.store(0);
+            return true;
+        }
+        else{
+            if(isAbort){
+                // 根据输入参数决定是否正常结束
+                AttachThreadInput(currentThreadId, threadId, FALSE);
+                emit normalBossDone(isNormalEnd, msg, normalBossSetting);
+                m_isRunning.store(0);
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    };
+
+    // 将线程附加到目标窗口
+    if (AttachThreadInput(currentThreadId, threadId, TRUE)) {
+        // 激活窗口
+        SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+        Sleep(500);
+
+        while(isBusy()){
+            // 检查用户是否打断
+            if(isNormalBossStop(false, true, QString("脚本运行结束 用户中止"), normalBossSetting)) return;
+
+            // 进入默认界面
+        }
+    }
+    else{
+        if(isNormalBossStop(true, false, QString("未能将线程附加到鸣潮窗口"), normalBossSetting)) return;
+    }
+
+    if(isNormalBossStop(true, true, QString("脚本运行结束"), normalBossSetting)) return;
+    return;
+}
+
 
 bool MainBackendWorkerNew::enterBagInterface() {
     cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));

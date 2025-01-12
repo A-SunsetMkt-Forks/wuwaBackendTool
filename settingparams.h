@@ -152,15 +152,20 @@ Q_DECLARE_METATYPE(LockEchoSetting)
 
 // 普通boss设定
 struct NormalBossSetting{
-    bool dragonOfDirge;  // 叹息古龙
-    bool lorelei;        // 罗蕾莱  这个比较特殊 需要走路才能到  暂时搁置
-    bool sentryConstruct;  // 异构武装
+    bool dragonOfDirge = true;  // 叹息古龙
+    //bool lorelei;        // 罗蕾莱  这个比较特殊 需要走路才能到  暂时搁置
+    bool sentryConstruct = true;  // 异构武装
 
-    bool crownless;  // 无冠者
+    bool crownless = true;  // 无冠者
 
-
+    QString toQString() const {
+        QString result;
+        result += "叹息古龙: " + QString(dragonOfDirge ? "是" : "否") + "\n";
+        result += "异构武装: " + QString(sentryConstruct ? "是" : "否") + "\n";
+        result += "无冠者: " + QString(crownless ? "是" : "否") + "\n";
+        return result;
+    }
 };
-
-
+Q_DECLARE_METATYPE(NormalBossSetting)
 
 #endif // SETTINGPARAMS_H

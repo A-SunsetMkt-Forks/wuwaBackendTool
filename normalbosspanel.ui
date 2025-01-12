@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -32,6 +32,9 @@
     </item>
     <item>
      <widget class="QCheckBox" name="lorelei">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>罗蕾莱</string>
       </property>
@@ -53,6 +56,9 @@
     </item>
     <item>
      <widget class="QCheckBox" name="thunderingMephis">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>朔雷之鳞</string>
       </property>
@@ -60,6 +66,9 @@
     </item>
     <item>
      <widget class="QCheckBox" name="tempestMephis">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>云闪之鳞</string>
       </property>
@@ -67,12 +76,28 @@
     </item>
     <item>
      <widget class="QCheckBox" name="infernoRider">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>燎照之骑</string>
       </property>
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QPushButton" name="startNormalBoss">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>250</y>
+     <width>161</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>开始</string>
+   </property>
   </widget>
  </widget>
  <resources/>

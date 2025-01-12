@@ -77,7 +77,7 @@ private:
 signals:
     void startTest1();
 
-    // 转发信号 请求后台线程执行
+    // 转发信号 要求后台执行 特殊boss
     void startSpecialBoss(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
 
     // 开启自动更新壁纸
@@ -86,14 +86,16 @@ signals:
     // 要求后台线程锁定声骸
     void startLockEcho(const LockEchoSetting& lockEchoSetting);
 
+    // 要求后台线程轮刷普通boss
+    void startNormalBoss(const NormalBossSetting& setting);
+
 private slots:
     void on_getGameWin_clicked();
-
 
     // 测试 ESC 点击活动 ESC 往前走
     void on_test1_clicked();
 
-    // 响应后台结束的信号
+    // 响应 ESC 点击活动 ESC 往前走 结束的信号
     void onStartTest1Done(const bool &isNormalEnd, const QString& msg);
 
     // 打断一切后台操作
@@ -102,20 +104,25 @@ private slots:
     // 响应外界的快捷键 停止脚本运行
     void onHotKeyActivated(int id);
 
+    // 更新壁纸
+    void onSendImageAsWallpaper(const QImage& img);
+
     // 接收特殊boss脚本启动请求 检查窗口句柄和分辨率 没问题就转发信号
     void checkSpecialBoss(const SpecialBossSetting& setting);
 
-    // 后台线程结束
+    // 后台特殊boss线程结束
     void onStartSpecialBossDone(const bool& isNormalEnd, const QString& msg, const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
-
-    // 更新壁纸
-    void onSendImageAsWallpaper(const QImage& img);
 
     // 启动声骸锁定
     void on_startLockEcho_clicked();
 
     // 声骸锁定结束
     void onLockEchoDone(const bool& isNormalEnd, const QString& errMsg, const LockEchoSetting &lockEchoSetting);
+
+    // 启动普通boss
+    void on_startNormalBoss_clicked();
+    // 普通boss结束
+    void onNormalBossDone(const bool& isNormalEnd, const QString& errMsg, const NormalBossSetting &normalBossSetting);
 
 
 };

@@ -48,6 +48,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, &MainWindow::startLockEcho, &this->m_mainBackendWorkerNew, &MainBackendWorkerNew::onStartLockEcho);
     connect(&this->m_mainBackendWorkerNew, &MainBackendWorkerNew::lockEchoDone, this, &MainWindow::onLockEchoDone);
 
+    // 轮刷boss
+    connect(this, &MainWindow::startNormalBoss, &this->m_mainBackendWorkerNew, &MainBackendWorkerNew::onStartNormalBoss);
+    connect(&this->m_mainBackendWorkerNew, &MainBackendWorkerNew::normalBossDone, this, &MainWindow::onNormalBossDone);
+
     // test1的连接
     connect(this, &MainWindow::startTest1, &this->m_mainBackendWorker, &MainBackendWorker::onStartTest1);
     connect(&this->m_mainBackendWorker, &MainBackendWorker::startTest1Done, this, &MainWindow::onStartTest1Done);
@@ -152,177 +156,12 @@ void MainWindow::registerType(){
     qRegisterMetaType<RebootGameSetting>("RebootGameSetting");
     qRegisterMetaType<LockEchoSetting>("LockEchoSetting");
     qRegisterMetaType<SingleEchoSetting>("SingleEchoSetting");
-
+    qRegisterMetaType<NormalBossSetting>("NormalBossSetting");
 }
 
 void MainWindow::genDefaultLockEchoSetting(){
     auto setting = ui->echoLockEntriesPanel->getLockEchoSettingFromUI();
-    for(auto echoSet: setting.echoSetName2singleSetting.keys()){
-        SingleEchoSetting &echoSetSetting = setting.echoSetName2singleSetting[echoSet];
-        if(echoSet == "freezingFrost"){
-             // 今州冰套
-             echoSetSetting.islevel5 = true;
-             echoSetSetting.isLockJudge = true;
-             echoSetSetting.isDiscardedJudge = true;
-             echoSetSetting.isNormalJudge = true;
-             // 今州冰套 C1
-             QVector<QString> c1entries = { "attackRatio"};
-             echoSetSetting.cost2EntryMap[1] = c1entries;
-
-             // 今州冰套C3
-             QVector<QString> c3entries = { "glacioDMG", "energyRegen"};
-             echoSetSetting.cost2EntryMap[3] = c3entries;
-
-             // 今州冰套C4
-             QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
-             echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-        else if(echoSet == "moltenRift"){
-            // 今州火套
-            echoSetSetting.islevel5 = true;
-            echoSetSetting.isLockJudge = true;
-            echoSetSetting.isDiscardedJudge = true;
-            echoSetSetting.isNormalJudge = true;
-
-            QVector<QString> c1entries = { "attackRatio"};
-            echoSetSetting.cost2EntryMap[1] = c1entries;
-
-
-            QVector<QString> c3entries = { "fusionDMG", "energyRegen"};
-            echoSetSetting.cost2EntryMap[3] = c3entries;
-
-
-            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
-            echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-        else if(echoSet == "voidThunder"){
-            // 今州雷套
-            echoSetSetting.islevel5 = true;
-            echoSetSetting.isLockJudge = true;
-            echoSetSetting.isDiscardedJudge = true;
-            echoSetSetting.isNormalJudge = true;
-
-            QVector<QString> c1entries = { "attackRatio"};
-            echoSetSetting.cost2EntryMap[1] = c1entries;
-
-
-            QVector<QString> c3entries = { "electroDMG", "energyRegen"};
-            echoSetSetting.cost2EntryMap[3] = c3entries;
-
-
-            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
-            echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-        else if(echoSet == "sierraGale"){
-            // 今州风套
-            echoSetSetting.islevel5 = true;
-            echoSetSetting.isLockJudge = true;
-            echoSetSetting.isDiscardedJudge = true;
-            echoSetSetting.isNormalJudge = true;
-
-            QVector<QString> c1entries = { "attackRatio"};
-            echoSetSetting.cost2EntryMap[1] = c1entries;
-
-
-            QVector<QString> c3entries = { "aeroDMG", "energyRegen"};
-            echoSetSetting.cost2EntryMap[3] = c3entries;
-
-
-            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
-            echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-        else if(echoSet == "celestialLight"){
-            // 今州光套
-            echoSetSetting.islevel5 = true;
-            echoSetSetting.isLockJudge = true;
-            echoSetSetting.isDiscardedJudge = true;
-            echoSetSetting.isNormalJudge = true;
-
-            QVector<QString> c1entries = { "attackRatio"};
-            echoSetSetting.cost2EntryMap[1] = c1entries;
-
-
-            QVector<QString> c3entries = { "spectroDMG", "energyRegen"};
-            echoSetSetting.cost2EntryMap[3] = c3entries;
-
-
-            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
-            echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-        else if(echoSet == "sunSinkingEclipse"){
-            // 今州暗套
-            echoSetSetting.islevel5 = true;
-            echoSetSetting.isLockJudge = true;
-            echoSetSetting.isDiscardedJudge = true;
-            echoSetSetting.isNormalJudge = true;
-
-            QVector<QString> c1entries = { "attackRatio"};
-            echoSetSetting.cost2EntryMap[1] = c1entries;
-
-
-            QVector<QString> c3entries = { "havocDMG", "energyRegen"};
-            echoSetSetting.cost2EntryMap[3] = c3entries;
-
-
-            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
-            echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-        else if(echoSet == "rejuvenatingGlow"){
-            // 今州治疗套
-            echoSetSetting.islevel5 = true;
-            echoSetSetting.isLockJudge = true;
-            echoSetSetting.isDiscardedJudge = true;
-            echoSetSetting.isNormalJudge = true;
-
-            QVector<QString> c1entries = { "attackRatio", "HPratio"};
-            echoSetSetting.cost2EntryMap[1] = c1entries;
-
-
-            QVector<QString> c3entries = { "heal", "energyRegen", "HPratio"};
-            echoSetSetting.cost2EntryMap[3] = c3entries;
-
-
-            QVector<QString> c4entries = { "criticalDMG", "criticalRatio", "heal"};
-            echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-        else if(echoSet == "moonlitClouds"){
-            // 今州共鸣
-            echoSetSetting.islevel5 = true;
-            echoSetSetting.isLockJudge = true;
-            echoSetSetting.isDiscardedJudge = true;
-            echoSetSetting.isNormalJudge = true;
-
-            QVector<QString> c1entries = { "attackRatio"};
-            echoSetSetting.cost2EntryMap[1] = c1entries;
-
-
-            QVector<QString> c3entries = {"energyRegen", "electroDMG", "glacioDMG"};
-            echoSetSetting.cost2EntryMap[3] = c3entries;
-
-
-            QVector<QString> c4entries = { "criticalDMG", "criticalRatio"};
-            echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-        else if(echoSet == "lingeringTunes"){
-            // 今州攻击
-            echoSetSetting.islevel5 = true;
-            echoSetSetting.isLockJudge = true;
-            echoSetSetting.isDiscardedJudge = true;
-            echoSetSetting.isNormalJudge = true;
-
-            QVector<QString> c1entries = { "attackRatio"};
-            echoSetSetting.cost2EntryMap[1] = c1entries;
-
-
-            QVector<QString> c3entries = {"energyRegen", "attackRaio"};
-            echoSetSetting.cost2EntryMap[3] = c3entries;
-
-
-            QVector<QString> c4entries = { "criticalDMG", "criticalRatio", "attackRaio"};
-            echoSetSetting.cost2EntryMap[4] = c4entries;
-        }
-
-    }
+    ui->echoLockEntriesPanel->genDefaultSetting(setting);
     qInfo().noquote() << setting.toQString();
     ui->echoLockEntriesPanel->setLockEchoSetting2UI(setting);
 }
@@ -532,8 +371,6 @@ void MainWindow::on_startLockEcho_clicked(){
 
     ui->isBusyBox->setChecked(true);
     emit startLockEcho(lockEchoSetting);
-
-
 }
 
 void MainWindow::onLockEchoDone(const bool& isNormalEnd, const QString& errMsg, const LockEchoSetting &lockEchoSetting){
@@ -547,4 +384,34 @@ void MainWindow::onLockEchoDone(const bool& isNormalEnd, const QString& errMsg, 
     }
 
     qInfo() << QString("onLockEchoDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
+}
+
+// 启动普通boss
+void MainWindow::on_startNormalBoss_clicked(){
+    qInfo() << QString("MainWindow::on_startNormalBoss_clicked");
+
+    if(m_mainBackendWorkerNew.isBusy() || m_mainBackendWorker.isBusy()){
+        QMessageBox::warning(this, "有其他后台正忙", "请等待任务结束或手动停止后台任务，再启动普通boss轮刷");
+        return;
+    }
+
+    NormalBossSetting normalBossSetting = ui->normalBossPanel->getNormalBossSettingFromUI();
+    qInfo().noquote() << normalBossSetting.toQString();
+
+    ui->isBusyBox->setChecked(true);
+    emit startNormalBoss(normalBossSetting);
+}
+
+// 普通boss结束
+void MainWindow::onNormalBossDone(const bool& isNormalEnd, const QString& errMsg, const NormalBossSetting &normalBossSetting){
+    ui->isBusyBox->setChecked(false);
+
+    if(isNormalEnd){
+        QMessageBox::information(this, "轮刷普通boss结束", errMsg);
+    }
+    else{
+        QMessageBox::critical(this, "轮刷普通boss结束", errMsg);
+    }
+
+    qInfo() << QString("onNormalBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
 }

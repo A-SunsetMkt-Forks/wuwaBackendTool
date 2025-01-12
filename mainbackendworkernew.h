@@ -40,11 +40,20 @@ private:
     bool dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy, int steps, int stepPauseMs);
 
 signals:
+    // 锁定声骸完成
     void lockEchoDone(const bool& isNormalEnd, const QString& errMsg, const LockEchoSetting &lockEchoSetting);
+
+    // 轮刷boss完成
+    void normalBossDone(const bool& isNormalEnd, const QString& errMsg, const NormalBossSetting &normalBossSetting);
 
 public slots:
     // 响应UI要求 开始自动锁定声骸
     void onStartLockEcho(const LockEchoSetting &lockEchoSetting);
+
+    // 响应UI要求 开始自动轮刷普通boss
+    void onStartNormalBoss(const NormalBossSetting &normalBossSetting);
+
+
 
 private:
     // 常量坐标或ROI区
