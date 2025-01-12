@@ -310,7 +310,6 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
                     }
                 }
             }
-
         }
     }
     else{
@@ -546,6 +545,10 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
 
     default:
         qWarning() << QString("未针对boss %1 做战斗适配").arg(NormalBossSetting::Enum2QString(bossName));
+        return false;
+    }
+
+    if(!isBusy()){
         return true;
     }
 
@@ -553,7 +556,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     // 战斗代码
 
 
-    // 拾取声骸
+    // 拾取声骸  记得计数+1
 
     return true;
 }
@@ -637,11 +640,44 @@ bool MainBackendWorkerNew::dragonOfDirgePreparation(const NormalBossSetting &nor
     }
     */
 
-    bool isGeneralPrepared =  echoList2bossPositionPreparation(normalBossSetting, "dragonOfDirge", "叹息之龙", errMsg);
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "dragonOfDirge", "叹息之龙", errMsg);
 
-    //叹息之龙相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    // 叹息之龙相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
 
-    return isGeneralPrepared;
+    // 如果跑了 N秒没找到 认为失败 跳过
+    const int maxRunFindBossMs = 10*1000;
+    const int detectBossPeroidMs = 500;
+
+    QElapsedTimer timer;
+    timer.start();
+
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("dragonOfDirgeTitle.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isTraced = false;
+    while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+        int x, y;
+        double similarity;
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            // 找到boss title了
+            isTraced = true;
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+            qInfo() << QString("已经锁定 %1").arg("叹息之龙");
+            Sleep(500);
+            break;
+        }
+
+        Sleep(detectBossPeroidMs);
+    }
+
+    if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        return true;
+    }
+
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    return isTraced;
 }
 
 
@@ -726,7 +762,7 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
     return true;
     */
 
-    bool isGeneralPrepared =  echoList2bossPositionPreparation(normalBossSetting, "crownless", "无冠者", errMsg);
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "crownless", "无冠者", errMsg);
 
     return isGeneralPrepared;
 }
@@ -813,7 +849,7 @@ bool MainBackendWorkerNew::sentryConstructPreparation(const NormalBossSetting &n
     return true;
     */
 
-    bool isGeneralPrepared =  echoList2bossPositionPreparation(normalBossSetting, "sentryConstruct", "异构武装", errMsg);
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "sentryConstruct", "异构武装", errMsg);
 
     return isGeneralPrepared;
 }
@@ -865,6 +901,9 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     cv::Mat confirm = cv::imread(QString("%1/%2Confirm.bmp").arg(Utils::IMAGE_DIR_EI()).arg(bossEnName).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     int timeCostMs = 0;
     if(!loopFindPic(confirm, 0.7, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss确认信息", similarity, x, y, timeCostMs)){
+        if(!isBusy()){
+            return true;
+        }
         errMsg = QString("超时, %1 ms后仍未确认点击 %2 的icon").arg(defaultMaxWaitMs).arg(bossChName);
         qWarning() << errMsg;
         return false;
@@ -873,6 +912,9 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     // 尝试点击探测
     cv::Mat detect = cv::imread(QString("%1/detect.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     if(!loopFindPic(detect, 0.8, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss的探测", similarity, x, y, timeCostMs)){
+        if(!isBusy()){
+            return true;
+        }
         errMsg = QString("超时, %1 ms后仍找到 %2 的探测").arg(defaultMaxWaitMs).arg(bossChName);
         qWarning() << errMsg;
         return false;
@@ -883,6 +925,9 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     // 尝试点击快速旅行
     cv::Mat fastTravel = cv::imread(QString("%1/fastTravel.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     if(!loopFindPic(fastTravel, 0.8, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss的快速旅行", similarity, x, y, timeCostMs)){
+        if(!isBusy()){
+            return true;
+        }
         errMsg = QString("超时, %1 ms后仍未找到 %2 的快速旅行").arg(defaultMaxWaitMs).arg(bossChName);
         qWarning() << errMsg;
         return false;
@@ -893,6 +938,9 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     // 不断找背包 找到说明加载完毕  这里加载可能时间稍长 允许10s
     cv::Mat bagImg = cv::imread(QString("%1/bag.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     if(!loopFindPic(bagImg, 0.8, 10000, defaultRefreshMs, "传送boss 加载超时", similarity, x, y, timeCostMs)){
+        if(!isBusy()){
+            return true;
+        }
         errMsg = QString("超时, %1 ms后仍未完成 %2 的传送游戏加载").arg(10000).arg(bossChName);
         qWarning() << errMsg;
         return false;
