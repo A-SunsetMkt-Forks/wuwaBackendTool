@@ -6,61 +6,9 @@
 #include <QDebug>
 #include <QElapsedTimer>
 #include "utils.h"
+#include "settingparams.h"
 
-// 某个声骸套装的设置
-struct SingleEchoSetting{
-    bool isDiscardedJudge = true;  // true表示丢弃的 参与判断
-    bool isLockJudge = true;      // true表示锁定的 参与判断
-    bool isNormalJudge = true;    // true表示普通的 参与判断
 
-    bool islevel2 = false;     // 2星默认不判断
-    bool islevel3 = false;     // 3星默认不判断
-    bool islevel4 = false;     // 4星默认不判断
-    bool islevel5 = false;     // 5星默认不判断
-
-    QMap<int, QVector<QString>> cost2EntryMap;  // 通过cost 1 3 4可以索引得到想要的词条
-
-    QString toQString() const {
-        QString result;
-        result += "isDiscardedJudge\t" + QString::number(isDiscardedJudge) + "\n";
-        result += "isLockJudge\t" + QString::number(isLockJudge) + "\n";
-        result += "isNormalJudge\t" + QString::number(isNormalJudge) + "\n";
-
-        result += "islevel2\t" + QString::number(islevel2) + "\n";
-        result += "islevel3\t" + QString::number(islevel3) + "\n";
-        result += "islevel4\t" + QString::number(islevel4) + "\n";
-        result += "islevel5\t" + QString::number(islevel5) + "\n";
-
-        result += "cost2EntryMap\t\n";
-        for (auto it = cost2EntryMap.constBegin(); it != cost2EntryMap.constEnd(); ++it) {
-            result += QString("\tcost%1\t\n").arg(it.key());
-            for (const QString& entry : it.value()) {
-                result += QString("\t\t%1\n").arg(entry);
-            }
-        }
-
-        return result;
-    }
-};
-Q_DECLARE_METATYPE(SingleEchoSetting)
-
-// 总设置
-struct LockEchoSetting{
-    QMap<QString, SingleEchoSetting> echoSetName2singleSetting; // 通过声骸套装名可以索引得到设置
-
-    QString toQString() const {
-        QString result;
-
-        for (auto it = echoSetName2singleSetting.constBegin(); it != echoSetName2singleSetting.constEnd(); ++it) {
-            result += QString("echoSetName\t%1\n").arg(it.key());
-            result += it.value().toQString();
-        }
-
-        return result;
-    }
-
-};
-Q_DECLARE_METATYPE(LockEchoSetting)
 
 class MainBackendWorkerNew : public QObject
 {

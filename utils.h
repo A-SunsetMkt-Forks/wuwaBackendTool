@@ -64,6 +64,11 @@ public:
         return imageDir;
     }
 
+    static const QString& IMAGE_DIR_DEBUG(){
+        static const QString imageDir = QDir(QCoreApplication::applicationDirPath()).filePath("bugreport");
+        return imageDir;
+    }
+
 
     // capture client image, time cost 5~15ms
     static QImage captureWindowToQImage(HWND hwnd, const DWORD mode = 0x00000003);
@@ -80,6 +85,9 @@ public:
     static bool clickWindowClientArea2(HWND hwnd, int x, int y);
     // 向窗体发送单击指令
     static bool clickWindowClient(HWND hwnd);
+
+    // 向窗体发送滚轮指令 要求传送值是120的整数倍 可以是负数
+    static bool scrollWindowClientArea(HWND hwnd, int x, int y, int delta);
     // 向窗体发送拖拽指令
     static bool dragWindowClient(HWND hwnd, int startx, int starty, int endx, int endy);
     static bool dragWindowClient2(HWND hwnd, int startx, int starty, int endx, int endy);
@@ -110,7 +118,7 @@ public:
     // "F48A94" 转换为颜色
     static bool hexToBGR(const QString& hexColor, cv::Vec3b& outColor);
 
-    // 调试使用 匹配图像成功 点击  做标记图并保存
+    // 调试使用 保存某个场景 做标记图并保存
     static bool saveDebugImg(const cv::Mat& scrShot, const cv::Rect& templateRoi, const int& clickX, const int& clickY, const QString& hint);
 
 private:

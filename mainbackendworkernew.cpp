@@ -207,18 +207,14 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
                     Sleep(1000);
                     this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + 12, topLeftEchoROI.x, topLeftEchoROI.y, 12, 20);
                 }
-                // this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + 10, topLeftEchoROI.x, topLeftEchoROI.y, 10, 50);
                 // 截屏 和上一页对比 相似度 > 0.95认为已经结束了
             }
             // 检查用户是否打断
             if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
-
-
             break;
 
         }
     }
-
     if(isLockEchoStop(true, true, QString("脚本运行结束"), lockEchoSetting)) return;
     return;
 }

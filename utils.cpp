@@ -315,6 +315,40 @@ bool Utils::clickWindowClientArea2(HWND hwnd, int x, int y){
     return true;
 }
 
+bool Utils::scrollWindowClientArea(HWND hwnd, int x, int y, int delta) {
+
+    //delta > 0（正数）： 模拟滚轮向上滚动（通常意味着内容向上移动）。
+    //delta < 0（负数）： 模拟滚轮向下滚动（通常意味着内容向下移动）。
+    if (hwnd == nullptr || !IsWindow(hwnd)) {
+        return false;
+    }
+
+    QMutexLocker locker(&m_locker);
+
+    // 将客户区坐标转换为屏幕坐标
+    POINT clientPoint = {x, y};
+    if (!ClientToScreen(hwnd, &clientPoint)) {
+        qWarning() << "Failed to convert client area coordinates to screen coordinates.";
+        return false;
+    }
+
+    // 将客户区坐标转为 LPARAM 格式
+    LPARAM lParam = MAKELPARAM(x, y);
+
+    // wParam 的低 16 位表示滚轮的方向和幅度
+    // delta > 0 表示向上滚动，delta < 0 表示向下滚动
+    WPARAM wParam = MAKELONG(0, delta);
+
+    // 发送滚轮滚动消息
+    PostMessage(hwnd, WM_MOUSEWHEEL, wParam, lParam);
+
+    qDebug() << "Simulated mouse wheel scroll at client area coordinates: ("
+             << x << ", " << y << ") with delta: " << delta;
+
+    return true;
+}
+
+
 bool Utils::dragWindowClient(HWND hwnd, int startx, int starty, int endx, int endy) {
     if (hwnd == nullptr || !IsWindow(hwnd)) {
         return false;
@@ -768,7 +802,7 @@ bool Utils::saveDebugImg(const cv::Mat& scrShot, const cv::Rect& templateRoi, co
         cv::circle(img, cv::Point(clickX, clickY), 2, cv::Scalar(0, 0, 255), cv::FILLED);
 
         // 构造保存路径
-        QString outputPath = IMAGE_DIR_EI() + "/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_") + hint + ".bmp";
+        QString outputPath = IMAGE_DIR_DEBUG() + "/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_") + hint + ".bmp";
 
         // 保存调试图像
         if (!cv::imwrite(outputPath.toLocal8Bit().toStdString(), img)) {

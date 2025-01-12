@@ -71,7 +71,8 @@ void DebugForm::on_testFindPic_clicked(){
     int X, Y;
     QElapsedTimer timer;
     timer.start();
-    bool isFind = Utils::findPic(capImg, templateImg, ui->tempThres->value(), X, Y);
+    double similarity;
+    bool isFind = Utils::findPic(capImg, templateImg, ui->tempThres->value(), X, Y, similarity);
     auto timeCostMs = timer.elapsed();
     qDebug() << QString("GeneralPanel::on_testFindPic_clicked is done, timeCost %1 ms, X %2, Y %3, isFound %4").arg(timeCostMs).arg(X).arg(Y).arg(isFind);
 
@@ -91,8 +92,9 @@ void DebugForm::on_testFindPic_clicked(){
         cv::waitKey(0); // 等待按键
         cv::destroyAllWindows(); // 关闭窗口
     } else {
-        qDebug() << "Template not found in the source image.";
+        qWarning() << "Template not found in the source image.";
     }
+    qInfo() << QString("similarity %1").arg(similarity);
 }
 
 void DebugForm::on_testFindColor_clicked(){

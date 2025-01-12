@@ -67,7 +67,8 @@ SOURCES += \
     autochangewallpaperbackendworker.cpp \
     welcomedialog.cpp \
     wuwahwndwatcher.cpp \
-    mainbackendworkernew.cpp
+    mainbackendworkernew.cpp \
+    normalbosspanel.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -88,7 +89,8 @@ HEADERS += \
     autochangewallpaperbackendworker.h \
     welcomedialog.h \
     wuwahwndwatcher.h \
-    mainbackendworkernew.h
+    mainbackendworkernew.h \
+    normalbosspanel.h
 
 FORMS += \
         mainwindow.ui \
@@ -98,7 +100,8 @@ FORMS += \
     echolockentriespanel.ui \
     abstractentrypanel.ui \
     entrypanel.ui \
-    welcomedialog.ui
+    welcomedialog.ui \
+    normalbosspanel.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

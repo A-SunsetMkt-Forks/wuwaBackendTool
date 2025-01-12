@@ -30,7 +30,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>4</number>
     </property>
     <widget class="GeneralPanel" name="generalPanel">
      <property name="styleSheet">
@@ -53,6 +53,11 @@
     <widget class="EchoLockEntriesPanel" name="echoLockEntriesPanel">
      <attribute name="title">
       <string>声骸锁定</string>
+     </attribute>
+    </widget>
+    <widget class="NormalBossPanel" name="normalBossPanel">
+     <attribute name="title">
+      <string>普通boss</string>
      </attribute>
     </widget>
    </widget>
@@ -174,6 +179,12 @@ ALT+F12</string>
    <class>EchoLockEntriesPanel</class>
    <extends>QWidget</extends>
    <header location="global">echolockentriespanel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>NormalBossPanel</class>
+   <extends>QWidget</extends>
+   <header location="global">normalbosspanel.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
