@@ -59,11 +59,15 @@ private:
     // 刷某boss 起点是残像探寻 终点是拾取后  // 未来补齐： 月卡 重启游戏 复活   // 最多允许进行300s
     bool oneBossLoop(const NormalBossSetting &normalBossSetting, const NormalBossEnum& bossName, QString& errMsg);
 
-    // 刷dragonOfDirge 叹息之龙 准备工作 从残像探寻 到锁定boss
+    // 通用的准备工作 从残像探寻界面 到传送到boss面前
+    bool echoList2bossPositionPreparation(const NormalBossSetting &normalBossSetting, \
+                                                                const QString& bossEnName, \
+                                                                const QString& bossChName, QString& errMsg);
+    // 刷dragonOfDirge 叹息之龙 准备工作 从传送到boss面前 到锁定boss
     bool dragonOfDirgePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
-    // 刷crownLess 无冠者 准备工作 从残像探寻 到锁定boss
+    // 刷crownLess 无冠者 准备工作 从传送到boss面前 到锁定boss
     bool crownLessPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
-    // 刷异构武装 异构武装 准备工作 从残像探寻 到锁定boss
+    // 刷异构武装 异构武装 准备工作 从传送到boss面前 到锁定boss
     bool sentryConstructPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
 
