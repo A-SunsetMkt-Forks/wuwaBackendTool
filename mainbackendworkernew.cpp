@@ -620,6 +620,12 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
         break;
 
+    case NormalBossEnum::MourningAix:
+        if(!mourningAixPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
     default:
         qWarning() << QString("BOSS %1 is not finished coding yet").arg(NormalBossSetting::Enum2QString(bossName));
         return false;
@@ -711,7 +717,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
             Sleep(250);
             Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
             Sleep(500);
-            Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
+            //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
             Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
             Sleep(500);
             Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
@@ -732,7 +738,9 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
 bool MainBackendWorkerNew::dragonOfDirgePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
 
     bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "dragonOfDirge", "叹息之龙", errMsg);
-
+    if(!isGeneralPrepared){
+        return false;
+    }
     // 叹息之龙相对简单 直接向前冲 W按住 循环判断有无特定boss名字
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
 
@@ -783,7 +791,9 @@ bool MainBackendWorkerNew::dragonOfDirgePreparation(const NormalBossSetting &nor
 bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
 
     bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "crownless", "无冠者", errMsg);
-
+    if(!isGeneralPrepared){
+        return false;
+    }
     // 无冠者相对复杂 一边向前走10秒 一边找声弦按钮 找到了 停下来 按，等5秒 锁boss 失败就退了
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
 
@@ -846,7 +856,9 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
 bool MainBackendWorkerNew::sentryConstructPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
 
     bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "sentryConstruct", "异构武装", errMsg);
-
+    if(!isGeneralPrepared){
+        return false;
+    }
     // 异构武装往前冲7秒 然后站着判断 超过7秒没出title 就退了
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
     for(int i = 0; i < 14 && isBusy(); i++){
@@ -884,7 +896,9 @@ bool MainBackendWorkerNew::sentryConstructPreparation(const NormalBossSetting &n
 
 bool MainBackendWorkerNew::fallacyOfNoReturnPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
     bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "fallacyOfNoReturn", "无归的谬误", errMsg);
-
+    if(!isGeneralPrepared){
+        return false;
+    }
     // 往前冲8秒 然后站着判断 超过8秒没出title 就退了
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
     for(int i = 0; i < 16 && isBusy(); i++){
@@ -928,7 +942,9 @@ bool MainBackendWorkerNew::fallacyOfNoReturnPreparation(const NormalBossSetting 
 
 bool MainBackendWorkerNew::impermanenceHeronPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
     bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "impermanenceHeron", "无常凶鹭", errMsg);
-
+    if(!isGeneralPrepared){
+        return false;
+    }
     // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
 
@@ -977,7 +993,9 @@ bool MainBackendWorkerNew::impermanenceHeronPreparation(const NormalBossSetting 
 
 bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
     bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "infernoRider", "燎照之骑", errMsg);
-
+    if(!isGeneralPrepared){
+        return false;
+    }
     // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
 
@@ -1026,6 +1044,9 @@ bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &norm
 
 bool MainBackendWorkerNew::lampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
     bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "lampylumenMyriad", "辉萤军势", errMsg);
+    if(!isGeneralPrepared){
+        return false;
+    }
 
     // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
@@ -1038,6 +1059,54 @@ bool MainBackendWorkerNew::lampylumenMyriadPreparation(const NormalBossSetting &
     timer.start();
     int x, y;
     cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("lampylumenMyriadTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isTraced = false;
+    while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+        double similarity;
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                return true;
+            }
+
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            // 找到boss title了
+            isTraced = true;
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+            qInfo() << QString("locked %1").arg("lampylumenMyriad");
+            Sleep(500);
+            break;
+        }
+
+        Sleep(detectBossPeroidMs);
+    }
+
+    if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        return true;
+    }
+
+    if(!isTraced){
+        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLocklampylumenMyriad");
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    }
+    return isTraced;
+}
+
+bool MainBackendWorkerNew::mourningAixPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "mourningAix", "哀声鹫", errMsg);
+
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+
+    // 如果跑了 N秒没找到 认为失败 跳过
+    const int maxRunFindBossMs = 10*1000;
+    const int detectBossPeroidMs = 500;
+
+    QElapsedTimer timer;
+    timer.start();
+    int x, y;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("mourningAixTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     bool isTraced = false;
     while(timer.elapsed() < maxRunFindBossMs && isBusy()){
         double similarity;
