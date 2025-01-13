@@ -721,21 +721,25 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(1000);
-
+            Sleep(1500);
             //先停下来 再次判断 点击准确
             isAbsorb = true;
             capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
             Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity);
             // ALT 左键 ALT松
+            Sleep(500);
             Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
-            Sleep(1000);
+            Sleep(500);
+            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
+            Sleep(500);
+            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+            Sleep(500);
             Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
             Sleep(1000);
             //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
             Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
             Sleep(500);
-            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
             Sleep(3000);
             break;
         }
@@ -1312,8 +1316,8 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
 
     QElapsedTimer timer;
     timer.start();
-    // 匹配、滚动；最多允许时间 ?S 必须能在残像探寻找到boss icon 否则认为失败
-    int maxWaitMs = 10 * 1000;
+    // 匹配、滚动；最多允许时间 20S 必须能在残像探寻找到boss icon 否则认为失败
+    int maxWaitMs = 20 * 1000;
     cv::Mat bossIcon = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg(bossEnName).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     int x, y;
     double similarity;
@@ -1327,6 +1331,7 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
                                     20, 20);
             Sleep(500);
             Utils::moveMouseToClientArea(Utils::hwnd, scrollEchoListsWaitPos.x, scrollEchoListsWaitPos.y);
+            Sleep(1000);
         }
         else{
             break;  //找到了icon
