@@ -700,6 +700,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     skipMonthCard();
 
     if(!isBusy()){
+
         return true;
     }
 
@@ -740,6 +741,10 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
     }
     if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+        Sleep(250);
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
@@ -774,10 +779,12 @@ bool MainBackendWorkerNew::dragonOfDirgePreparation(const NormalBossSetting &nor
         if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
                 return true;
             }
 
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
@@ -791,12 +798,13 @@ bool MainBackendWorkerNew::dragonOfDirgePreparation(const NormalBossSetting &nor
 
     if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
     if(!isTraced){
-
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
     }
     return isTraced;
 }
@@ -828,6 +836,7 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
         if(Utils::findPic(capImg, soundString, 0.8, x, y, similarity)){
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
                 return true;
             }
             // 找到boss 声弦了
@@ -839,6 +848,12 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
             Utils::keyPress(Utils::hwnd, 'F', 1);
 
             if(loopFindPic(bossTitle, 0.8, 5*1000, 250, "触发了声弦，但没等到无冠者", similarity, x, y, timeCostMs)){
+                if(!isBusy()){
+                    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                    Sleep(250);
+                    return true;
+                }
+
                 Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
                 qInfo() << QString("已经锁定 %1").arg("无冠者");
                 Sleep(500);
@@ -855,6 +870,7 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
     // 没找到声弦 要么被用户中断 要么就是没找到
     if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
@@ -880,25 +896,25 @@ bool MainBackendWorkerNew::sentryConstructPreparation(const NormalBossSetting &n
     }
 
     if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
     // 站着 最多等7秒
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    Sleep(250);
     double similarity;
     int x, y, timeCostMs;
     cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("sentryConstructTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     if(!loopFindPic(bossTitle, 0.8, 7*1000, 500, "未能令boss异构武装出现", similarity, x, y, timeCostMs)){
         if(!isBusy()){
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
             return true;
         }
 
-        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
         return false;
     }
     else{
-        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
         // 鼠标中键 锁定
         Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
         qInfo() << QString("已经锁定 %1").arg("异构武装");
@@ -920,6 +936,8 @@ bool MainBackendWorkerNew::fallacyOfNoReturnPreparation(const NormalBossSetting 
     }
 
     if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
@@ -930,15 +948,15 @@ bool MainBackendWorkerNew::fallacyOfNoReturnPreparation(const NormalBossSetting 
     cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("fallacyOfNoReturnTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     if(!loopFindPic(bossTitle, 0.8, 8*1000, 500, "fallacyOfNoReturn_isnot_shown_up", similarity, x, y, timeCostMs)){
         if(!isBusy()){
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            //Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
             return true;
         }
         qWarning() << QString("can't find fallacyOfNoReturn's title");
-        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        //Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
         return false;
     }
     else{
-        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        //Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
         // 等待7.5秒再锁定
         for(int i = 0; i < 15 && isBusy(); i++){
             Sleep(500);
@@ -978,10 +996,12 @@ bool MainBackendWorkerNew::impermanenceHeronPreparation(const NormalBossSetting 
         if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
                 return true;
             }
 
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
@@ -995,12 +1015,13 @@ bool MainBackendWorkerNew::impermanenceHeronPreparation(const NormalBossSetting 
 
     if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
     if(!isTraced){
-
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
     }
     return isTraced;
 }
@@ -1029,10 +1050,12 @@ bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &norm
         if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
                 return true;
             }
 
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
@@ -1046,12 +1069,13 @@ bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &norm
 
     if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
     if(!isTraced){
-
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
     }
     return isTraced;
 }
@@ -1080,10 +1104,12 @@ bool MainBackendWorkerNew::lampylumenMyriadPreparation(const NormalBossSetting &
         if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
                 return true;
             }
 
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
@@ -1097,12 +1123,14 @@ bool MainBackendWorkerNew::lampylumenMyriadPreparation(const NormalBossSetting &
 
     if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
     if(!isTraced){
         Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLocklampylumenMyriad");
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
     }
     return isTraced;
 }
@@ -1131,10 +1159,12 @@ bool MainBackendWorkerNew::mourningAixPreparation(const NormalBossSetting &norma
         if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
                 return true;
             }
 
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
@@ -1148,12 +1178,14 @@ bool MainBackendWorkerNew::mourningAixPreparation(const NormalBossSetting &norma
 
     if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
     if(!isTraced){
         Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockMourningAix");
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
     }
     return isTraced;
 }
@@ -1183,10 +1215,12 @@ bool MainBackendWorkerNew::tempestMephisPreparation(const NormalBossSetting &nor
         if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
                 return true;
             }
 
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
@@ -1200,12 +1234,14 @@ bool MainBackendWorkerNew::tempestMephisPreparation(const NormalBossSetting &nor
 
     if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
     if(!isTraced){
         Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockTempestMephis");
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
     }
     return isTraced;
 }
@@ -1234,10 +1270,12 @@ bool MainBackendWorkerNew::thunderingMephisPreparation(const NormalBossSetting &
         if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
                 return true;
             }
 
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
@@ -1251,12 +1289,14 @@ bool MainBackendWorkerNew::thunderingMephisPreparation(const NormalBossSetting &
 
     if(!isBusy()){
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
         return true;
     }
 
     if(!isTraced){
         Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockThunderingMephis");
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
     }
     return isTraced;
 }
