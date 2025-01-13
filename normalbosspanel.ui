@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="startNormalBoss">
    <property name="geometry">
     <rect>
-     <x>470</x>
-     <y>480</y>
+     <x>410</x>
+     <y>420</y>
      <width>161</width>
      <height>41</height>
     </rect>
@@ -266,10 +266,10 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>740</x>
-     <y>50</y>
+     <x>680</x>
+     <y>20</y>
      <width>521</width>
-     <height>371</height>
+     <height>541</height>
     </rect>
    </property>
    <property name="font">
@@ -283,23 +283,26 @@
 如提示不对，可将WINDOW dpi缩放改为100%
 然后重启脚本重启游戏试试
 游戏不可最小化但可放在后台被遮盖
-在能操作人物进行普攻移动时，点击开始按钮启动脚本
+在能操作人物进行普攻移动时
+点击开始按钮启动脚本
 1号位任意 2号位奶妈推荐维里奈
 3号位必须是成年人体型角色 3号不能是椿
 背包图标（地图旁边）不能有红色叹号
 脚本虽然理论上是后台运行，但会抢鼠标
 建议挂机时看视频
 ALT+F12可停止脚本运行
-没有做复活检测，如果死了，停止脚本，复活，再次启动脚本
+选中的boss必须开通了快速旅行！！
+没有做复活检测，如果死了，停止脚本
+复活，再次启动脚本
 暂时仅本页面可用 其他功能测试中</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>400</x>
-     <y>400</y>
-     <width>731</width>
+     <x>10</x>
+     <y>490</y>
+     <width>461</width>
      <height>41</height>
     </rect>
    </property>

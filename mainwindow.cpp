@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // 注册自定义类型
     registerType();
 
+    this->setWindowTitle("鸣潮自动刷boss脚本 v1.0.0 永久免费 无广告病毒");
+
     // 绑定日志
     // debug 重定向
     DebugMessageHandler::instance().setPlainTextEdit(ui->logPlainText);
@@ -165,13 +167,13 @@ void MainWindow::registerType(){
 void MainWindow::genDefaultLockEchoSetting(){
     auto setting = ui->echoLockEntriesPanel->getLockEchoSettingFromUI();
     ui->echoLockEntriesPanel->genDefaultSetting(setting);
-    qInfo().noquote() << setting.toQString();
+    //qInfo().noquote() << setting.toQString();
     ui->echoLockEntriesPanel->setLockEchoSetting2UI(setting);
 }
 
 void MainWindow::genDefaultNormalBossSetting(){
     NormalBossSetting setting;
-    qInfo().noquote() << setting.toQString();
+    //qInfo().noquote() << setting.toQString();
     ui->normalBossPanel->setNormalBossSetting2UI(setting);
 }
 
@@ -376,7 +378,7 @@ void MainWindow::on_startLockEcho_clicked(){
     }
 
     LockEchoSetting lockEchoSetting = ui->echoLockEntriesPanel->getLockEchoSettingFromUI();
-    qInfo().noquote() << lockEchoSetting.toQString();
+    //qInfo().noquote() << lockEchoSetting.toQString();
 
     ui->isBusyBox->setChecked(true);
     emit startLockEcho(lockEchoSetting);
@@ -405,7 +407,7 @@ void MainWindow::on_startNormalBoss_clicked(){
     }
 
     NormalBossSetting normalBossSetting = ui->normalBossPanel->getNormalBossSettingFromUI();
-    qInfo().noquote() << normalBossSetting.toQString();
+    //qInfo().noquote() << normalBossSetting.toQString();
 
     ui->isBusyBox->setChecked(true);
     emit startNormalBoss(normalBossSetting);

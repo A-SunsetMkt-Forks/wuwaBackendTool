@@ -84,6 +84,7 @@ private:
     bool infernoRiderPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 辉萤军势
     bool lampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    //
 
 signals:
     // 锁定声骸完成

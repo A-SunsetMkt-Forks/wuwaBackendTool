@@ -697,7 +697,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     int absorbX, absorbY;
     double absorbSimilarity;
     bool isAbsorb = false;
-    for(int i = 0; i < 20 && isBusy(); i++){
+    for(int i = 0; i < 20 && isBusy() && !isAbsorb; i++){
         Sleep(250);
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
@@ -708,13 +708,15 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
             Sleep(250);
             Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
-            //Sleep(250);
-            //Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
-            Sleep(1000);
+            Sleep(250);
+            Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+            Sleep(500);
+            Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
             Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
             Sleep(500);
             Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
             Sleep(250);
+            break;
         }
     }
     if(!isBusy()){
@@ -1034,11 +1036,10 @@ bool MainBackendWorkerNew::lampylumenMyriadPreparation(const NormalBossSetting &
 
     QElapsedTimer timer;
     timer.start();
-
-    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("infernoRiderTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    int x, y;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("lampylumenMyriadTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     bool isTraced = false;
     while(timer.elapsed() < maxRunFindBossMs && isBusy()){
-        int x, y;
         double similarity;
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
@@ -1065,7 +1066,7 @@ bool MainBackendWorkerNew::lampylumenMyriadPreparation(const NormalBossSetting &
     }
 
     if(!isTraced){
-
+        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLocklampylumenMyriad");
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
     }
     return isTraced;
