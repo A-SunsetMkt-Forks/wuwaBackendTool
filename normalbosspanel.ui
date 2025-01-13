@@ -267,9 +267,9 @@
    <property name="geometry">
     <rect>
      <x>680</x>
-     <y>20</y>
+     <y>0</y>
      <width>521</width>
-     <height>541</height>
+     <height>561</height>
     </rect>
    </property>
    <property name="font">
@@ -294,6 +294,7 @@ ALT+F12可停止脚本运行
 选中的boss必须开通了快速旅行！！
 没有做复活检测，如果死了，停止脚本
 复活，再次启动脚本
+有的声骸没捡到没关系的挂一晚上都有了
 暂时仅本页面可用 其他功能测试中</string>
    </property>
   </widget>

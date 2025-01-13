@@ -86,6 +86,10 @@ private:
     bool lampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 哀声鸷
     bool mourningAixPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 云闪之麟
+    bool tempestMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 朔雷之麟
+    bool thunderingMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
 signals:
     // 锁定声骸完成
@@ -141,7 +145,7 @@ private:
     // 轮刷boss相关
     unsigned int pickUpNormalBossEcho = 0;
     const int defaultRefreshMs = 250;  // 默认轮询截图间隔
-    const int defaultMaxWaitMs = 1500;   // 轮询最大等待时间
+    const int defaultMaxWaitMs = 2500;   // 轮询最大等待时间
     const cv::Point scrollEchoListPos = {534, 117};  // echo列表向下滚动滚轮的鼠标位置
     const int maxFightMs = 600000;
 
