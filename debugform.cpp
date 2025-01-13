@@ -6,11 +6,18 @@ DebugForm::DebugForm(QWidget *parent) :
     ui(new Ui::DebugForm)
 {
     ui->setupUi(this);
+    lockWidgetList.push_back(ui->colorEditText);
     lockWidgetList.push_back(ui->getGameWin);
-    lockWidgetList.push_back(ui->testFindPic);
     lockWidgetList.push_back(ui->tempThres);
     lockWidgetList.push_back(ui->test1);
+    lockWidgetList.push_back(ui->testFastSwitch);
+    lockWidgetList.push_back(ui->testFindColor);
+    lockWidgetList.push_back(ui->testFindPic);
+    lockWidgetList.push_back(ui->testNoSwitch);
     lockWidgetList.push_back(ui->testPress2);
+    lockWidgetList.push_back(ui->testPressM);
+    lockWidgetList.push_back(ui->testRebootGame);
+
 
     for(auto widget : lockWidgetList){
         widget->setVisible(false);
@@ -110,8 +117,8 @@ void DebugForm::on_confirmPwd_clicked(){
     QString pwd = ui->pwd->toPlainText();
     QByteArray correctPwdHash = QCryptographicHash::hash("IloveWuwa666", QCryptographicHash::Sha256);
     QByteArray inputPwdHash = QCryptographicHash::hash(pwd.toUtf8(), QCryptographicHash::Sha256);
-    //if(inputPwdHash == correctPwdHash){
-    if(1){
+    if(inputPwdHash == correctPwdHash){
+    //if(1){
         for(auto widget : lockWidgetList){
             widget->setVisible(true);
         }

@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="startNormalBoss">
    <property name="geometry">
     <rect>
-     <x>700</x>
-     <y>220</y>
+     <x>470</x>
+     <y>480</y>
      <width>161</width>
      <height>41</height>
     </rect>
@@ -31,7 +31,7 @@
     <rect>
      <x>400</x>
      <y>20</y>
-     <width>131</width>
+     <width>201</width>
      <height>321</height>
     </rect>
    </property>
@@ -262,6 +262,34 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>740</x>
+     <y>50</y>
+     <width>521</width>
+     <height>311</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>要求
+窗口模式 1280 720分辨率
+如提示不对，可将WINDOW dpi缩放该100%
+然后重启脚本重启游戏试试
+在能操作人物进行普攻移动时，点击开始按钮启动脚本
+1号位任意 2号位奶妈推荐维里奈
+3号位必须是成年人体型角色 3号不能是椿
+背包图标（地图旁边）不能有红色叹号
+脚本虽然理论上是后台运行，但会抢鼠标
+建议挂机时看视频
+ALT+F12可停止脚本运行</string>
+   </property>
   </widget>
  </widget>
  <resources/>

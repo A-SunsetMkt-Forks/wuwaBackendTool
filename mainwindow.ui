@@ -30,8 +30,13 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>0</number>
     </property>
+    <widget class="NormalBossPanel" name="normalBossPanel">
+     <attribute name="title">
+      <string>普通boss</string>
+     </attribute>
+    </widget>
     <widget class="GeneralPanel" name="generalPanel">
      <property name="styleSheet">
       <string notr="true"/>
@@ -53,11 +58,6 @@
     <widget class="EchoLockEntriesPanel" name="echoLockEntriesPanel">
      <attribute name="title">
       <string>声骸锁定</string>
-     </attribute>
-    </widget>
-    <widget class="NormalBossPanel" name="normalBossPanel">
-     <attribute name="title">
-      <string>普通boss</string>
      </attribute>
     </widget>
    </widget>

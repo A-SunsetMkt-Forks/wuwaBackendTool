@@ -82,6 +82,8 @@ private:
     bool impermanenceHeronPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 燎照之骑
     bool infernoRiderPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 辉萤军势
+    bool lampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
 signals:
     // 锁定声骸完成
@@ -139,7 +141,7 @@ private:
     const int defaultRefreshMs = 250;  // 默认轮询截图间隔
     const int defaultMaxWaitMs = 1500;   // 轮询最大等待时间
     const cv::Point scrollEchoListPos = {534, 117};  // echo列表向下滚动滚轮的鼠标位置
-        const int maxFightMs = 600000;
+    const int maxFightMs = 600000;
 
     // 拖拽 可以稍快 无需太精确 寻找残像 翻页 530 549 -> 530 189
     const cv::Point scrollEchoListsStartPos = {530, 549};

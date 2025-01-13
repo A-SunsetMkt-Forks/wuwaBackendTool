@@ -614,8 +614,14 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
         break;
 
+    case NormalBossEnum::LampylumenMyriad:
+        if(!lampylumenMyriadPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
     default:
-        qWarning() << QString("未针对boss %1 做战斗适配").arg(NormalBossSetting::Enum2QString(bossName));
+        qWarning() << QString("BOSS %1 is not finished coding yet").arg(NormalBossSetting::Enum2QString(bossName));
         return false;
     }
 
@@ -691,8 +697,8 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     int absorbX, absorbY;
     double absorbSimilarity;
     bool isAbsorb = false;
-    for(int i = 0; i < 10 && isBusy(); i++){
-        Sleep(500);
+    for(int i = 0; i < 20 && isBusy(); i++){
+        Sleep(250);
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
             isAbsorb = true;
@@ -1016,7 +1022,54 @@ bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &norm
     return isTraced;
 }
 
+bool MainBackendWorkerNew::lampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "lampylumenMyriad", "辉萤军势", errMsg);
 
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+
+    // 如果跑了 N秒没找到 认为失败 跳过
+    const int maxRunFindBossMs = 10*1000;
+    const int detectBossPeroidMs = 500;
+
+    QElapsedTimer timer;
+    timer.start();
+
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("infernoRiderTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isTraced = false;
+    while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+        int x, y;
+        double similarity;
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                return true;
+            }
+
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            // 找到boss title了
+            isTraced = true;
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+            qInfo() << QString("locked %1").arg("lampylumenMyriad");
+            Sleep(500);
+            break;
+        }
+
+        Sleep(detectBossPeroidMs);
+    }
+
+    if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        return true;
+    }
+
+    if(!isTraced){
+
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    }
+    return isTraced;
+}
 
 
 bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSetting &normalBossSetting, \

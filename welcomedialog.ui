@@ -38,8 +38,15 @@
      <height>391</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>本工具仅用于个人使用或学术交流，永久免费</string>
+    <string>本工具仅用于个人使用或学术交流，永久免费
+原作者 B站 NIKIRUY
+翻译者 B站 哈士嗷</string>
    </property>
   </widget>
  </widget>
