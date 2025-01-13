@@ -133,7 +133,7 @@ void MainBackendWorkerNew::initEntryName2IconMap(){
 
 void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSetting){
     m_isRunning.store(1);
-
+    isFirstSkipMonthCard = false;
     qInfo() << QString("MainBackendWorkerNew::onStartLockEcho");
 
     // 初始化句柄
@@ -195,16 +195,24 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
         Sleep(500);
 
         while(isBusy()){
+            skipMonthCard();
             // 尝试进入背包
             if(!enterBagInterface()){
-                if(isLockEchoStop(true, false, QString("未能找到背包图标"), lockEchoSetting)) return;
+                skipMonthCard();
+                if(!enterBagInterface()){
+                    if(isLockEchoStop(true, false, QString("未能找到背包图标"), lockEchoSetting)) return;
+                }
+
             }
             // 检查用户是否打断
             if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
 
             // 尝试进入声骸页
             if(!enterEchoInterface()){
-                if(isLockEchoStop(true, false, QString("未能找到声骸图标"), lockEchoSetting)) return;
+                skipMonthCard();
+                if(!enterEchoInterface()){
+                    if(isLockEchoStop(true, false, QString("未能找到声骸图标"), lockEchoSetting)) return;
+                }
             }
             // 检查用户是否打断
             if(isLockEchoStop(false, true, QString("脚本运行结束"), lockEchoSetting)) return;
@@ -212,7 +220,10 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
             // 核心代码 处理当前页面的所有声骸
             for(int iPage = 0; iPage < 10 && isBusy(); iPage++){
                 if(!lockOnePageEcho(lockEchoSetting)){
-                    if(isLockEchoStop(true, false, QString("锁定%1页面声骸时出错").arg(iPage), lockEchoSetting)) return;
+                    skipMonthCard();
+                    if(!lockOnePageEcho(lockEchoSetting)){
+                        if(isLockEchoStop(true, false, QString("锁定%1页面声骸时出错").arg(iPage), lockEchoSetting)) return;
+                    }
                 }
 
                 qInfo() << QString("翻页");
@@ -236,7 +247,7 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
 
 void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBossSetting){
     m_isRunning.store(1);
-
+    isFirstSkipMonthCard = false;
     qInfo() << QString("MainBackendWorkerNew::onStartNormalBoss");
 
     // 初始化句柄
@@ -301,11 +312,16 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
             QList<NormalBossEnum> allBossList = normalBossSetting.bossSettings.keys();
             for(NormalBossEnum thisBoss : allBossList){
                 if(normalBossSetting.isBossEnabled(thisBoss)){
+                    skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
+
                     // 回到主界面 通过索拉指南 残像探寻 进入boss
                     bool isPrepared = normalBossPreperation(normalBossSetting, errMsg);
                     if(!isPrepared){
-                        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0,errMsg);
-                        if(isNormalBossStop(true, false, errMsg, normalBossSetting)) return;
+                        skipMonthCard();
+                        if(!normalBossPreperation(normalBossSetting, errMsg)){
+                            Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0,errMsg);
+                            if(isNormalBossStop(true, false, errMsg, normalBossSetting)) return;
+                        }
                     }
 
                     if(!isBusy()){
@@ -316,8 +332,11 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
                     QString oneBossErr;
                     bool oneBossLoopDone = oneBossLoop(normalBossSetting, thisBoss, oneBossErr);
                     if(!oneBossLoopDone){
-                        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, oneBossErr);
-                        qWarning() << QString("刷 %1 出现问题 : %2").arg(normalBossSetting.Enum2QString(thisBoss)).arg(oneBossErr);
+                        skipMonthCard();
+                        if(!oneBossLoopDone){
+                            Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, oneBossErr);
+                            qWarning() << QString("刷 %1 出现问题 : %2").arg(normalBossSetting.Enum2QString(thisBoss)).arg(oneBossErr);
+                        }
                     }
 
                     if(!isBusy()){
@@ -608,7 +627,6 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     // 战斗代码
     QElapsedTimer timer;
     timer.start();
-    const int maxFightMs = 300000;  // 最多一个boss允许战斗300秒
     emit startFight();
 
     // 每隔250ms判断boss状态
@@ -623,7 +641,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     int bagX, bagY;
     double similarityBag;
     int voteBossDead = 0;
-    while(isBusy() && timer.elapsed() < 300000){
+    while(isBusy() && timer.elapsed() < maxFightMs){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         bool isFindTitle = Utils::findPic(capImg, bossTitle, 0.6, titleX, titleY, similarityTitle);
         bool isFindBag = Utils::findPic(capImg, bagImg, 0.7, bagX, bagY, similarityBag);
@@ -645,19 +663,29 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
             }
         }
         else if(!isFindBag && !isFindTitle){
+            // 可能需要复苏 + 跳过月卡
+            skipMonthCard();
             m_fightBackendWorkerNew.pauseWorker();
         }
+        else{
+            //
+        }
     }
+
+    // 可能需要复苏 + 跳过月卡
+    skipMonthCard();
 
     if(!isBusy()){
         return true;
     }
 
-    if(timer.elapsed() >= 300000){
+    if(timer.elapsed() >= maxFightMs){
         return true;
     }
 
     // 拾取声骸  记得计数+1
+    // 切换3号位
+    Utils::keyPress(Utils::hwnd, '3', 1);
     cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
     int absorbX, absorbY;
@@ -994,6 +1022,7 @@ bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &norm
 bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSetting &normalBossSetting, \
                                                             const QString& bossEnName, \
                                                             const QString& bossChName, QString& errMsg){
+
     // 现在是在残像探寻列表
     // 移动到boss列表
     Utils::moveMouseToClientArea(Utils::hwnd, scrollEchoListPos.x, scrollEchoListPos.y);
@@ -1080,9 +1109,9 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     Sleep(250);
     Utils::clickWindowClientArea(Utils::hwnd, x + fastTravel.cols/2, y + fastTravel.rows/2);
 
-    // 不断找背包 找到说明加载完毕  这里加载可能时间稍长 允许10s
+    // 不断找背包 找到说明加载完毕  这里加载可能时间稍长 允许15s
     cv::Mat bagImg = cv::imread(QString("%1/bag.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    if(!loopFindPic(bagImg, 0.8, 10000, defaultRefreshMs, "传送boss 加载超时", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(bagImg, 0.8, 15000, defaultRefreshMs, "传送boss 加载超时", similarity, x, y, timeCostMs)){
         if(!isBusy()){
             return true;
         }
@@ -1093,7 +1122,8 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     if(!isBusy()){
         return true;
     }
-
+    // 切换3号位 方便往前走的时候固定成人速度
+    Utils::keyPress(Utils::hwnd, '3', 1);
     return true;
 }
 
@@ -1322,9 +1352,9 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             // 根据输入参数 是否要判断此声骸的主词条
             QString thisEchoMsg = QString("%1行%2列声骸_之前锁定 %3_之前丢弃%4_这是COST%5").arg(j+1).arg(i+1).arg(isLock?"是": "否").arg(isDiscard?"是": "否").arg(cost);
 
-            if(singleEchoSetting.isLockJudge && isLock ||
-                    singleEchoSetting.isDiscardedJudge && isDiscard ||
-                    singleEchoSetting.isNormalJudge && (!isDiscard && !isLock)){
+            if((singleEchoSetting.isLockJudge && isLock) ||
+                    (singleEchoSetting.isDiscardedJudge && isDiscard) ||
+                    ((singleEchoSetting.isNormalJudge) && (!isDiscard && !isLock)) ){
                 // 如果设置要求和实际判断结果符合
                 QVector<QString> entryList = singleEchoSetting.cost2EntryMap[cost];
                 if(entryList.empty()){
@@ -1456,7 +1486,6 @@ bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, 
 bool MainBackendWorkerNew::loopFindPic(const cv::Mat& templateImg, const double& requireSimilarity, \
                  const int &maxWaitMs, const int &refreshMs, const QString& ifFailedMsg, double& similarity, \
                  int& x, int& y, int& timeCostMs){
-
     QElapsedTimer timer;
     timer.start();
 
@@ -1516,3 +1545,87 @@ bool MainBackendWorkerNew::loopFindPic(const cv::Mat& templateImg, const double&
     return false;
 
 }
+
+void MainBackendWorkerNew::skipMonthCard(){
+    // 获取当前时间
+    QTime currentTime = QTime::currentTime();
+
+    // 定义时间范围
+    QTime startTime(3, 55); // 03:55
+    QTime endTime(4, 5);    // 04:05
+
+    if(isFirstSkipMonthCard){
+        // 已经进行了一次月卡跳过了
+        // 判断当前时间是否在范围内
+        if (!(currentTime >= startTime && currentTime <= endTime) ) {
+            return;
+        }
+    }
+
+    // 必须进行一次判断
+    isFirstSkipMonthCard = true;
+
+    cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+    cv::Mat monthCardImg = cv::imread(QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("monthCard.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED );
+    double similarity;
+    int x, y;
+    // 找有没有月卡图案
+    if(!Utils::findPic(capImg, monthCardImg, 0.8, x, y, similarity)){
+        qWarning() << QString("NO MONTH CARD FOUND %1 < 0.8").arg(similarity);
+        return;
+    }
+
+    // 点击月卡图案
+    Utils::moveMouseToClientArea(Utils::hwnd, x + monthCardImg.cols/2, y + monthCardImg.rows/2);
+    Sleep(250);
+    Utils::clickWindowClientArea(Utils::hwnd, x + monthCardImg.cols/2, y + monthCardImg.rows/2);
+    Sleep(250);
+    cv::Mat monthCardReward = cv::imread(QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("monthCardReward.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED );
+    bool isFoundReward = false;   // 是否找到了
+    int timeCostMs = 0;
+    while(isBusy() && !isFoundReward && timeCostMs < 2000){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        isFoundReward = Utils::findPic(capImg, monthCardReward, 0.8, x, y);
+        timeCostMs += 250;
+    }
+
+    // 找到了奖励图标
+    if(isFoundReward){
+        Utils::moveMouseToClientArea(Utils::hwnd, x + monthCardImg.cols/2, y + monthCardImg.rows/2);
+        Sleep(250);
+        Utils::clickWindowClientArea(Utils::hwnd, 630, 560);
+        Sleep(250);
+    }
+
+    return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

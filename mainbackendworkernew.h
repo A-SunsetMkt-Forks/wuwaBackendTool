@@ -47,6 +47,10 @@ private:
                      const int &maxWaitMs, const int &refreshMs, const QString& ifFailedMsg, double& similarity, \
                      int& x, int& y, int& timeCostMs);
 
+    // 跳过月卡 可能需要频繁调用 在各个节点和找不到血条 + 背包时调用
+    void skipMonthCard();
+
+
     // 轮刷boss的总准备工作 完成后应该是在残像探寻界面
     bool normalBossPreperation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
@@ -135,6 +139,7 @@ private:
     const int defaultRefreshMs = 250;  // 默认轮询截图间隔
     const int defaultMaxWaitMs = 1500;   // 轮询最大等待时间
     const cv::Point scrollEchoListPos = {534, 117};  // echo列表向下滚动滚轮的鼠标位置
+        const int maxFightMs = 600000;
 
     // 拖拽 可以稍快 无需太精确 寻找残像 翻页 530 549 -> 530 189
     const cv::Point scrollEchoListsStartPos = {530, 549};
@@ -144,6 +149,9 @@ private:
     // 战斗线程
     QThread m_fightThread;
     FightBackendWorkerNew m_fightBackendWorkerNew;
+
+    // 脚本线程启动 强制执行一次月卡判断
+    bool isFirstSkipMonthCard = false;
 
 
 };
