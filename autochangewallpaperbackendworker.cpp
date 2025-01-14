@@ -21,6 +21,7 @@ bool AutoChangeWallpaperBackendworker::isBusy(){
 }
 
 void AutoChangeWallpaperBackendworker::startWorker(){
+    return;
     m_isBusy.store(1);
     qInfo() << QString("AutoChangeWallpaperBackendworker::startWorker()");
 

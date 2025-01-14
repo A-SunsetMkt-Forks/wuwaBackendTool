@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -69,7 +69,8 @@ SOURCES += \
     wuwahwndwatcher.cpp \
     mainbackendworkernew.cpp \
     normalbosspanel.cpp \
-    fightbackendworkernew.cpp
+    fightbackendworkernew.cpp \
+    commonTools/encrypttools.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -92,7 +93,9 @@ HEADERS += \
     wuwahwndwatcher.h \
     mainbackendworkernew.h \
     normalbosspanel.h \
-    fightbackendworkernew.h
+    fightbackendworkernew.h \
+    internettimefetcher.h \
+    commonTools/encrypttools.h
 
 FORMS += \
         mainwindow.ui \

@@ -402,7 +402,7 @@ bool MainBackendWorkerNew::enterBagInterface() {
     Sleep(500);
     Utils::clickWindowClientArea(Utils::hwnd, bagRoiRect.x + bagRoiRect.width / 2, bagRoiRect.y + bagRoiRect.height / 2);
     Sleep(500);
-    Utils::saveDebugImg(capImg, bagRoiRect, bagRoiRect.x + bagRoiRect.width / 2, bagRoiRect.y + bagRoiRect.height / 2, "找到了背包");
+    //Utils::saveDebugImg(capImg, bagRoiRect, bagRoiRect.x + bagRoiRect.width / 2, bagRoiRect.y + bagRoiRect.height / 2, "找到了背包");
     Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
 
     return true; // 成功进入背包界面
@@ -518,7 +518,7 @@ bool MainBackendWorkerNew::backToMain(){
 
 bool MainBackendWorkerNew::enterSolaGuide(){
     qInfo() << QString("尝试进入到索拉指南");
-
+    /*
     Utils::keyPress(Utils::hwnd, VK_ESCAPE, 1);
     cv::Mat solaGuideImg = cv::imread(QString("%1/solaGuideInEsc.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     double similarity;
@@ -527,11 +527,19 @@ bool MainBackendWorkerNew::enterSolaGuide(){
     if(!isBusy()){
         return true;
     }
-    Sleep(250);  //找到了图标 此时游戏不一定响应 所以延迟点击
+    Sleep(500);  //找到了图标 此时游戏不一定响应 所以延迟点击
 
     if(isFind) Utils::clickWindowClientArea(Utils::hwnd, x + solaGuideImg.cols / 2, y + solaGuideImg.rows / 2);
 
     return isFind;
+    */
+
+    Sleep(1000);
+    Utils::keyPress(Utils::hwnd, VK_F2, 1);
+    Sleep(1000);
+    return true;
+
+
 }
 
 bool MainBackendWorkerNew::enterEchoList(){
@@ -680,7 +688,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
             if(voteBossDead > 3){
                 m_fightBackendWorkerNew.stopWorker();
                 Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);  // 回正视角 面向声骸
-                Utils::saveDebugImg(capImg, cv::Rect(), 0 ,0, QString("认为boss死亡_背包匹配度_%1__boss标题匹配度_%2").arg(similarityBag).arg(similarityTitle));
+                //Utils::saveDebugImg(capImg, cv::Rect(), 0 ,0, QString("认为boss死亡_背包匹配度_%1__boss标题匹配度_%2").arg(similarityBag).arg(similarityTitle));
                 Sleep(1000);
                 qInfo() << QString("战斗完成");
                 break;
@@ -709,7 +717,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     }
 
     // 拾取声骸  记得计数+1
-    // 切换3号位
+    // 切换3号位 防止椿不会动
     Utils::keyPress(Utils::hwnd, '3', 1);
     cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
@@ -730,10 +738,6 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
             Sleep(500);
             Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
             Sleep(500);
-            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
-            Sleep(500);
-            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
-            Sleep(500);
             Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
             Sleep(1000);
             //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
@@ -745,8 +749,8 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
     }
     if(!isBusy()){
-        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
-        Sleep(250);
+        //Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+        //Sleep(250);
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
         Sleep(250);
         return true;
@@ -1367,7 +1371,7 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
 
     // 尝试点击探测
     cv::Mat detect = cv::imread(QString("%1/detect.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    if(!loopFindPic(detect, 0.8, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss的探测", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(detect, 0.9, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss的探测", similarity, x, y, timeCostMs)){
         if(!isBusy()){
             return true;
         }
@@ -1378,12 +1382,12 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     if(!isBusy()){
         return true;
     }
-    Sleep(250);
+    Sleep(500);
     Utils::clickWindowClientArea(Utils::hwnd, x + detect.cols/2, y + detect.rows/2);
 
     // 尝试点击快速旅行
     cv::Mat fastTravel = cv::imread(QString("%1/fastTravel.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    if(!loopFindPic(fastTravel, 0.8, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss的快速旅行", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(fastTravel, 0.9, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss的快速旅行", similarity, x, y, timeCostMs)){
         if(!isBusy()){
             return true;
         }
@@ -1394,12 +1398,12 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     if(!isBusy()){
         return true;
     }
-    Sleep(250);
+    Sleep(1000);
     Utils::clickWindowClientArea(Utils::hwnd, x + fastTravel.cols/2, y + fastTravel.rows/2);
 
     // 不断找背包 找到说明加载完毕  这里加载可能时间稍长 允许15s
     cv::Mat bagImg = cv::imread(QString("%1/bag.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    if(!loopFindPic(bagImg, 0.8, 15000, defaultRefreshMs, "传送boss 加载超时", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(bagImg, 0.8, 20000, defaultRefreshMs, "传送boss 加载超时", similarity, x, y, timeCostMs)){
         if(!isBusy()){
             return true;
         }

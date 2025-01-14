@@ -34,6 +34,9 @@
 
 #include "autochangewallpaperbackendworker.h"   // 自动切换背景图
 
+#include "internettimefetcher.h"  // 获取互联网时间
+#include "commonTools/encrypttools.h"   // 最高权限密码
+
 namespace Ui {
 class MainWindow;
 }
@@ -48,6 +51,9 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    // 启动时检测lic文件
+    bool initialCheck();
 
     // 注册非原生数据类型 便于传递信号和槽函数
     void registerType();
@@ -93,6 +99,12 @@ signals:
     void startNormalBoss(const NormalBossSetting& setting);
 
 private slots:
+    // 每1分钟检查 是否过期
+    void onCheckLic();
+
+    // 单纯每秒更新时间
+    void onUpdateTimeOnUI();
+
     void on_getGameWin_clicked();
 
     // 测试 ESC 点击活动 ESC 往前走
@@ -127,6 +139,14 @@ private slots:
     // 普通boss结束
     void onNormalBossDone(const bool& isNormalEnd, const QString& errMsg, const NormalBossSetting &normalBossSetting);
 
+private:
+    QTimer checkLicTimer;   // 每60秒检查一次licence  可能不需要了 开启时检查即可
+    QTimer updateCurrentDtTimer;  // 每秒更新UI的定时器
+
+    QDateTime toolCurrentTime; // 软件启动通过验证后 获取时间，然后每60秒触发一次验证lic 通过后 将这段时间加上
+    QElapsedTimer softElapsedTime;  // 每隔1分钟检测软件运行时间 toolCurrentTime += softElapsedTime.elasped();    softElapsedTime.reset();
+
+    QDateTime licStartTime;  //从验证文件读取的起点时间
 
 };
 

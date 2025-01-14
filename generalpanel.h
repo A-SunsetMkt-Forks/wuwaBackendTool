@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QFileDialog>
 #include <QElapsedTimer>
+#include <QDateTime>
 
 #include "settingparams.h"
 #include "utils.h"
@@ -21,6 +22,10 @@ public:
     ~GeneralPanel();
 
     RebootGameSetting getRebootGameSetting() const;
+
+    void setActivateStartTime(const QDateTime& dt);
+    void setExpirationTime(const QDateTime& dt);
+    void setCurrentTime(const QDateTime& dt);
 
 private:
     Ui::GeneralPanel *ui;
