@@ -105,7 +105,7 @@ static bool writeLicenseFile(const QDateTime &startTime)
     // 4) 写文件
     QString filePath = QCoreApplication::applicationDirPath() + QDir::separator() + LICENSE_FILE_NAME;
     QFile file(filePath);
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate )) {
         qWarning() << "[writeLicenseFile] cannot open for write:" << filePath;
         return false;
     }

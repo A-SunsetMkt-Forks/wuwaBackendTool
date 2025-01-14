@@ -35,13 +35,13 @@ RebootGameSetting GeneralPanel::getRebootGameSetting() const {
 
 
 void GeneralPanel::setActivateStartTime(const QDateTime& dt){
-    ui->activateStartTime->setText(QString("%1").arg(dt.toString("yyyy MM DD hh:mm:ss")) );
+    ui->activateStartTime->setText(QString("%1").arg(dt.toString("yyyy MM dd hh:mm:ss")) );
 }
 
 void GeneralPanel::setExpirationTime(const QDateTime& dt){
-    ui->expirationTime->setText(QString("%1").arg(dt.toString("yyyy MM DD hh:mm:ss")) );
+    ui->expirationTime->setText(QString("%1").arg(dt.toString("yyyy MM dd hh:mm:ss")) );
 }
 
 void GeneralPanel::setCurrentTime(const QDateTime& dt){
-    ui->currentTime->setText(QString("%1").arg(dt.toString("yyyy MM DD hh:mm:ss")) );
+    ui->currentTime->setText(QString("%1").arg(dt.toString("yyyy MM dd hh:mm:ss")) );
 }

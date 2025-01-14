@@ -284,7 +284,7 @@
     <rect>
      <x>20</x>
      <y>370</y>
-     <width>481</width>
+     <width>781</width>
      <height>31</height>
     </rect>
    </property>
@@ -294,20 +294,7 @@
     </font>
    </property>
    <property name="text">
-    <string>当前时间  修改本地时间无用</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="activateBtn">
-   <property name="geometry">
-    <rect>
-     <x>530</x>
-     <y>130</y>
-     <width>131</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>延长激活</string>
+    <string>当前时间  修改本地时间无用  可能略微超出有效期1分钟左右</string>
    </property>
   </widget>
  </widget>

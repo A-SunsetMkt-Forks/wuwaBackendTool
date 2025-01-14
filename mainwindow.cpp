@@ -10,12 +10,16 @@ MainWindow::MainWindow(QWidget *parent) :
     // 1) 启动时先做一次检查
     if(!initialCheck()) {
         // 如果检查失败(用户没输入密码/文件写失败等)，1秒后自动退出
-        QTimer::singleShot(1000, qApp, &QCoreApplication::quit);
+        //QTimer::singleShot(1000, qApp, &QCoreApplication::quit);
+        QCoreApplication::quit();
         return;
     }
+    ui->generalPanel->setActivateStartTime(licStartTime);
+    ui->generalPanel->setExpirationTime(licStartTime.addMSecs(MAX_MSECS));
+    ui->generalPanel->setCurrentTime(toolCurrentTime);
 
-    InternetTimeFetcher fetcher;
-    fetcher.fetchInternetTime(toolCurrentTime);
+    //InternetTimeFetcher fetcher;
+    //fetcher.fetchInternetTime(toolCurrentTime);
     softElapsedTime.start();
 
     // 2) 每分钟  更新    QDateTime toolCurrentTime;     QTimer softElapsedTime;
@@ -453,60 +457,44 @@ void MainWindow::onNormalBossDone(const bool& isNormalEnd, const QString& errMsg
 // 启动时只检查一次：若无文件 / 被篡改 / 已过期 => 让用户输入密码重置
 bool MainWindow::initialCheck()
 {
+
+    // 设置新时间
+    InternetTimeFetcher fetcher;
+    fetcher.fetchInternetTime(toolCurrentTime);
+    if(!toolCurrentTime.isValid()){
+        QMessageBox::critical(this, "错误", "无法联网获取时间");
+        //qApp->quit();
+        std::exit(0);
+        return false;
+    }
+
+
     bool ok = false;
     licStartTime = readLicenseFile(ok);
+
     if(!ok) {
         // 文件不存在或被破坏 => 立即提示
         QMessageBox::warning(this, "提示", "授权文件缺失或损坏，需要最高权限初始化。");
         if(!requestAdminPassword("请输入最高权限密码：", this)) {
             QMessageBox::critical(this, "错误", "密码错误");
-            qApp->quit();
-            return false;
-        }
-        // 设置新时间
-        InternetTimeFetcher fetcher;
-        fetcher.fetchInternetTime(toolCurrentTime);
-        if(!toolCurrentTime.isValid()){
-            QMessageBox::critical(this, "错误", "无法联网获取时间");
-            qApp->quit();
+            //qApp->quit();
+            std::exit(0);
             return false;
         }
 
+        //验证通过 写入lic
         if(!writeLicenseFile(toolCurrentTime)) {
-            QMessageBox::critical(this, "错误", "写入授权文件失败，无法继续运行。");
-            qApp->quit();
+            QMessageBox::critical(this, "错误", "写入授权文件失败 软件即将关闭");
+            //qApp->quit();
+            std::exit(0);
             return false;
         }
     }
 
-    ui->generalPanel->setActivateStartTime(licStartTime);
-    ui->generalPanel->setExpirationTime(licStartTime.addMSecs(MAX_MSECS));
-    ui->generalPanel->setCurrentTime(toolCurrentTime);
-
-    /*
-    else {
-        // 文件存在且有效 => 判断是否过期
-        QDateTime now = QDateTime::currentDateTime();
-        qint64 elapsed = licStartTime.msecsTo(now);
-        if(elapsed > MAX_MSECS) {
-            QMessageBox::information(this, "授权到期", "已超过使用期限，需要最高权限密码重置。");
-            if(!requestAdminPassword("请输入最高权限密码：", this)) {
-                return false;
-            }
-            if(!writeLicenseFile(now)) {
-                QMessageBox::critical(this, "错误", "写入授权文件失败，无法继续运行。");
-                return false;
-            }
-        }
-    }
-    */
-    return true;
-}
-
-void MainWindow::onCheckLic()
-{
-
+    // 检查是否已经过期
     if(toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)){
+        qWarning() << QString("toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)");
+
         this->m_mainBackendWorker.stopWorker();
         this->m_mainBackendWorkerNew.stopWorker();
         this->m_autoChangeWallpaperBackendWorker.stopWorker();
@@ -515,12 +503,50 @@ void MainWindow::onCheckLic()
         QMessageBox::warning(this, "提示", "软件有效期已过 后台线程均停止 要求输入密码");
         if(!requestAdminPassword("请输入最高权限密码：", this)) {
             QMessageBox::critical(this, "错误", "密码错误 软件即将关闭");
-            qApp->quit();
+            //qApp->quit();
+            std::exit(0);
+            return false;
         }
 
         if(!writeLicenseFile(toolCurrentTime)) {
             QMessageBox::critical(this, "错误", "写入授权文件失败 软件即将关闭");
-            qApp->quit();
+            //qApp->quit();
+            std::exit(0);
+            return false;
+        }
+
+        // 成功更新时间
+        licStartTime = toolCurrentTime;
+        ui->generalPanel->setActivateStartTime(licStartTime);
+        ui->generalPanel->setExpirationTime(toolCurrentTime.addMSecs(MAX_MSECS));
+        ui->generalPanel->setCurrentTime(toolCurrentTime);
+    }
+
+    return true;
+}
+
+void MainWindow::onCheckLic()
+{
+    qInfo() << QString("MainWindow::onCheckLic()");
+    if(toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)){
+        qWarning() << QString("toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)");
+
+        this->m_mainBackendWorker.stopWorker();
+        this->m_mainBackendWorkerNew.stopWorker();
+        this->m_autoChangeWallpaperBackendWorker.stopWorker();
+
+        // 文件不存在或被破坏 => 立即提示
+        QMessageBox::warning(this, "提示", "软件有效期已过 后台线程均停止 要求输入密码");
+        if(!requestAdminPassword("请输入最高权限密码：", this)) {
+            QMessageBox::critical(this, "错误", "密码错误 软件即将关闭");
+            //qApp->quit();
+            std::exit(0);
+        }
+
+        if(!writeLicenseFile(toolCurrentTime)) {
+            QMessageBox::critical(this, "错误", "写入授权文件失败 软件即将关闭");
+            //qApp->quit();
+            std::exit(0);
         }
 
         // 成功更新时间
@@ -535,11 +561,13 @@ void MainWindow::onCheckLic()
 }
 
 void MainWindow::onUpdateTimeOnUI(){
+    //qInfo() << QString("onUpdateTimeOnUI() ");
     // 获取自上次重置以来的时间（以毫秒为单位）
     qint64 elapsedMs = softElapsedTime.restart();
     // 将毫秒数转换为秒数累加到 QDateTime
     toolCurrentTime = toolCurrentTime.addMSecs(elapsedMs);
     ui->generalPanel->setCurrentTime(toolCurrentTime);
+   // qInfo() << QString("toolCurrentTime = %1 += %2 ms").arg(toolCurrentTime.toString("yyyy-MM-dd hh:mm:ss")).arg(elapsedMs);
 
 }
 
