@@ -46,7 +46,9 @@
    <property name="text">
     <string>本工具仅用于个人使用或学术交流，永久免费
 原作者 B站 NIKIRUY
-翻译者 B站 哈士嗷</string>
+翻译者 B站 哈士嗷
+启动软件会联网校正时间 可能需要最多30秒
+稍安勿躁</string>
    </property>
   </widget>
  </widget>

@@ -45,8 +45,8 @@ static const QByteArray SALT = "MY_SALT_1234";
 static const QString LICENSE_FILE_NAME = QStringLiteral("license.dat");
 
 // 超时时长：1 个月(30天)的毫秒数
-//static const qint64 MAX_MSECS = 30ll * 24ll * 60ll * 60ll * 1000ll;
-static const qint64 MAX_MSECS = 30 * 1000ll;
+static const qint64 MAX_MSECS = 30ll * 24ll * 60ll * 60ll * 1000ll;
+//static const qint64 MAX_MSECS = 30 * 1000ll;
 
 static const QString DONT_TRY_DECREPT = "don't be so rude, my friend";
 

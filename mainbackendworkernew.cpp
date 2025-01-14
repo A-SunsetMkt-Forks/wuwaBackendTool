@@ -569,7 +569,7 @@ bool MainBackendWorkerNew::enterEchoList(){
                 return true;
             }
 
-            Sleep(250);
+            Sleep(500);
         }
         if(!isBusy()){
             return true;  // 用户打断
