@@ -427,6 +427,35 @@ void MainWindow::onLockEchoDone(const bool& isNormalEnd, const QString& errMsg, 
 // 启动普通boss
 void MainWindow::on_startNormalBoss_clicked(){
     qInfo() << QString("MainWindow::on_startNormalBoss_clicked");
+    // 检查窗口是否已经启动
+    bool isWuwaInit = Utils::initWuwaHwnd();
+    if(!isWuwaInit){
+        QMessageBox::warning(this, "尚未启动鸣潮", "请先启动鸣潮再尝试启动脚本");
+        return;
+    }
+
+    bool isWuwaRunning = Utils::isWuwaRunning();
+    if(!isWuwaRunning){
+        QMessageBox::warning(this, "尚未启动鸣潮", "请先启动鸣潮再尝试启动脚本");
+        return;
+    }
+
+    // 获取一张图 然后检查其分辨率
+    QImage image = Utils::captureWindowToQImage(Utils::hwnd);
+    if(image.isNull()){
+        QMessageBox::warning(this, "不可以将鸣潮最小化", "请将鸣潮置于前台，启动脚本后可将其他窗口置于鸣潮上面。但不可将鸣潮最小化");
+        return;
+    }
+
+    // 检查分辨率
+    if(image.width() != Utils::CLIENT_WIDTH || image.height() != Utils::CLIENT_HEIGHT){
+        QMessageBox::warning(this, "脚本仅支持1280 720窗口模式",
+                             QString("当前分辨率 %1 * %2\n"
+                                     "可考虑将windows DPI 缩放改为100%\n"
+                                     "并多次切换游戏分辨率，最后设置为1280 * 720\n"
+                                     "然后重启游戏，启动脚本").arg(image.width()).arg(image.height()));
+        return;
+    }
 
     if(m_mainBackendWorkerNew.isBusy() || m_mainBackendWorker.isBusy()){
         QMessageBox::warning(this, "有其他后台正忙", "请等待任务结束或手动停止后台任务，再启动普通boss轮刷");
