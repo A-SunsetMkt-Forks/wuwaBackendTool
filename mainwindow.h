@@ -148,6 +148,10 @@ private:
 
     QDateTime licStartTime;  //从验证文件读取的起点时间
 
+
+    // 临时功能 如果连不上网 允许本地时间
+    bool isTempActivate();
+
 };
 
 

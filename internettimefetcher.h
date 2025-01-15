@@ -125,8 +125,8 @@ public:
         // reply 完成信号连接到事件循环退出
         connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
 
-        // 启动定时器，设定30秒超时
-        timer.start(30000);
+        // 启动定时器，设定10秒超时
+        timer.start(10000);
 
         // 阻塞事件循环直到超时或 reply 完成
         loop.exec();

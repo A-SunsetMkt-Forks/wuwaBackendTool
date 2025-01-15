@@ -1,6 +1,15 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+// 原始的 SHA-256 哈希值转为字节数组  临时允许本地时间作为toolCurrentTime
+constexpr std::array<uint8_t, 32> expectedHash = {
+    0x5e, 0x0e, 0x04, 0x3b, 0xb1, 0x1d, 0x9c, 0xa9,
+    0x00, 0x2e, 0x61, 0x22, 0x16, 0x78, 0x56, 0xe7,
+    0x80, 0x7c, 0x19, 0x99, 0xb3, 0x6f, 0x34, 0x08,
+    0xfa, 0xef, 0x8d, 0xf8, 0x13, 0x83, 0x23, 0xcf
+};
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -8,12 +17,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // 1) 启动时先做一次检查
-    if(!initialCheck()) {
-        // 如果检查失败(用户没输入密码/文件写失败等)，1秒后自动退出
-        //QTimer::singleShot(1000, qApp, &QCoreApplication::quit);
-        QCoreApplication::quit();
-        return;
+    if (!initialCheck()) {
+        //if(!isTempActivate()){
+            // 如果未通过验证，直接退出程序
+            std::exit(0);
+            return;
+        //}
     }
+
+
     ui->generalPanel->setActivateStartTime(licStartTime);
     ui->generalPanel->setExpirationTime(licStartTime.addMSecs(MAX_MSECS));
     ui->generalPanel->setCurrentTime(toolCurrentTime);
@@ -29,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // 每秒更新UI
     connect(&updateCurrentDtTimer, &QTimer::timeout, this, &MainWindow::onUpdateTimeOnUI);
     updateCurrentDtTimer.start(1000);
+
 
     // 注册自定义类型
     registerType();
@@ -146,6 +159,11 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->generalPanel->setAttribute(Qt::WA_StyledBackground, true);
         ui->debugPanel->setStyleSheet("background: transparent;");
         ui->debugPanel->setAttribute(Qt::WA_StyledBackground, true);
+    }
+
+
+    if(!Utils::isRunningAsAdmin()){
+        QMessageBox::warning(this, "请以管理员身份重启软件", "不以管理员身份启动，可能某些指令鸣潮不予理会");
     }
 }
 
@@ -486,18 +504,6 @@ void MainWindow::onNormalBossDone(const bool& isNormalEnd, const QString& errMsg
 // 启动时只检查一次：若无文件 / 被篡改 / 已过期 => 让用户输入密码重置
 bool MainWindow::initialCheck()
 {
-
-    // 设置新时间
-    InternetTimeFetcher fetcher;
-    fetcher.fetchInternetTime(toolCurrentTime);
-    if(!toolCurrentTime.isValid()){
-        QMessageBox::critical(this, "错误", "无法联网获取时间");
-        //qApp->quit();
-        std::exit(0);
-        return false;
-    }
-
-
     bool ok = false;
     licStartTime = readLicenseFile(ok);
 
@@ -507,7 +513,7 @@ bool MainWindow::initialCheck()
         if(!requestAdminPassword("请输入最高权限密码：", this)) {
             QMessageBox::critical(this, "错误", "密码错误");
             //qApp->quit();
-            std::exit(0);
+            //std::exit(0);
             return false;
         }
 
@@ -515,9 +521,19 @@ bool MainWindow::initialCheck()
         if(!writeLicenseFile(toolCurrentTime)) {
             QMessageBox::critical(this, "错误", "写入授权文件失败 软件即将关闭");
             //qApp->quit();
-            std::exit(0);
+            //std::exit(0);
             return false;
         }
+    }
+
+    // 设置新时间
+    InternetTimeFetcher fetcher;
+    fetcher.fetchInternetTime(toolCurrentTime);
+    if(!toolCurrentTime.isValid()){
+        QMessageBox::critical(this, "错误", "无法联网获取时间");
+        //qApp->quit();
+        //std::exit(0);
+        return false;
     }
 
     // 检查是否已经过期
@@ -533,14 +549,14 @@ bool MainWindow::initialCheck()
         if(!requestAdminPassword("请输入最高权限密码：", this)) {
             QMessageBox::critical(this, "错误", "密码错误 软件即将关闭");
             //qApp->quit();
-            std::exit(0);
+            //std::exit(0);
             return false;
         }
 
         if(!writeLicenseFile(toolCurrentTime)) {
             QMessageBox::critical(this, "错误", "写入授权文件失败 软件即将关闭");
             //qApp->quit();
-            std::exit(0);
+            //std::exit(0);
             return false;
         }
 
@@ -596,7 +612,45 @@ void MainWindow::onUpdateTimeOnUI(){
     // 将毫秒数转换为秒数累加到 QDateTime
     toolCurrentTime = toolCurrentTime.addMSecs(elapsedMs);
     ui->generalPanel->setCurrentTime(toolCurrentTime);
-   // qInfo() << QString("toolCurrentTime = %1 += %2 ms").arg(toolCurrentTime.toString("yyyy-MM-dd hh:mm:ss")).arg(elapsedMs);
+    // qInfo() << QString("toolCurrentTime = %1 += %2 ms").arg(toolCurrentTime.toString("yyyy-MM-dd hh:mm:ss")).arg(elapsedMs);
 
+}
+
+bool MainWindow::isTempActivate(){
+    bool ok;
+    QString input = QInputDialog::getText(
+                nullptr,
+                "最后一次机会",
+                "请输入低等级口令（已加密的内容）：",
+                QLineEdit::Password,
+                "",  // 默认值为空
+                &ok
+                );
+
+    if (ok && !input.isEmpty()) {
+        // 计算输入密码的哈希
+        QByteArray hash = QCryptographicHash::hash(input.toUtf8(), QCryptographicHash::Sha256);
+
+        // 比较字节数组
+        if (hash.size() == static_cast<int>(expectedHash.size())) {
+            bool match = true;
+            for (size_t i = 0; i < expectedHash.size(); ++i) {
+                if (static_cast<uint8_t>(hash.at(i)) != expectedHash[i]) {
+                    match = false;
+                    break;
+                }
+            }
+
+            if (match) {
+                // 设置 toolCurrentTime 为当前本地时间
+                toolCurrentTime = QDateTime::currentDateTime();
+                QMessageBox::information(nullptr, "成功", "激活成功！当前时间已设置。");
+                return true; // 激活成功，退出检查逻辑
+            }
+        }
+    }
+
+    QMessageBox::critical(nullptr, "错误", "口令验证失败！");
+    return false; // 激活成功，退出检查逻辑
 }
 
