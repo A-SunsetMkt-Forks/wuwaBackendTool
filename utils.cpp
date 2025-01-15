@@ -223,9 +223,9 @@ bool Utils::keyPress(HWND hwnd, int vkCode, int times){
 
     for(int i = 0 ; i < times; i++){
         sendKeyToWindow(hwnd, vkCode, WM_KEYDOWN);
-        Sleep(10);
+        Sleep(50);
         sendKeyToWindow(hwnd, vkCode, WM_KEYUP);
-        Sleep(10);
+        Sleep(50);
     }
 
     return true;
@@ -266,11 +266,11 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
 
     // 发送鼠标按下消息
     PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
-    Sleep(20);  // 给消息处理留一点缓冲时间
+    Sleep(50);  // 给消息处理留一点缓冲时间
 
     // 发送鼠标松开消息
     PostMessage(hwnd, WM_LBUTTONUP, 0, lParam);
-    Sleep(20);
+    Sleep(50);
 
     qDebug() << "Simulated click at client area coordinates: ("
              << x << ", " << y << ")" ;
@@ -303,11 +303,11 @@ bool Utils::clickWindowClientArea2(HWND hwnd, int x, int y){
 
     // 发送鼠标按下消息
     PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
-    Sleep(20);  // 给消息处理留一点缓冲时间
+    Sleep(50);  // 给消息处理留一点缓冲时间
 
     // 发送鼠标松开消息
     PostMessage(hwnd, WM_LBUTTONUP, 0, lParam);
-    Sleep(20);
+    Sleep(50);
 
     qDebug() << "Simulated click at client area coordinates: ("
              << x << ", " << y << ")";
@@ -492,11 +492,11 @@ bool Utils::clickWindowClient(HWND hwnd) {
 
     // 发送鼠标按下消息
     PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
-    Sleep(20);  // 给消息处理留一点缓冲时间
+    Sleep(50);  // 给消息处理留一点缓冲时间
 
     // 发送鼠标松开消息
     PostMessage(hwnd, WM_LBUTTONUP, 0, lParam);
-    Sleep(20);
+    Sleep(50);
 
     qDebug() << "Simulated click at client" ;
 

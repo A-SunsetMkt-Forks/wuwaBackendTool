@@ -456,7 +456,7 @@ bool MainBackendWorkerNew::normalBossPreperation(const NormalBossSetting &normal
 
     // 进入主界面
     if(backToMain() == false){
-        errMsg = "连续4次 ESC 未能找到背包按钮";
+        errMsg = "连续7次 ESC 未能找到背包按钮";
         return false;
     }
     qInfo() << QString("成功进入主界面 开始找索拉指南");
@@ -493,7 +493,7 @@ bool MainBackendWorkerNew::backToMain(){
     cv::Mat missionImg = cv::imread(QString("%1/mission.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     cv::Mat bagImg = cv::imread(QString("%1/bag.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     bool isFindBagFinal = false;  // 是否找到背包图片
-    for(int i = 0; i < 4 && isBusy(); i++){
+    for(int i = 0; i < 7 && isBusy(); i++){
         double similarity;
         int x, y, timeCostMs;
         bool isFind = loopFindPic(missionImg, 0.75, defaultMaxWaitMs, 250, "未能找到背包按钮 尝试esc后 继续寻找", similarity, x, y, timeCostMs);
@@ -503,6 +503,7 @@ bool MainBackendWorkerNew::backToMain(){
 
         if(!isFind){
             Utils::keyPress(Utils::hwnd, VK_ESCAPE, 1);
+            Sleep(500);  // 这里太着急了
         }
         else{
             isFindBagFinal = true;
@@ -729,23 +730,29 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(1500);
+            Sleep(2000);
             //先停下来 再次判断 点击准确
             isAbsorb = true;
             capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-            Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity);
-            // ALT 左键 ALT松
-            Sleep(500);
-            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
-            Sleep(500);
-            Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
-            Sleep(1000);
-            //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
-            Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
-            Sleep(500);
-            Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
-            Sleep(3000);
-            break;
+            if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
+                // ALT 左键 ALT松
+                Sleep(500);
+                Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+                Sleep(500);
+                Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+                Sleep(1000);
+                //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
+                Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+                Sleep(500);
+                Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
+                Sleep(3000);
+                break;
+            }
+            else{
+                Sleep(250);
+                return true;
+            }
+
         }
     }
     if(!isBusy()){
@@ -1843,7 +1850,7 @@ void MainBackendWorkerNew::skipMonthCard(){
     QTime currentTime = QTime::currentTime();
 
     // 定义时间范围
-    QTime startTime(3, 55); // 03:55
+    QTime startTime(3, 00); // 03:55
     QTime endTime(4, 5);    // 04:05
 
     if(isFirstSkipMonthCard){
