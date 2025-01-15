@@ -523,11 +523,11 @@ bool Utils::middleClickWindowClientArea(HWND hwnd, int x, int y) {
 
     // 发送鼠标中键按下消息
     PostMessage(hwnd, WM_MBUTTONDOWN, MK_MBUTTON, lParam);
-    Sleep(20);  // 给消息处理留一点缓冲时间
+    Sleep(50);  // 给消息处理留一点缓冲时间
 
     // 发送鼠标中键松开消息
     PostMessage(hwnd, WM_MBUTTONUP, 0, lParam);
-    Sleep(20);
+    Sleep(50);
 
     qDebug() << "Simulated middle click at client area coordinates: ("
              << x << ", " << y << ")" ;

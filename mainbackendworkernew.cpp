@@ -519,28 +519,11 @@ bool MainBackendWorkerNew::backToMain(){
 
 bool MainBackendWorkerNew::enterSolaGuide(){
     qInfo() << QString("尝试进入到索拉指南");
-    /*
-    Utils::keyPress(Utils::hwnd, VK_ESCAPE, 1);
-    cv::Mat solaGuideImg = cv::imread(QString("%1/solaGuideInEsc.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    double similarity;
-    int x, y, timeCostMs;
-    bool isFind = loopFindPic(solaGuideImg, 0.8, defaultMaxWaitMs, defaultRefreshMs, "未能在esc菜单内找到索拉指南", similarity, x, y, timeCostMs);
-    if(!isBusy()){
-        return true;
-    }
-    Sleep(500);  //找到了图标 此时游戏不一定响应 所以延迟点击
-
-    if(isFind) Utils::clickWindowClientArea(Utils::hwnd, x + solaGuideImg.cols / 2, y + solaGuideImg.rows / 2);
-
-    return isFind;
-    */
 
     Sleep(1000);
     Utils::keyPress(Utils::hwnd, VK_F2, 1);
     Sleep(1000);
     return true;
-
-
 }
 
 bool MainBackendWorkerNew::enterEchoList(){
@@ -686,7 +669,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         else if(isFindBag && !isFindTitle){
             voteBossDead = voteBossDead + 1;
             m_fightBackendWorkerNew.pauseWorker();
-            if(voteBossDead > 3){
+            if(voteBossDead > 10){
                 m_fightBackendWorkerNew.stopWorker();
                 Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);  // 回正视角 面向声骸
                 //Utils::saveDebugImg(capImg, cv::Rect(), 0 ,0, QString("认为boss死亡_背包匹配度_%1__boss标题匹配度_%2").arg(similarityBag).arg(similarityTitle));
@@ -703,6 +686,8 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         else{
             //
         }
+
+        Sleep(100);
     }
 
     // 可能需要复苏 + 跳过月卡
