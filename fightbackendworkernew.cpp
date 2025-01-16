@@ -52,7 +52,7 @@ void FightBackendWorkerNew::onStartFight(){
         return isBusy();
     };
 
-    const int waitMs = 100;
+    const int waitMs = 50;
     while(isBusy()){
         const int teamSize = 3;
         for(int i = 0; i < teamSize && isBusy(); i++){\

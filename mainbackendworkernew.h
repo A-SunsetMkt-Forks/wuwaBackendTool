@@ -50,6 +50,9 @@ private:
     // 跳过月卡 可能需要频繁调用 在各个节点和找不到血条 + 背包时调用
     void skipMonthCard();
 
+    // 复苏
+    bool revive();
+
 
     // 轮刷boss的总准备工作 完成后应该是在残像探寻界面
     bool normalBossPreperation(const NormalBossSetting &normalBossSetting, QString& errMsg);
