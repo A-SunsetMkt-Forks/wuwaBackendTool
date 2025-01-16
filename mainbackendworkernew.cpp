@@ -308,6 +308,7 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
         Sleep(500);
         pickUpNormalBossEcho = 0;  // 初始拾取声骸计数为 0
         QString errMsg;
+        switchEchoListPos = cv::Point(-1, -1);  // 残像探寻图像坐标初始化为不可用
         while(isBusy()){
             QList<NormalBossEnum> allBossList = normalBossSetting.bossSettings.keys();
             for(NormalBossEnum thisBoss : allBossList){
@@ -527,41 +528,73 @@ bool MainBackendWorkerNew::enterSolaGuide(){
 
 bool MainBackendWorkerNew::enterEchoList(){
     qInfo() << QString("尝试进入到残像探寻");
-    cv::Mat echoListUncheckedImg = cv::imread(QString("%1/echoListUnchecked.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    double similarity;
-    int x, y, timeCostMs;
-    bool isFind = loopFindPic(echoListUncheckedImg, 0.7, defaultMaxWaitMs, defaultRefreshMs, "未能在索拉指南找到残像探寻", similarity, x, y, timeCostMs);
-    if(!isBusy()){
-        return true;
-    }
-    if(isFind) {
-        cv::Mat echoListChecked = cv::imread(QString("%1/echoListChecked.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    if(switchEchoListPos.x >=0 && switchEchoListPos.y >=0){
+        qInfo() << QString("点击之前记录的残像探寻坐标 %1 %2").arg(switchEchoListPos.x).arg(switchEchoListPos.y);
+        // 之前记录过残像探寻的坐标 直接点击
+        double similarity;
+        int x, y, timeCostMs;
+        Utils::moveMouseToClientArea(Utils::hwnd, switchEchoListPos.x, switchEchoListPos.y);
+        Sleep(250);
+        Utils::clickWindowClientArea(Utils::hwnd, switchEchoListPos.x, switchEchoListPos.y);
+        Sleep(250);
         cv::Mat echoBossListDefault = cv::imread(QString("%1/echoBossListDefault.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-        // 至多再点击4次 进不去就说明有问题了
-        for(int i = 0; i < 4 && isBusy(); i++){
-            Utils::moveMouseToClientArea(Utils::hwnd, x + echoListUncheckedImg.cols / 2, y + echoListUncheckedImg.rows / 2);
-            Utils::clickWindowClientArea(Utils::hwnd, x + echoListUncheckedImg.cols / 2, y + echoListUncheckedImg.rows / 2);
-
-            int echoListx, echoListy;
-            bool isTrueClicked = loopFindPic(echoBossListDefault, 0.8, defaultMaxWaitMs, defaultRefreshMs, "找到了残像探寻图标 但点击没反应", similarity, echoListx, echoListy, timeCostMs);
-            if(!isBusy()){
-                break;
-            }
-
-            if(isTrueClicked){
-                return true;
-            }
-
-            Sleep(500);
-        }
+        bool isTrueClicked = loopFindPic(echoBossListDefault, 0.8, defaultMaxWaitMs, defaultRefreshMs, "找到了残像探寻图标 但点击没反应", similarity, x, y, timeCostMs);
         if(!isBusy()){
-            return true;  // 用户打断
+            return true;
         }
-        return false;  // 点了两次残像探寻都进不去
+
+        if(isTrueClicked){
+            return true;
+        }
+
     }
     else{
-        return false;
+        qInfo() << QString("重新寻找残像探寻坐标");
+        // 重新找残像探寻的图标位置
+        cv::Mat echoListUncheckedImg = cv::imread(QString("%1/echoListUnchecked.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        double similarity;
+        int x, y, timeCostMs;
+        bool isFind = loopFindPic(echoListUncheckedImg, 0.7, defaultMaxWaitMs, defaultRefreshMs, "未能在索拉指南找到残像探寻", similarity, x, y, timeCostMs);
+        if(!isBusy()){
+            return true;
+        }
+        if(isFind) {
+            cv::Mat echoListChecked = cv::imread(QString("%1/echoListChecked.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+            cv::Mat echoBossListDefault = cv::imread(QString("%1/echoBossListDefault.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+            // 至多再点击4次 进不去就说明有问题了
+            for(int i = 0; i < 4 && isBusy(); i++){
+                Utils::moveMouseToClientArea(Utils::hwnd, x + echoListUncheckedImg.cols / 2, y + echoListUncheckedImg.rows / 2);
+                Sleep(250);
+                Utils::clickWindowClientArea(Utils::hwnd, x + echoListUncheckedImg.cols / 2, y + echoListUncheckedImg.rows / 2);
+                Sleep(250);
+                int echoListx, echoListy;
+                bool isTrueClicked = loopFindPic(echoBossListDefault, 0.8, defaultMaxWaitMs, defaultRefreshMs, "找到了残像探寻图标 但点击没反应", similarity, echoListx, echoListy, timeCostMs);
+                if(!isBusy()){
+                    break;
+                }
+
+                if(isTrueClicked){
+                    switchEchoListPos = cv::Point(x + echoListUncheckedImg.cols / 2, y + echoListUncheckedImg.rows / 2);
+                    qInfo() << QString("记录残像探寻坐标 %1 %2").arg(switchEchoListPos.x).arg(switchEchoListPos.y);
+                    return true;
+                }
+
+                Sleep(500);
+            }
+            if(!isBusy()){
+                switchEchoListPos = cv::Point(-1, -1);
+                return true;  // 用户打断
+            }
+            switchEchoListPos = cv::Point(-1, -1);
+            return false;  // 点了两次残像探寻都进不去
+        }
+        else{
+            switchEchoListPos = cv::Point(-1, -1);
+            return false;
+        }
     }
+
+
 }
 
 bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSetting, const NormalBossEnum& bossName, QString& errMsg){

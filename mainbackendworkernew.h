@@ -154,6 +154,9 @@ private:
     const cv::Point scrollEchoListsEndPos = {530, 189};
     const cv::Point scrollEchoListsWaitPos = {51, 386};  // 防止挡住或改变图像
 
+    // 残像记录按钮位置 找到一次以后即固定 点击这里
+    cv::Point switchEchoListPos = cv::Point(-1, -1);  //负数表示不可用
+
     // 战斗线程
     QThread m_fightThread;
     FightBackendWorkerNew m_fightBackendWorkerNew;
