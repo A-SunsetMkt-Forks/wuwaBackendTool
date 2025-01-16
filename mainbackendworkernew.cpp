@@ -496,7 +496,7 @@ bool MainBackendWorkerNew::backToMain(){
     for(int i = 0; i < 7 && isBusy(); i++){
         double similarity;
         int x, y, timeCostMs;
-        bool isFind = loopFindPic(missionImg, 0.70, defaultMaxWaitMs, 250, "未能找到背包按钮 尝试esc后 继续寻找", similarity, x, y, timeCostMs);
+        bool isFind = loopFindPic(bagImg, 0.75, defaultMaxWaitMs, 250, "未能找到背包按钮 尝试esc后 继续寻找", similarity, x, y, timeCostMs);
         if(!isBusy()){
             return true;
         }
