@@ -2,6 +2,7 @@
 #define DEBUGFORM_H
 
 #include <QWidget>
+#include <QThread>
 #include <QFileDialog>
 #include <QElapsedTimer>
 #include <QRadioButton>
@@ -10,6 +11,8 @@
 
 #include "settingparams.h"
 #include "utils.h"
+#include "debugbackendworker.h"
+
 
 namespace Ui {
 class DebugForm;
@@ -28,12 +31,18 @@ private:
     bool isVisibleShow = false;
     QVector<QWidget*> lockWidgetList;
 
+    QThread m_backendThread;
+    DebugBackendWorker m_debugBackendWorker;
+
 signals:
     // 片段测试 测试速切战斗
     void startTestFastSwitch();
 
     // 测试重启游戏
     void startTestRebootGame(const QString& launcherWindowTitle);
+
+    // 开启后台不断截图工作
+    void startActivateCap(const QString& imgFilePath, const unsigned int& waitMs);
 
 public slots:
     // 测试图像匹配功能
@@ -53,6 +62,15 @@ public slots:
 
     // 测试通过启动器重启游戏
     void on_testRebootGame_clicked();
+
+    // 启动激活 不断截图 或停止
+    void on_activateBtn_clicked();
+    void on_deactivateBtn_clicked();
+
+    // 后台线程停止激活
+    void onActivateCapDone(const bool& isOK, const QString& msg);
+
+
 };
 
 #endif // DEBUGFORM_H

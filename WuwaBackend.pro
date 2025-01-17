@@ -70,7 +70,8 @@ SOURCES += \
     mainbackendworkernew.cpp \
     normalbosspanel.cpp \
     fightbackendworkernew.cpp \
-    commonTools/encrypttools.cpp
+    commonTools/encrypttools.cpp \
+    debugbackendworker.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -95,7 +96,8 @@ HEADERS += \
     normalbosspanel.h \
     fightbackendworkernew.h \
     internettimefetcher.h \
-    commonTools/encrypttools.h
+    commonTools/encrypttools.h \
+    debugbackendworker.h
 
 FORMS += \
         mainwindow.ui \

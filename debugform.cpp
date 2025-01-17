@@ -17,18 +17,28 @@ DebugForm::DebugForm(QWidget *parent) :
     lockWidgetList.push_back(ui->testPress2);
     lockWidgetList.push_back(ui->testPressM);
     lockWidgetList.push_back(ui->testRebootGame);
-
+    lockWidgetList.push_back(ui->activateBtn);
+    lockWidgetList.push_back(ui->deactivcateBtn);
+    lockWidgetList.push_back(ui->isActivate);
+    lockWidgetList.push_back(ui->saveImgPath);
+    lockWidgetList.push_back(ui->capImgWaitMs);
 
     for(auto widget : lockWidgetList){
         widget->setVisible(false);
     }
 
+    m_debugBackendWorker.moveToThread(&m_backendThread);
+    m_backendThread.start();
 
-
+    connect(this, &DebugForm::startActivateCap, &this->m_debugBackendWorker, &DebugBackendWorker::onStartActivateCap);
+    connect(&this->m_debugBackendWorker, &DebugBackendWorker::activateCapDone, this, &DebugForm::onActivateCapDone);
 }
 
 DebugForm::~DebugForm()
 {
+    m_debugBackendWorker.stopWorker();
+    m_backendThread.quit();
+    m_backendThread.wait();
     delete ui;
 }
 
@@ -194,3 +204,28 @@ void DebugForm::on_testRebootGame_clicked(){
 
 }
 
+
+void DebugForm::on_activateBtn_clicked(){
+    if(m_debugBackendWorker.isBusy()){
+        QMessageBox::warning(this, "已经激活 截图中", "请先停止，然后修改参数，最后再次激活启动");
+        return;
+    }
+    ui->isActivate->setChecked(true);
+    emit startActivateCap(ui->saveImgPath->toPlainText(), ui->capImgWaitMs->value());
+}
+
+void DebugForm::on_deactivateBtn_clicked(){
+    m_debugBackendWorker.stopWorker();
+}
+
+void DebugForm::onActivateCapDone(const bool& isOK, const QString& msg){
+    ui->isActivate->setChecked(false);
+    if(isOK){
+        QMessageBox::information(this, "激活和捕获图像停止", msg);
+        return;
+    }
+    else{
+        QMessageBox::warning(this, "激活和捕获图像错误", msg);
+        return;
+    }
+}

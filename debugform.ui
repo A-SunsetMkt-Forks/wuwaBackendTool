@@ -181,14 +181,114 @@
    <widget class="QPushButton" name="testRebootGame">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>250</y>
+      <x>0</x>
+      <y>300</y>
       <width>181</width>
       <height>51</height>
      </rect>
     </property>
     <property name="text">
      <string>测试重启游戏</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="activateBtn">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>20</y>
+      <width>211</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>激活窗体 不断截图</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="deactivcateBtn">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>20</y>
+      <width>181</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>断开激活</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="capImgWaitMs">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>80</y>
+      <width>211</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="suffix">
+     <string>    ms</string>
+    </property>
+    <property name="prefix">
+     <string/>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>1000</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>80</y>
+      <width>111</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>截图间隔</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>150</y>
+      <width>111</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>截图保存路径</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="saveImgPath">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>140</y>
+      <width>431</width>
+      <height>64</height>
+     </rect>
+    </property>
+    <property name="plainText">
+     <string>c:/mchtpic.bmp</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="isActivate">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>90</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>截图中?</string>
     </property>
    </widget>
   </widget>
