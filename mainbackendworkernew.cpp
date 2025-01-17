@@ -702,6 +702,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
         else if(isFindBag && !isFindTitle){
             voteBossDead = voteBossDead + 1;
+            voteIamDead = 0;
             m_fightBackendWorkerNew.pauseWorker();
             if(voteBossDead > 10){
                 m_fightBackendWorkerNew.stopWorker();
@@ -714,17 +715,28 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
         else if(!isFindBag && !isFindTitle){
             voteIamDead = voteIamDead + 1;
+            voteBossDead = 0;
             m_fightBackendWorkerNew.pauseWorker();
-            if(voteIamDead > 10){
+            if(voteIamDead > 40){
+                // 大招播放动画最长也就2秒
                 // 可能需要复苏 + 跳过月卡
                 skipMonthCard();
+                //revive();
+
                 if(!revive()){
                     qWarning() << QString("复活失败");
                     m_fightBackendWorkerNew.stopWorker();
                     return false;
                 }
-                m_fightBackendWorkerNew.stopWorker();
-                return true;
+                else{
+                    qInfo() << QString("复活成功");
+                    m_fightBackendWorkerNew.stopWorker();
+                    return true;
+                }
+
+
+                //m_fightBackendWorkerNew.stopWorker();
+                //return true;
             }
         }
         else{
@@ -749,6 +761,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     // 拾取声骸  记得计数+1
     // 切换3号位 防止椿不会动
     Utils::keyPress(Utils::hwnd, '3', 1);
+    revive();
     cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
     int absorbX, absorbY;
@@ -1450,8 +1463,13 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     if(!isBusy()){
         return true;
     }
+
+    skipMonthCard();
     // 切换3号位 方便往前走的时候固定成人速度
     Utils::keyPress(Utils::hwnd, '3', 1);
+    revive();
+
+
     return true;
 }
 
@@ -1942,8 +1960,9 @@ bool MainBackendWorkerNew::revive(){
     int timeCostMs;
     // 等待速切弹出复活药界面
     if(!loopFindPic(noTakeReviveMedi, 0.9, defaultMaxWaitMs, defaultRefreshMs, "复苏等待默认时长后仍未弹出复活药画面", similarity, x, y, timeCostMs)){
-        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-        Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "复苏等待默认时长后仍未弹出复活药画面");
+        //cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        //qWarning() << "复苏等待默认时长后仍未弹出复活药画面";
+        //Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "复苏等待默认时长后仍未弹出复活药画面");
         return false;
     }
 
@@ -1951,9 +1970,10 @@ bool MainBackendWorkerNew::revive(){
     Sleep(defaultRefreshMs * 2);
     Utils::clickWindowClientArea(Utils::hwnd, x + noTakeReviveMedi.cols / 2, y + noTakeReviveMedi.rows / 2);
 
-    if(!loopFindPic(bagImg, 0.9, defaultMaxWaitMs, defaultRefreshMs, "关闭复活药界面仍未找到背包", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(bagImg, 0.8, defaultMaxWaitMs, defaultRefreshMs, "关闭复活药界面仍未找到背包", similarity, x, y, timeCostMs)){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "关闭复活药界面仍未找到背包");
+        qWarning() << "关闭复活药界面仍未找到背包";
         return false;
     }
 
@@ -1962,12 +1982,13 @@ bool MainBackendWorkerNew::revive(){
     int tpRevive = 0;  // 1表示找的是小信标， 2表示找的是中枢信标
     cv::Point tpPos;
     Utils::keyPress(Utils::hwnd, 'M', 1);
-    if(!loopFindPic(tpRevive1, 0.9, defaultMaxWaitMs, defaultRefreshMs, "打开地图 未发现传送信标小", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(tpRevive1, 0.8, defaultMaxWaitMs, defaultRefreshMs, "打开地图未发现传送信标小", similarity, x, y, timeCostMs)){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-        Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "打开地图 未发现传送信标小");
-        if(!loopFindPic(tpRevive2, 0.9, defaultMaxWaitMs, defaultRefreshMs, "打开地图 未发现传送信标大", similarity, x, y, timeCostMs)){
+        Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "打开地图未发现传送信标小");
+        if(!loopFindPic(tpRevive2, 0.8, defaultMaxWaitMs, defaultRefreshMs, "打开地图未发现传送信标大", similarity, x, y, timeCostMs)){
             cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-            Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "打开地图 未发现传送信标大");
+            Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "打开地图未发现传送信标大");
+            qWarning() << "打开地图未发现传送信标大";
             return false;
         }
         tpRevive = 2;
@@ -1979,19 +2000,43 @@ bool MainBackendWorkerNew::revive(){
     Sleep(defaultRefreshMs * 4);
     Utils::clickWindowClientArea(Utils::hwnd, tpPos.x, tpPos.y);
 
-    // 应该能找到快速旅行
-    if(!loopFindPic(tp, 0.9, defaultMaxWaitMs, defaultRefreshMs, "点击传送信标 未找到快速旅行", similarity, x, y, timeCostMs)){
+    // 点击后 可能出现两者重叠 需要点多一次
+    if(tpRevive == 1){
+        Sleep(defaultRefreshMs * 4);
+        // 可能重叠了
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-        Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "点击传送信标 未找到快速旅行");
+        cv::Mat tpRevive1check = cv::imread(QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("tpRevive1checkText.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        // 应该能找到 小型信标这几个汉字
+        if(!Utils::findPic(capImg, tpRevive1check, 0.8, x, y, similarity)){
+            cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "复活信标重叠无法找到小型信标这几个汉字");
+            qInfo() << "复活信标重叠无法找到小型信标这几个汉字";
+            //return false;
+        }
+        else{
+            // 点击 小型信标汉字
+            Sleep(defaultRefreshMs * 4);
+            Utils::clickWindowClientArea(Utils::hwnd, x + tpRevive1check.cols/2, y + tpRevive1check.rows/2);
+        }
+
+    }
+
+
+    // 应该能找到快速旅行
+    if(!loopFindPic(tp, 0.9, defaultMaxWaitMs, defaultRefreshMs, "点击传送信标未找到快速旅行", similarity, x, y, timeCostMs)){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "点击传送信标未找到快速旅行");
+        qWarning() << "点击传送信标未找到快速旅行";
         return false;
     }
     Sleep(defaultRefreshMs * 4);
     Utils::clickWindowClientArea(Utils::hwnd, x + tp.cols / 2, y + tp.rows / 2);
 
     // 等待找到背包
-    if(!loopFindPic(bagImg, 0.9, defaultMaxWaitMs * 10, defaultRefreshMs, "点击快速旅行 未找到背包", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(bagImg, 0.8, defaultMaxWaitMs * 10, defaultRefreshMs, "点击快速旅行未找到背包", similarity, x, y, timeCostMs)){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-        Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "点击快速旅行 未找到背包");
+        Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "点击快速旅行未找到背包");
+        qWarning() << "点击快速旅行未找到背包";
         return false;
     }
 
