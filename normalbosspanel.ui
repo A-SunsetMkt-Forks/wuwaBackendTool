@@ -138,7 +138,7 @@
     <item>
      <widget class="QCheckBox" name="feilianBeringal">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>飞廉之猩</string>
@@ -178,7 +178,7 @@
     <item>
      <widget class="QCheckBox" name="mechAbomination">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>机械聚偶</string>

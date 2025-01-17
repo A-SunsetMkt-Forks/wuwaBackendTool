@@ -81,12 +81,16 @@ private:
     bool sentryConstructPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 刷无归的谬误 准备工作 从传送到boss面前  到锁定boss
     bool fallacyOfNoReturnPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 飞廉之猩
+    bool feilianBeringalPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 无常凶鹭
     bool impermanenceHeronPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 燎照之骑
     bool infernoRiderPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 辉萤军势
     bool lampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 机械巨偶
+    bool mechAbominationPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 哀声鸷
     bool mourningAixPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 云闪之麟
