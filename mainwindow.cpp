@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // 注册自定义类型
     registerType();
 
-    this->setWindowTitle("鸣潮自动刷boss脚本 v1.0.4 永久免费 无广告病毒");
+    this->setWindowTitle("鸣潮自动刷boss脚本 v1.0.5 永久免费 无广告病毒");
 
     // 绑定日志
     // debug 重定向
