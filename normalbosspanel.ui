@@ -102,7 +102,7 @@
        <bool>false</bool>
       </property>
       <property name="text">
-       <string>梦魇云闪之鳞</string>
+       <string>梦魇朔雷之鳞</string>
       </property>
      </widget>
     </item>
@@ -247,7 +247,7 @@
     <item>
      <widget class="QCheckBox" name="lorelei">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>罗蕾莱</string>

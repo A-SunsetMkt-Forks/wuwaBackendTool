@@ -975,7 +975,7 @@ bool MainBackendWorkerNew::loreleiPreparation(const NormalBossSetting &normalBos
     // 如果提示需要等待 则暂时略过
     cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
     cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("loreleiTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-    cv::Mat neetWait = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("loreleiNeetWait").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat neetWait = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("loreleiNeedWait").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     cv::Mat sit = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("loreleiSit2").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     bool isFindNeetWait = Utils::findPic(capImg, neetWait, 0.75, x, y, similarity);
     if(isFindNeetWait){
@@ -1004,13 +1004,21 @@ bool MainBackendWorkerNew::loreleiPreparation(const NormalBossSetting &normalBos
                     Sleep(250);
                     return true;
                 }
-
-                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
                 Sleep(250);
                 // 找到boss title了
                 isTraced = true;
+
+                // 有点远 稍微走多一步
+                for(int i = 0; i < 5 && isBusy(); i++){
+                    Sleep(500);
+                }
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
                 Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
                 qInfo() << QString("已经锁定 %1").arg("罗蕾莱");
+
+                if(!isBusy()){
+                    return true;
+                }
                 Sleep(250);
                 break;
             }
@@ -1630,7 +1638,7 @@ bool MainBackendWorkerNew::bellBorneGeochelonePreparation(const NormalBossSettin
 
 
     // 如果跑了 N秒没找到 认为失败 跳过
-    const int maxRunFindBossMs = 15*1000;
+    const int maxRunFindBossMs = 20*1000;
     const int detectBossPeroidMs = 500;
 
     QElapsedTimer timer;
@@ -1665,7 +1673,7 @@ bool MainBackendWorkerNew::bellBorneGeochelonePreparation(const NormalBossSettin
     }
 
     if(!isTraced){
-        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockThunderingMephis");
+        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockBellBorneGeochelone");
         Sleep(250);
     }
     return isTraced;

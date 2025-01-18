@@ -640,7 +640,8 @@ bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, do
 bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY, double& similarity) {
     similarity = 0.0;
     if (sourceImage.empty() || templateImage.empty()) {
-        qWarning() << QString("findpic input image is emtpy");
+        qWarning() << QString("findpic input image is emtpy sourceImage size(%1, %2) templateImage size(%3, %4)")
+                      .arg(sourceImage.cols).arg(sourceImage.rows).arg(templateImage.cols).arg(templateImage.rows);
         outX = -1;
         outY = -1;
         return false; // 匹配失败
