@@ -227,7 +227,7 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
                 }
 
                 qInfo() << QString("翻页");
-                for(int j = 0; j < 4 & isBusy(); j++){
+                for(int j = 0; j < 4 && isBusy(); j++){
                     this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, echoRowMargin, 20);
                     //this->dragWindowClient3(Utils::hwnd, topLeftEchoROI.x, topLeftEchoROI.y + echoRowMargin, topLeftEchoROI.x, topLeftEchoROI.y, 20, 20);
                     Sleep(1000);
@@ -608,6 +608,12 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
         break;
 
+    case NormalBossEnum::Lorelei:
+        if(!loreleiPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
     case NormalBossEnum::DragonOfDirge:
         if(!dragonOfDirgePreparation(normalBossSetting, errMsg)){
             return false;
@@ -670,6 +676,12 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
 
     case NormalBossEnum::ThunderingMephis:
         if(!thunderingMephisPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::BellBorneGeochelone:
+        if(!bellBorneGeochelonePreparation(normalBossSetting, errMsg)){
             return false;
         }
         break;
@@ -784,17 +796,16 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(2000);
+            Sleep(1500);
             //先停下来 再次判断 点击准确
             isAbsorb = true;
             capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
             if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
                 // ALT 左键 ALT松
-                Sleep(500);
                 Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
                 Sleep(500);
                 Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
-                Sleep(1000);
+                Sleep(500);
                 //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
                 Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
                 Sleep(500);
@@ -858,7 +869,7 @@ bool MainBackendWorkerNew::dragonOfDirgePreparation(const NormalBossSetting &nor
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("已经锁定 %1").arg("叹息之龙");
-            Sleep(500);
+            Sleep(250);
             break;
         }
 
@@ -925,7 +936,7 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
 
                 Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
                 qInfo() << QString("已经锁定 %1").arg("无冠者");
-                Sleep(500);
+                Sleep(250);
                 return true;
             }
             else{
@@ -950,6 +961,76 @@ bool MainBackendWorkerNew::crownLessPreparation(const NormalBossSetting &normalB
 
     errMsg = QString("理论上无冠者永远无法到达这个逻辑分支");
     return false;
+}
+
+bool MainBackendWorkerNew::loreleiPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "lorelei", "罗蕾莱", errMsg);
+    if(!isGeneralPrepared){
+        return false;
+    }
+
+    int x, y, timeCostMs;
+    double similarity;
+
+    // 如果提示需要等待 则暂时略过
+    cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("loreleiTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat neetWait = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("loreleiNeetWait").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat sit = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("loreleiSit2").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isFindNeetWait = Utils::findPic(capImg, neetWait, 0.75, x, y, similarity);
+    if(isFindNeetWait){
+        // 需要找到座位坐下去 先忽略非夜晚的情况
+        return true;
+    }
+    else{
+        // 向前走 N秒
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+
+        // 如果跑了 N秒没找到 认为失败 跳过
+        const int maxRunFindBossMs = 10*1000;
+        const int detectBossPeroidMs = 500;
+
+        QElapsedTimer timer;
+        timer.start();
+
+        bool isTraced = false;
+        while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+            int x, y;
+            double similarity;
+            cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+                if(!isBusy()){
+                    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                    Sleep(250);
+                    return true;
+                }
+
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                // 找到boss title了
+                isTraced = true;
+                Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+                qInfo() << QString("已经锁定 %1").arg("罗蕾莱");
+                Sleep(250);
+                break;
+            }
+
+            Sleep(detectBossPeroidMs);
+        }
+
+        if(!isBusy()){
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
+            return true;
+        }
+
+        if(!isTraced){
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
+        }
+        return isTraced;
+    }
+
 }
 
 bool MainBackendWorkerNew::sentryConstructPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
@@ -987,7 +1068,7 @@ bool MainBackendWorkerNew::sentryConstructPreparation(const NormalBossSetting &n
         // 鼠标中键 锁定
         Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
         qInfo() << QString("已经锁定 %1").arg("异构武装");
-        Sleep(500);
+        Sleep(250);
         return true;
     }
 
@@ -1035,8 +1116,8 @@ bool MainBackendWorkerNew::fallacyOfNoReturnPreparation(const NormalBossSetting 
 
         // 鼠标中键 锁定
         Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
-        qInfo() << QString("lock %1").arg("fallacyOfNoReturn");
-        Sleep(500);
+        qInfo() << QString("lock %1").arg("无归的谬误");
+        Sleep(250);
         return true;
     }
 }
@@ -1093,7 +1174,7 @@ bool MainBackendWorkerNew::feilianBeringalPreparation(const NormalBossSetting &n
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("已经锁定 %1").arg("飞廉之猩");
-            Sleep(500);
+            Sleep(250);
             break;
         }
 
@@ -1167,7 +1248,7 @@ bool MainBackendWorkerNew::impermanenceHeronPreparation(const NormalBossSetting 
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("已经锁定 %1").arg("无常凶鹭");
-            Sleep(500);
+            Sleep(250);
             break;
         }
 
@@ -1221,7 +1302,7 @@ bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &norm
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("已经锁定 %1").arg("燎照之骑");
-            Sleep(500);
+            Sleep(250);
             break;
         }
 
@@ -1274,8 +1355,8 @@ bool MainBackendWorkerNew::lampylumenMyriadPreparation(const NormalBossSetting &
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
-            qInfo() << QString("locked %1").arg("lampylumenMyriad");
-            Sleep(500);
+            qInfo() << QString("locked %1").arg("辉萤军势");
+            Sleep(250);
             break;
         }
 
@@ -1343,7 +1424,7 @@ bool MainBackendWorkerNew::mechAbominationPreparation(const NormalBossSetting &n
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("locked %1").arg("mechAbomination");
-            Sleep(500);
+            Sleep(250);
             break;
         }
 
@@ -1397,7 +1478,7 @@ bool MainBackendWorkerNew::mourningAixPreparation(const NormalBossSetting &norma
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("locked %1").arg("mourningAix");
-            Sleep(500);
+            Sleep(250);
             break;
         }
 
@@ -1452,8 +1533,8 @@ bool MainBackendWorkerNew::tempestMephisPreparation(const NormalBossSetting &nor
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
-            qInfo() << QString("locked %1").arg("tempestMephis");
-            Sleep(500);
+            qInfo() << QString("locked %1").arg("云闪之麟");
+            Sleep(250);
             break;
         }
 
@@ -1507,8 +1588,8 @@ bool MainBackendWorkerNew::thunderingMephisPreparation(const NormalBossSetting &
             // 找到boss title了
             isTraced = true;
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
-            qInfo() << QString("locked %1").arg("tempestMephis");
-            Sleep(500);
+            qInfo() << QString("locked %1").arg("朔雷之麟");
+            Sleep(250);
             break;
         }
 
@@ -1524,6 +1605,67 @@ bool MainBackendWorkerNew::thunderingMephisPreparation(const NormalBossSetting &
     if(!isTraced){
         Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockThunderingMephis");
         Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
+    }
+    return isTraced;
+}
+
+bool MainBackendWorkerNew::bellBorneGeochelonePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "bellBorneGeochelone", "钟鸣之龟", errMsg);
+    if(!isGeneralPrepared){
+        return false;
+    }
+
+    // W按住 向前走6秒
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+    for(int i = 0; i < 12 && isBusy(); i++){
+        Sleep(500);
+    }
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+
+    if(!isBusy()){
+        Sleep(250);
+        return true;
+    }
+
+
+    // 如果跑了 N秒没找到 认为失败 跳过
+    const int maxRunFindBossMs = 15*1000;
+    const int detectBossPeroidMs = 500;
+
+    QElapsedTimer timer;
+    timer.start();
+    int x, y;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("bellBorneGeocheloneTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isTraced = false;
+    while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+        double similarity;
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+            if(!isBusy()){
+                Sleep(250);
+                return true;
+            }
+
+            Sleep(250);
+            // 找到boss title了
+            isTraced = true;
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+            qInfo() << QString("locked %1").arg("钟鸣之龟");
+            Sleep(250);
+            break;
+        }
+
+        Sleep(detectBossPeroidMs);
+    }
+
+    if(!isBusy()){
+        Sleep(250);
+        return true;
+    }
+
+    if(!isTraced){
+        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockThunderingMephis");
         Sleep(250);
     }
     return isTraced;

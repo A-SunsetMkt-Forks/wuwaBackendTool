@@ -218,7 +218,7 @@
     <item>
      <widget class="QCheckBox" name="bellBorneGeochelone">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>钟鸣之龟</string>

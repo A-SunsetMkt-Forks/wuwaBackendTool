@@ -165,6 +165,7 @@ enum class NormalBossEnum {
     MourningAix,              // 哀声鸷
     TempestMephis,            // 云闪之鳞
     ThunderingMephis,         // 朔雷之鳞
+    BellBorneGeochelone,      // 钟鸣之龟
     NightmareCrownless,       // 梦魇无冠者
     NightmareFeilianBeringal, // 梦魇飞廉之猩
     NightmareImpermanenceHeron, // 梦魇无常凶鹭
@@ -202,6 +203,7 @@ struct NormalBossSetting {
             case NormalBossEnum::MourningAix: return "mourningAix";
             case NormalBossEnum::TempestMephis: return "tempestMephis";
             case NormalBossEnum::ThunderingMephis: return "thunderingMephis";
+            case NormalBossEnum::BellBorneGeochelone: return "bellBorneGeochelone";
             case NormalBossEnum::NightmareCrownless: return "nightmareCrownless";
             case NormalBossEnum::NightmareFeilianBeringal: return "nightmareFeilianBeringal";
             case NormalBossEnum::NightmareImpermanenceHeron: return "nightmareImpermanenceHeron";

@@ -29,6 +29,7 @@ NormalBossSetting NormalBossPanel::getNormalBossSettingFromUI() {
     setting.setBossEnabled(NormalBossEnum::MourningAix, ui->mourningAix->isChecked());
     setting.setBossEnabled(NormalBossEnum::TempestMephis, ui->tempestMephis->isChecked());
     setting.setBossEnabled(NormalBossEnum::ThunderingMephis, ui->thunderingMephis->isChecked());
+    setting.setBossEnabled(NormalBossEnum::BellBorneGeochelone, ui->bellBorneGeochelone->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareCrownless, ui->nightmareCrownless->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareFeilianBeringal, ui->nightmareFeilianBeringal->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareImpermanenceHeron, ui->nightmareImpermanenceHeron->isChecked());
@@ -55,6 +56,7 @@ void NormalBossPanel::setNormalBossSetting2UI(const NormalBossSetting& setting) 
     ui->mourningAix->setChecked(setting.isBossEnabled(NormalBossEnum::MourningAix));
     ui->tempestMephis->setChecked(setting.isBossEnabled(NormalBossEnum::TempestMephis));
     ui->thunderingMephis->setChecked(setting.isBossEnabled(NormalBossEnum::ThunderingMephis));
+    ui->bellBorneGeochelone->setChecked(setting.isBossEnabled(NormalBossEnum::BellBorneGeochelone));
     ui->nightmareCrownless->setChecked(setting.isBossEnabled(NormalBossEnum::NightmareCrownless));
     ui->nightmareFeilianBeringal->setChecked(setting.isBossEnabled(NormalBossEnum::NightmareFeilianBeringal));
     ui->nightmareImpermanenceHeron->setChecked(setting.isBossEnabled(NormalBossEnum::NightmareImpermanenceHeron));

@@ -77,6 +77,10 @@ private:
     bool dragonOfDirgePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 刷crownLess 无冠者 准备工作 从传送到boss面前 到锁定boss
     bool crownLessPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+
+    // 罗蕾莱
+    bool loreleiPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+
     // 刷异构武装 异构武装 准备工作 从传送到boss面前 到锁定boss
     bool sentryConstructPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 刷无归的谬误 准备工作 从传送到boss面前  到锁定boss
@@ -97,6 +101,8 @@ private:
     bool tempestMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 朔雷之麟
     bool thunderingMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 钟鸣之龟
+    bool bellBorneGeochelonePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
 signals:
     // 锁定声骸完成
