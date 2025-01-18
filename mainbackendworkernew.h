@@ -104,6 +104,17 @@ private:
     // 钟鸣之龟
     bool bellBorneGeochelonePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
+    // 梦魇boss
+    bool nightmareCrownlessPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    bool nightmareFeilianBeringalPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    bool nightmareImpermanenceHeronPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+
+    bool nightmareInfernoRiderPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    bool nightmareMourningAixPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    bool nightmareTempestMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    bool nightmareThunderingMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+
+
 signals:
     // 锁定声骸完成
     void lockEchoDone(const bool& isNormalEnd, const QString& errMsg, const LockEchoSetting &lockEchoSetting);

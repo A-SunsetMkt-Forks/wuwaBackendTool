@@ -110,10 +110,10 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>630</y>
-      <width>131</width>
-      <height>21</height>
+      <x>1020</x>
+      <y>660</y>
+      <width>161</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
