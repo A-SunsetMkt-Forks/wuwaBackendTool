@@ -204,7 +204,7 @@
      <string>激活窗体 不断截图</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="deactivcateBtn">
+   <widget class="QPushButton" name="deactivateBtn">
     <property name="geometry">
      <rect>
       <x>760</x>
@@ -237,6 +237,9 @@
     </property>
     <property name="maximum">
      <number>1000</number>
+    </property>
+    <property name="value">
+     <number>100</number>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -279,6 +282,9 @@
     </property>
    </widget>
    <widget class="QCheckBox" name="isActivate">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>510</x>

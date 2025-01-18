@@ -20,6 +20,7 @@ void DebugBackendWorker::stopWorker(){
 
 
 void DebugBackendWorker::onStartActivateCap(const QString& imgFilePath, const unsigned int& waitMs){
+    m_isBusy.store(1);
     qInfo() << QString("准备激活鸣潮并不断截图");
 
     // 初始化句柄

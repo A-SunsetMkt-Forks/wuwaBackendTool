@@ -18,7 +18,7 @@ DebugForm::DebugForm(QWidget *parent) :
     lockWidgetList.push_back(ui->testPressM);
     lockWidgetList.push_back(ui->testRebootGame);
     lockWidgetList.push_back(ui->activateBtn);
-    lockWidgetList.push_back(ui->deactivcateBtn);
+    lockWidgetList.push_back(ui->deactivateBtn);
     lockWidgetList.push_back(ui->isActivate);
     lockWidgetList.push_back(ui->saveImgPath);
     lockWidgetList.push_back(ui->capImgWaitMs);
