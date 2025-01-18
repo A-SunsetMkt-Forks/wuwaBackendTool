@@ -39,7 +39,7 @@
     <item>
      <widget class="QCheckBox" name="nightmareCrownless">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>梦魇无冠者</string>
@@ -49,7 +49,7 @@
     <item>
      <widget class="QCheckBox" name="nightmareFeilianBeringal">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>梦魇飞廉之猩</string>
@@ -59,7 +59,7 @@
     <item>
      <widget class="QCheckBox" name="nightmareImpermanenceHeron">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>梦魇无常凶鹭</string>
@@ -69,7 +69,7 @@
     <item>
      <widget class="QCheckBox" name="nightmareInfernoRider">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>梦魇燎照之骑</string>
@@ -79,7 +79,7 @@
     <item>
      <widget class="QCheckBox" name="nightmareMourningAix">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>梦魇哀声鸷</string>
@@ -89,7 +89,7 @@
     <item>
      <widget class="QCheckBox" name="nightmareTempestMephis">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>梦魇云闪之鳞</string>
@@ -99,7 +99,7 @@
     <item>
      <widget class="QCheckBox" name="nightmareThunderingMephis">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>梦魇朔雷之鳞</string>

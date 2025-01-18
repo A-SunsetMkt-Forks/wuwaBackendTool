@@ -686,6 +686,49 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
         break;
 
+    case NormalBossEnum::NightmareCrownless:
+        if(!nightmareCrownlessPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::NightmareFeilianBeringal:
+        if(!nightmareFeilianBeringalPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::NightmareImpermanenceHeron:
+        if(!nightmareImpermanenceHeronPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::NightmareInfernoRider:
+        if(!nightmareInfernoRiderPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::NightmareMourningAix:
+        if(!nightmareMourningAixPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::NightmareTempestMephis:
+        if(!nightmareTempestMephisPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+    case NormalBossEnum::NightmareThunderingMephis:
+        if(!nightmareThunderingMephisPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
+
+
     default:
         qWarning() << QString("BOSS %1 is not finished coding yet").arg(NormalBossSetting::Enum2QString(bossName));
         return false;
@@ -1445,6 +1488,7 @@ bool MainBackendWorkerNew::mechAbominationPreparation(const NormalBossSetting &n
     }
 
     if(!isTraced){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
         Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockMourningAix");
         Sleep(250);
     }
@@ -1929,10 +1973,19 @@ bool MainBackendWorkerNew::nightmareMourningAixPreparation(const NormalBossSetti
                 return true;
             }
 
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(250);
             // 找到boss title了
             isTraced = true;
+
+            for(int i = 0; i < 5 && isBusy(); i++){
+
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("locked %1").arg("梦魇哀声鸷");
             Sleep(250);
@@ -2114,7 +2167,7 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     Utils::clickWindowClientArea(Utils::hwnd, x + bossIcon.cols/2, y + bossIcon.rows/2);
     cv::Mat confirm = cv::imread(QString("%1/%2Confirm.bmp").arg(Utils::IMAGE_DIR_EI()).arg(bossEnName).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     int timeCostMs = 0;
-    if(!loopFindPic(confirm, 0.7, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss确认信息", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(confirm, 0.6, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss确认信息", similarity, x, y, timeCostMs)){
         if(!isBusy()){
             return true;
         }
