@@ -1347,12 +1347,21 @@ bool MainBackendWorkerNew::infernoRiderPreparation(const NormalBossSetting &norm
                 return true;
             }
 
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(250);
             // 找到boss title了
             isTraced = true;
+
+            for(int i = 0; i < 6 && isBusy(); i++){
+                Sleep(500);
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
-            qInfo() << QString("已经锁定 %1").arg("燎照之骑");
+            qInfo() << QString("locked %1").arg("梦魇燎照之骑");
             Sleep(250);
             break;
         }
@@ -1488,7 +1497,7 @@ bool MainBackendWorkerNew::mechAbominationPreparation(const NormalBossSetting &n
     }
 
     if(!isTraced){
-        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        // 机械局偶是 角色原地罚站 不需要松开W
         Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockMourningAix");
         Sleep(250);
     }
@@ -1752,10 +1761,19 @@ bool MainBackendWorkerNew::nightmareCrownlessPreparation(const NormalBossSetting
                 return true;
             }
 
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(250);
             // 找到boss title了
             isTraced = true;
+
+            for(int i = 0; i < 5 && isBusy(); i++){
+                Sleep(500);
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("locked %1").arg("梦魇无冠者");
             Sleep(250);
@@ -1862,10 +1880,19 @@ bool MainBackendWorkerNew::nightmareImpermanenceHeronPreparation(const NormalBos
                 return true;
             }
 
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(250);
             // 找到boss title了
             isTraced = true;
+
+            for(int i = 0; i < 5 && isBusy(); i++){
+                Sleep(500);
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("locked %1").arg("梦魇无常凶鹭");
             Sleep(250);
@@ -1917,10 +1944,19 @@ bool MainBackendWorkerNew::nightmareInfernoRiderPreparation(const NormalBossSett
                 return true;
             }
 
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(250);
             // 找到boss title了
             isTraced = true;
+
+            for(int i = 0; i < 5 && isBusy(); i++){
+                Sleep(500);
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("locked %1").arg("梦魇燎照之骑");
             Sleep(250);
@@ -1977,7 +2013,7 @@ bool MainBackendWorkerNew::nightmareMourningAixPreparation(const NormalBossSetti
             isTraced = true;
 
             for(int i = 0; i < 5 && isBusy(); i++){
-
+                Sleep(500);
             }
             if(!isBusy()){
                 Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
@@ -2037,10 +2073,19 @@ bool MainBackendWorkerNew::nightmareTempestMephisPreparation(const NormalBossSet
                 return true;
             }
 
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(250);
             // 找到boss title了
             isTraced = true;
+
+            for(int i = 0; i < 5 && isBusy(); i++){
+                Sleep(500);
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("locked %1").arg("梦魇云闪之鳞");
             Sleep(250);
@@ -2092,10 +2137,19 @@ bool MainBackendWorkerNew::nightmareThunderingMephisPreparation(const NormalBoss
                 return true;
             }
 
-            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
-            Sleep(250);
             // 找到boss title了
             isTraced = true;
+
+            for(int i = 0; i < 5 && isBusy(); i++){
+                Sleep(500);
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
             Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
             qInfo() << QString("locked %1").arg("梦魇朔雷之鳞");
             Sleep(250);
