@@ -453,7 +453,7 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
                 skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
                 if(!repeatBattle(specialBossSetting, errMsg)){
                     qWarning() << QString("重新挑战boss失败 %1").arg(errMsg);
-                    if(isSpecialBossStop(true, false, QString("重新挑战boss失败 %1").arg(errMsg);, specialBossSetting)) return;
+                    if(isSpecialBossStop(true, false, QString("重新挑战boss失败 %1").arg(errMsg), specialBossSetting)) return;
                 }
                 continue;
             }
@@ -951,7 +951,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     int absorbX, absorbY;
     double absorbSimilarity;
     bool isAbsorb = false;
-    for(int i = 0; i < 10 && isBusy() && !isAbsorb; i++){
+    for(int i = 0; i < 15 && isBusy() && !isAbsorb; i++){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
@@ -2423,7 +2423,7 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
     int absorbX, absorbY;
     double absorbSimilarity;
     bool isAbsorb = false;
-    for(int i = 0; i < 10 && isBusy() && !isAbsorb; i++){
+    for(int i = 0; i < 15 && isBusy() && !isAbsorb; i++){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
@@ -2467,7 +2467,60 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
 
 bool MainBackendWorkerNew::repeatBattle(const SpecialBossSetting &specialBossSetting, QString& errMsg){
     qInfo() << QString("准备重新挑战");
+    cv::Mat repeatChallenge = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("repeat").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    cv::Mat repeatChallengeConfirm = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("repeat2").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
 
+    bool isFind = false;
+    int x, y;
+    double similarity;
+    int maxWaitMs = 3 * 1000;
+    int timeCost = 0;
+    // 找到左上角的重新挑战按键
+    isFind = loopFindPic(repeatChallenge, 0.8, maxWaitMs, 250, "未能找到重新挑战按钮", similarity, x, y, timeCost);
+    if(!isBusy()){
+        return true;
+    }
+
+    if(!isFind){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        errMsg = QString("未能在左上角找到重新挑战按钮");
+        Utils::saveDebugImg(capImg, cv::Rect(), 0,0, "未能在左上角找到重新挑战按钮");
+        return false;
+    }
+
+    // 点击它
+    Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+    Sleep(250);
+    Utils::clickWindowClientArea(Utils::hwnd, x + repeatChallenge.cols /2, y + repeatChallenge.rows /2 );
+    Sleep(1000);
+    Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
+
+    if(!isBusy()){
+        return true;
+    }
+
+    // 找到黑色重新挑战按键
+    isFind = loopFindPic(repeatChallengeConfirm, 0.9, maxWaitMs, 250, "未能找到重新挑战按钮", similarity, x, y, timeCost);
+    if(!isBusy()){
+        return true;
+    }
+
+    if(!isFind){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        errMsg = QString("未能在右下角找到重新挑战按钮");
+        Utils::saveDebugImg(capImg, cv::Rect(), 0,0, "未能在右下角找到重新挑战按钮");
+        return false;
+    }
+
+    // 点击它
+    Utils::clickWindowClientArea(Utils::hwnd, x + repeatChallengeConfirm.cols /2, y + repeatChallengeConfirm.rows /2 );
+    Sleep(1000);
+
+    if(!isBusy()){
+        return true;
+    }
+
+    return true;
 
 }
 
@@ -2560,7 +2613,7 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     if(!isBusy()){
         return true;
     }
-    Sleep(1000);
+    Sleep(1500);   //多等一下再点快速旅行！ 有的boss可能加载比较慢
     Utils::clickWindowClientArea(Utils::hwnd, x + fastTravel.cols/2, y + fastTravel.rows/2);
 
     // 不断找背包 找到说明加载完毕  这里加载可能时间稍长 允许15s
