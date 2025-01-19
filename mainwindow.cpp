@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // 注册自定义类型
     registerType();
 
-    this->setWindowTitle("鸣潮自动刷boss脚本 v1.0.5 永久免费 无广告病毒");
+    this->setWindowTitle("鸣潮自动刷boss脚本 v1.0.7 alpha 永久免费 无广告病毒");
 
     // 绑定日志
     // debug 重定向
@@ -228,19 +228,34 @@ void MainWindow::registerGlobalHotKey() {
     } else {
         qDebug() << "Alt + F12 hotkey registered.";
     }
+
+    // 注册截图 快捷键
+    //if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy, VK_F9, VK_NUMPAD5)) {  // F9 + 5
+    //if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy, MOD_ALT, 0x50)) {
+    if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy, MOD_CONTROL, 0x50)) {
+        qDebug() << "Failed to register F9 + 5!";
+    } else {
+        qDebug() << "F9 + 5 hotkey registered.";
+    }
 }
 
 void MainWindow::unregisterGlobalHotKey() {
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyId);
+    UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy);
 }
 
 void MainWindow::onHotKeyActivated(int id) {
     if (id == toggleHotKeyId) {
         qDebug() << "收到ALT+F12，中止脚本";
         on_stopBtn_clicked();
+    } else if (id == toggleHotKeyIdScrCpy) {
+        qDebug() << "收到 F9 + 5，触发截图";
+        ui->debugPanel->on_scrCap_clicked();
     } else {
         qWarning() << "Unhandled hotkey ID:" << id;
     }
+
+
 }
 
 void MainWindow::on_getGameWin_clicked(){

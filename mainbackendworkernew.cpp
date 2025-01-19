@@ -831,11 +831,11 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     revive();
     cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+    Sleep(50);
     int absorbX, absorbY;
     double absorbSimilarity;
     bool isAbsorb = false;
-    for(int i = 0; i < 20 && isBusy() && !isAbsorb; i++){
-        Sleep(250);
+    for(int i = 0; i < 10 && isBusy() && !isAbsorb; i++){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
             Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
@@ -860,8 +860,8 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
                 Sleep(250);
                 return true;
             }
-
         }
+        Sleep(250);
     }
     if(!isBusy()){
         //Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);

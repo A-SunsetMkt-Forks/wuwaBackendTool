@@ -49,6 +49,7 @@ void DebugBackendWorker::onStartActivateCap(const QString& imgFilePath, const un
         SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
 
         while(isBusy()){
+            /*
             // 不断截图保存
             cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
             if(capImg.empty()){
@@ -61,6 +62,7 @@ void DebugBackendWorker::onStartActivateCap(const QString& imgFilePath, const un
                 qWarning() << QString("异常！保存图像到 %1 失败").arg(imgFilePath);
                 continue;
             }
+            */
 
             Sleep(waitMs);
         }

@@ -66,6 +66,7 @@ public slots:
     // 启动激活 不断截图 或停止
     void on_activateBtn_clicked();
     void on_deactivateBtn_clicked();
+    void on_scrCap_clicked();
 
     // 后台线程停止激活
     void onActivateCapDone(const bool& isOK, const QString& msg);

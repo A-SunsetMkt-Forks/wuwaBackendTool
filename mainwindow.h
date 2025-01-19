@@ -78,7 +78,8 @@ private:
 
     // 全局注册快捷键 ALT F12 停止脚本
     GlobalHotKeyFilter* hotKeyFilter;
-    const int toggleHotKeyId = 1; // Alt + F12 的热键 ID
+    const int toggleHotKeyId = 1; // Alt + F12 的热键 ID  用于停止脚本运行
+    const int toggleHotKeyIdScrCpy = 2;  // 用于 ALT+P 的快捷键ID  截图到指定地方
     // 注册和取消注册快捷键
     void unregisterGlobalHotKey();
     void registerGlobalHotKey();

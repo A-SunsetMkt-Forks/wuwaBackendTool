@@ -218,6 +218,43 @@ void DebugForm::on_deactivateBtn_clicked(){
     m_debugBackendWorker.stopWorker();
 }
 
+void DebugForm::on_scrCap_clicked(){
+    bool isWuwaInit = Utils::initWuwaHwnd();
+    if(!isWuwaInit){
+        qWarning() << QString("未能绑定鸣潮窗口句柄");
+        return;
+    }
+
+    QImage image = Utils::captureWindowToQImage(Utils::hwnd);
+    if(image.isNull()){
+        qWarning() << QString("未能获取鸣潮窗口图像");
+        return;
+    }
+
+    /*
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+    if (AttachThreadInput(currentThreadId, threadId, TRUE)) {
+        // 激活窗口
+        SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+    }
+    else{
+        qWarning() << QString("激活鸣潮窗体失败 仍会截图");
+    }
+    */
+
+    QString capImagePath = QString("%1").arg(ui->saveImgPath->toPlainText());
+    bool isSave = image.save(capImagePath);
+
+    if(isSave){
+        qInfo() << QString("成功保存截图到 %1").arg(capImagePath);
+    }
+    else{
+        qWarning() << QString("保存截图到 %1 失败").arg(capImagePath);
+    }
+}
+
 void DebugForm::onActivateCapDone(const bool& isOK, const QString& msg){
     ui->isActivate->setChecked(false);
     if(isOK){

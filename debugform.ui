@@ -207,7 +207,7 @@
    <widget class="QPushButton" name="deactivateBtn">
     <property name="geometry">
      <rect>
-      <x>760</x>
+      <x>730</x>
       <y>20</y>
       <width>181</width>
       <height>51</height>
@@ -258,7 +258,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>510</x>
       <y>150</y>
       <width>111</width>
       <height>51</height>
@@ -271,9 +271,9 @@
    <widget class="QPlainTextEdit" name="saveImgPath">
     <property name="geometry">
      <rect>
-      <x>540</x>
+      <x>640</x>
       <y>140</y>
-      <width>431</width>
+      <width>331</width>
       <height>64</height>
      </rect>
     </property>
@@ -295,6 +295,20 @@
     </property>
     <property name="text">
      <string>截图中?</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="scrCap">
+    <property name="geometry">
+     <rect>
+      <x>720</x>
+      <y>210</y>
+      <width>211</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>截图一次
+CTRL+P</string>
     </property>
    </widget>
   </widget>
