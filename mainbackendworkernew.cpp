@@ -420,6 +420,44 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
         QString errMsg;
         switchEchoListPos = cv::Point(-1, -1);  // 残像探寻图像坐标初始化为不可用
         while(isBusy()){
+            skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
+            // 准备工作
+            switch (specialBossSetting.boss) {
+            case SpecialBossSetting::SpecialBoss::Rover:
+                //其实是dreamless 无妄者
+                if(!dreamlessPreparation(specialBossSetting, errMsg)){
+                    skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
+                    if(!dreamlessPreparation(specialBossSetting, errMsg)){
+                        qWarning() << QString("无妄者 准备工作失败 %1").arg(errMsg);
+                        if(isSpecialBossStop(true, false, QString("无妄者 准备工作失败 %1").arg(errMsg), specialBossSetting)) return;
+                    }
+                    continue;
+                }
+
+                if(!specialBossFightPickupEcho(specialBossSetting, "dreamless", errMsg)){
+                    qWarning() << QString("无妄者 战斗失败 %1").arg(errMsg);
+                }
+
+                break;
+
+            default:
+                qWarning() << "boss 未适配";
+                if(isSpecialBossStop(true, false, "boss 未适配", specialBossSetting)) return;
+                break;
+
+
+            }
+
+            // 重新挑战
+            if(!repeatBattle(specialBossSetting, errMsg)){
+                skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
+                if(!repeatBattle(specialBossSetting, errMsg)){
+                    qWarning() << QString("重新挑战boss失败 %1").arg(errMsg);
+                    if(isSpecialBossStop(true, false, QString("重新挑战boss失败 %1").arg(errMsg);, specialBossSetting)) return;
+                }
+                continue;
+            }
+
             Sleep(500);
         }
     }
@@ -2249,6 +2287,188 @@ bool MainBackendWorkerNew::nightmareThunderingMephisPreparation(const NormalBoss
         Sleep(250);
     }
     return isTraced;
+}
+
+bool MainBackendWorkerNew::dreamlessPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg){
+    // 向前走3秒 然后锁定找title 锁定boss
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+    for(int i = 0; i < 6 && isBusy(); i++){
+        Sleep(500);
+    }
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+
+    if(!isBusy()){
+        return true;
+    }
+
+    // 1秒没找到boss的title 认为失败 跳过
+    const int maxRunFindBossMs = 1000;
+    const int detectBossPeroidMs = 200;
+    int timeCost = 0;
+
+    int x, y;
+    double similarity;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("dreamlessTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    if(loopFindPic(bossTitle, 0.8, maxRunFindBossMs, detectBossPeroidMs, "未能找到无妄者的title", similarity, x, y, timeCost)){
+        Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+        qInfo() << QString("locked %1").arg("无妄者");
+        Sleep(250);
+        return true;
+    }
+    // 可能是没找到或被用户打断
+    if(!isBusy()){
+        return true;
+    }
+
+    // 没找到 记录错误
+    Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "未能找到无妄者的title");
+    return false;
+}
+
+bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &specialBossSetting, const QString& bossEnName, QString& errMsg){
+    // 保证已经锁定了boss
+    // 战斗代码
+    QElapsedTimer timer;
+    timer.start();
+    emit startFight();
+
+    // 每隔250ms判断boss状态
+    // 能检测到背包图标 检测不到bosstitle 说明boss 死了 停止战斗
+    // 能检测到背包图标 检测得到bosstitle 说明boss还活着 继续锤 恢复战斗
+    // 检测不到背包图标 检测不到bosstitle 说明在放大招 暂停战斗
+    cv::Mat bossTitle = cv::imread(QString("%1/%2Title.bmp").arg(Utils::IMAGE_DIR_EI()).arg(bossEnName).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    int titleX, titleY;
+    double similarityTitle;
+
+    cv::Mat bagImg = cv::imread(QString("%1/bag.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    int bagX, bagY;
+    double similarityBag;
+    int voteBossDead = 0;
+    int voteIamDead = 0;
+    while(isBusy() && timer.elapsed() < maxFightMs){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        bool isFindTitle = Utils::findPic(capImg, bossTitle, 0.6, titleX, titleY, similarityTitle);
+        bool isFindBag = Utils::findPic(capImg, bagImg, 0.7, bagX, bagY, similarityBag);
+
+        if(isFindBag && isFindTitle){
+            voteBossDead = 0;
+            voteIamDead = 0;
+            m_fightBackendWorkerNew.resumeWorker();
+        }
+        else if(isFindBag && !isFindTitle){
+            voteBossDead = voteBossDead + 1;
+            voteIamDead = 0;
+            m_fightBackendWorkerNew.pauseWorker();
+            if(voteBossDead > 10){
+                m_fightBackendWorkerNew.stopWorker();
+                Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);  // 回正视角 面向声骸
+                //Utils::saveDebugImg(capImg, cv::Rect(), 0 ,0, QString("认为boss死亡_背包匹配度_%1__boss标题匹配度_%2").arg(similarityBag).arg(similarityTitle));
+                Sleep(1000);
+                qInfo() << QString("战斗完成");
+                break;
+            }
+        }
+        else if(!isFindBag && !isFindTitle){
+            voteIamDead = voteIamDead + 1;
+            voteBossDead = 0;
+            m_fightBackendWorkerNew.pauseWorker();
+            if(voteIamDead > 40){
+                // 大招播放动画最长也就2秒
+                // 可能需要复苏 + 跳过月卡
+                skipMonthCard();
+                // ##### 单刷boss的复苏怎么处理
+                if(!revive()){
+                    qWarning() << QString("复活失败");
+                    m_fightBackendWorkerNew.stopWorker();
+                    return false;
+                }
+                else{
+                    qInfo() << QString("复活成功");
+                    m_fightBackendWorkerNew.stopWorker();
+                    return true;
+                }
+
+
+                //m_fightBackendWorkerNew.stopWorker();
+                //return true;
+            }
+        }
+        else{
+            //
+        }
+
+        Sleep(50);
+    }
+
+    // 可能需要复苏 + 跳过月卡
+    skipMonthCard();
+
+    if(!isBusy()){
+
+        return true;
+    }
+
+    if(timer.elapsed() >= maxFightMs){
+        return true;
+    }
+
+    // 拾取声骸  记得计数+1
+    // 切换3号位 防止椿不会动
+    Utils::keyPress(Utils::hwnd, '3', 1);
+    revive();
+    cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+    Sleep(50);
+    int absorbX, absorbY;
+    double absorbSimilarity;
+    bool isAbsorb = false;
+    for(int i = 0; i < 10 && isBusy() && !isAbsorb; i++){
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(1500);
+            //先停下来 再次判断 点击准确
+            isAbsorb = true;
+            capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            if(Utils::findPic(capImg, absorbMat, 0.8, absorbX, absorbY, absorbSimilarity)){
+                // ALT 左键 ALT松
+                Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
+                Sleep(500);
+                Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+                Sleep(500);
+                //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
+                Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+                Sleep(500);
+                Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYUP);
+                Sleep(3000);
+                break;
+            }
+            else{
+                Sleep(250);
+                return true;
+            }
+        }
+        Sleep(250);
+    }
+    if(!isBusy()){
+        //Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+        //Sleep(250);
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
+        return true;
+    }
+
+    if(isAbsorb) {pickUpNormalBossEcho = pickUpNormalBossEcho + 1;}
+    qInfo() << QString("pickUpEchoNumber %1").arg(pickUpNormalBossEcho);
+
+    return true;
+}
+
+bool MainBackendWorkerNew::repeatBattle(const SpecialBossSetting &specialBossSetting, QString& errMsg){
+    qInfo() << QString("准备重新挑战");
+
+
 }
 
 bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSetting &normalBossSetting, \

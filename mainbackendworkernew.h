@@ -114,6 +114,14 @@ private:
     bool nightmareTempestMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     bool nightmareThunderingMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
+    // 三个单独boss
+    bool dreamlessPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
+
+    // 单独boss战斗和拾取声骸
+    bool specialBossFightPickupEcho(const SpecialBossSetting &specialBossSetting, const QString& bossEnName, QString& errMsg);
+
+    // 重新挑战
+    bool repeatBattle(const SpecialBossSetting &specialBossSetting, QString& errMsg);
 
 signals:
     // 锁定声骸完成
