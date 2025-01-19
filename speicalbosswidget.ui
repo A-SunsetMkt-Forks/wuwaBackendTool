@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>997</width>
-    <height>497</height>
+    <width>1357</width>
+    <height>570</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,10 +52,10 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>10</y>
-     <width>411</width>
-     <height>331</height>
+     <x>1000</x>
+     <y>110</y>
+     <width>346</width>
+     <height>456</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -275,10 +275,10 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>630</x>
+     <x>1030</x>
      <y>10</y>
-     <width>351</width>
-     <height>121</height>
+     <width>321</width>
+     <height>71</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -388,6 +388,60 @@
    </property>
    <property name="text">
     <string>启动脚本</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>10</y>
+     <width>500</width>
+     <height>561</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>要求
+窗口模式 1280 720分辨率
+如提示不对，可将windows显示设置 dpi缩放改为100%
+然后重启脚本重启游戏试试
+必须关闭所有滤镜和画质MOD
+如果担心电脑卡可设置最低画质30帧
+游戏不可最小化但可放在后台被遮盖
+在能操作人物进行普攻移动时
+点击开始按钮启动脚本
+禁止使用角色油壶 大招太长
+1号位任意 2号位奶妈推荐维里奈
+3号位必须是成年人体型角色 3号不能是椿
+角色必须是快走状态（CTRL切换）
+背包图标（地图旁边）不能有红色叹号
+脚本虽然理论上是后台运行，但会抢鼠标
+建议挂机时看视频
+ALT+F12可停止脚本运行
+选中的boss必须开通了快速旅行！！
+现在有复活检测 需要背包至少有一个复活药
+有的声骸没捡到没关系的挂一晚上都有了
+暂时仅本页面可用 其他功能测试中</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_10">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>170</y>
+     <width>281</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>进入你左上角选中的boss副本
+然后点击启动脚本
+如需更换boss 先停止后台
+更换boss后再次启动脚本</string>
    </property>
   </widget>
  </widget>

@@ -90,6 +90,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, &MainWindow::startNormalBoss, &this->m_mainBackendWorkerNew, &MainBackendWorkerNew::onStartNormalBoss);
     connect(&this->m_mainBackendWorkerNew, &MainBackendWorkerNew::normalBossDone, this, &MainWindow::onNormalBossDone);
 
+    // 单数特殊boss
+    connect(this, &MainWindow::startSpecialBoss, &this->m_mainBackendWorkerNew, &MainBackendWorkerNew::onStartSpecialBoss);
+    connect(&this->m_mainBackendWorkerNew, &MainBackendWorkerNew::specialBossDone, this, &MainWindow::onSpecialBossDone);
+
     // 注册全局快捷键 允许快捷停止脚本运行
     registerGlobalHotKey();
 
@@ -460,7 +464,21 @@ void MainWindow::on_startSingleBoss_clicked(){
     }
 
     SpecialBossSetting setting = ui->specialBossPanel->getSetting();
+    ui->isBusyBox->setChecked(true);
     emit startSpecialBoss(setting);
+}
+
+void MainWindow::onSpecialBossDone(const bool& isNormalEnd, const QString& errMsg, const SpecialBossSetting &specialBossSetting){
+    ui->isBusyBox->setChecked(false);
+
+    if(isNormalEnd){
+        QMessageBox::information(this, "单刷特殊boss结束", errMsg);
+    }
+    else{
+        QMessageBox::critical(this, "单刷特殊boss结束", errMsg);
+    }
+
+    qInfo() << QString("onSpecialBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
 }
 
 // 启动时只检查一次：若无文件 / 被篡改 / 已过期 => 让用户输入密码重置

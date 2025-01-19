@@ -355,6 +355,84 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
     return;
 }
 
+void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialBossSetting){
+    m_isRunning.store(1);
+    isFirstSkipMonthCard = false;
+    qInfo() << QString("MainBackendWorkerNew::onStartSpecialBoss");
+
+    // 初始化句柄
+    bool isInit = Utils::initWuwaHwnd();
+    if(!isInit){
+        emit specialBossDone(false, QString("未能初始化鸣潮窗口句柄"), specialBossSetting);
+        m_isRunning.store(0);
+        return;
+    }
+
+    bool isWuwaRunning = Utils::isWuwaRunning();
+    if(!isWuwaRunning){
+        emit specialBossDone(false, QString("未能初始化鸣潮窗口句柄"), specialBossSetting);
+        m_isRunning.store(0);
+        return;
+    }
+
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+
+    // 每一步都需要执行该检查 封装为匿名函数
+    auto isSpecialBossStop = [&](bool isAbort, bool isNormalEnd, const QString& msg, const SpecialBossSetting &specialBossSetting) {
+        bool isWuwaRunning = Utils::isWuwaRunning();
+        if(!isWuwaRunning){
+            // 鸣潮已经被关闭 异常结束
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            emit specialBossDone(false, QString("鸣潮已经被关闭"), specialBossSetting);
+            m_isRunning.store(0);
+            return true;
+        }
+
+        if(!isBusy()){
+            // 用户中止 正常结束
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            emit specialBossDone(true, QString("用户停止"), specialBossSetting);
+            m_isRunning.store(0);
+            return true;
+        }
+        else{
+            if(isAbort){
+                // 根据输入参数决定是否正常结束
+                AttachThreadInput(currentThreadId, threadId, FALSE);
+                emit specialBossDone(isNormalEnd, msg, specialBossSetting);
+                m_isRunning.store(0);
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    };
+
+    // 将线程附加到目标窗口
+    if (AttachThreadInput(currentThreadId, threadId, TRUE)) {
+        // 激活窗口
+        SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+        Sleep(500);
+        pickUpNormalBossEcho = 0;  // 初始拾取声骸计数为 0
+        QString errMsg;
+        switchEchoListPos = cv::Point(-1, -1);  // 残像探寻图像坐标初始化为不可用
+        while(isBusy()){
+            Sleep(500);
+        }
+    }
+    else{
+        if(isSpecialBossStop(true, false, QString("未能将线程附加到鸣潮窗口"), specialBossSetting)) return;
+    }
+
+    if(isSpecialBossStop(true, true, QString("脚本运行结束"), specialBossSetting)) return;
+    return;
+
+
+}
+
 
 bool MainBackendWorkerNew::enterBagInterface() {
     cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
@@ -2192,7 +2270,7 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     while(timer.elapsed() < maxWaitMs && isBusy()){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         //findBossIcon = Utils::findPic(capImg, bossIcon, 0.85, x, y, similarity);
-        findBossIcon = Utils::findPic(capImg, bossIcon, 0.9, x, y, similarity);   // 严格区分梦魇 和普通
+        findBossIcon = Utils::findPic(capImg, bossIcon, 0.88, x, y, similarity);   // 严格区分梦魇 和普通
         if(!findBossIcon){
             this->dragWindowClient3(Utils::hwnd, scrollEchoListsStartPos.x, scrollEchoListsStartPos.y, \
                                     scrollEchoListsEndPos.x, scrollEchoListsEndPos.y, \

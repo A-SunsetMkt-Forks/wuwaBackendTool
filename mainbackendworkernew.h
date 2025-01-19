@@ -122,6 +122,9 @@ signals:
     // 轮刷boss完成
     void normalBossDone(const bool& isNormalEnd, const QString& errMsg, const NormalBossSetting &normalBossSetting);
 
+    // 单刷boss完成
+    void specialBossDone(const bool& isNormalEnd, const QString& errMsg, const SpecialBossSetting &specialBossSetting);
+
     // 要求战斗线程开始工作
     void startFight();
 
@@ -131,6 +134,9 @@ public slots:
 
     // 响应UI要求 开始自动轮刷普通boss
     void onStartNormalBoss(const NormalBossSetting &normalBossSetting);
+
+    // 响应UI要求 开始单刷特殊boss
+    void onStartSpecialBoss(const SpecialBossSetting &specialBossSetting);
 
 
 

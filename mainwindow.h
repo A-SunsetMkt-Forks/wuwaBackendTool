@@ -132,6 +132,8 @@ private slots:
 
     // 启动单刷boss
     void on_startSingleBoss_clicked();
+    void onSpecialBossDone(const bool& isNormalEnd, const QString& errMsg, const SpecialBossSetting &specialBossSetting);
+
 
 private:
     QTimer checkLicTimer;   // 每60秒检查一次licence  可能不需要了 开启时检查即可
