@@ -90,45 +90,6 @@
      <string>①测试 点击按钮 获取图像</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="testPress2">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>250</y>
-      <width>241</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>测试按2</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="test1">
-    <property name="geometry">
-     <rect>
-      <x>250</x>
-      <y>250</y>
-      <width>181</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>ESC 活动</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="testPressM">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>190</y>
-      <width>241</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>测试按M</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="testFindColor">
     <property name="geometry">
      <rect>
@@ -150,32 +111,6 @@
       <width>241</width>
       <height>51</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="testFastSwitch">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>360</y>
-      <width>181</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>开始速切人战斗</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="testNoSwitch">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>360</y>
-      <width>181</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>开始不切人战斗</string>
     </property>
    </widget>
    <widget class="QPushButton" name="testRebootGame">

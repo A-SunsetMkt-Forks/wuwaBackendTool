@@ -70,6 +70,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="pickUpEchoMethod">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <item>
          <property name="text">
           <string>方形</string>
@@ -105,6 +108,9 @@
       </item>
       <item>
        <widget class="QSpinBox" name="pickUpEchoRange">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimum">
          <number>1</number>
         </property>
@@ -126,6 +132,9 @@
       </item>
       <item>
        <widget class="QSpinBox" name="spiralPickupRange">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimum">
          <number>1</number>
         </property>
@@ -138,6 +147,9 @@
     </item>
     <item>
      <widget class="QCheckBox" name="isPressFwhenFighting">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>战斗时按F</string>
       </property>
@@ -154,6 +166,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="dungeonLevel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <item>
          <property name="text">
           <string/>
@@ -174,6 +189,9 @@
       </item>
       <item>
        <widget class="QSpinBox" name="actionDalay">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="suffix">
          <string>毫秒</string>
         </property>
@@ -192,6 +210,9 @@
     </item>
     <item>
      <widget class="QCheckBox" name="jumpAttackToHeal">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>2号位 跳A回血</string>
       </property>
@@ -208,6 +229,9 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="absorbThres">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximum">
          <double>1.000000000000000</double>
         </property>
@@ -229,6 +253,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="ultimateSkillDetectMethod">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <item>
          <property name="text">
           <string>方式一</string>
@@ -257,6 +284,9 @@
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QCheckBox" name="bossHPAssis">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -270,6 +300,9 @@
     </item>
     <item>
      <widget class="QCheckBox" name="isTriggerNoSwitch">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -301,6 +334,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="triggerNoSwitchCondition">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -338,9 +374,9 @@
     </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="activateBtn">
+  <widget class="QPushButton" name="startSingleBoss">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>

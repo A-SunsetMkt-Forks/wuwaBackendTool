@@ -78,9 +78,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_autoChangeWallpaperBackendWorker.moveToThread(&m_autoChangeWallpaperBackendThread);
     m_autoChangeWallpaperBackendThread.start();
 
-    // 启动后台线程
-    m_mainBackendWorker.moveToThread(&m_mainBackendThread);
-    m_mainBackendThread.start();
 
     m_mainBackendWorkerNew.moveToThread(&m_mainBackendNewThread);
     m_mainBackendNewThread.start();
@@ -93,15 +90,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, &MainWindow::startNormalBoss, &this->m_mainBackendWorkerNew, &MainBackendWorkerNew::onStartNormalBoss);
     connect(&this->m_mainBackendWorkerNew, &MainBackendWorkerNew::normalBossDone, this, &MainWindow::onNormalBossDone);
 
-    // test1的连接
-    connect(this, &MainWindow::startTest1, &this->m_mainBackendWorker, &MainBackendWorker::onStartTest1);
-    connect(&this->m_mainBackendWorker, &MainBackendWorker::startTest1Done, this, &MainWindow::onStartTest1Done);
-
-    // 特殊boss 角 无妄者 连接
-    connect(ui->specialBossPanel, &SpeicalBossWidget::startSpecialBoss, this, &MainWindow::checkSpecialBoss);
-    connect(this, &MainWindow::startSpecialBoss, &this->m_mainBackendWorker, &MainBackendWorker::onStartSpecialBoss);
-    connect(&this->m_mainBackendWorker, &MainBackendWorker::startSpecialBossDone, this, &MainWindow::onStartSpecialBossDone);
-
     // 注册全局快捷键 允许快捷停止脚本运行
     registerGlobalHotKey();
 
@@ -111,10 +99,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // 连接热键信号到槽
     connect(hotKeyFilter, &GlobalHotKeyFilter::hotKeyPressed, this, &MainWindow::onHotKeyActivated);
-
-    // 连接 测试面板
-    connect(ui->debugPanel, &DebugForm::startTestFastSwitch, &this->m_mainBackendWorker.m_fastSwitchFightBackendWorker, &FastSwitchFightBackendWorker::testStartFight);
-    connect(ui->debugPanel, &DebugForm::startTestRebootGame, &this->m_mainBackendWorker, &MainBackendWorker::onStartTestRebootGame);
 
 
     //连接 更新壁纸
@@ -183,10 +167,6 @@ MainWindow::~MainWindow()
     m_autoChangeWallpaperBackendThread.quit();
     m_autoChangeWallpaperBackendThread.wait();
 
-    // 停止后台线程
-    m_mainBackendWorker.stopWorker();
-    m_mainBackendThread.quit();
-    m_mainBackendThread.wait();
 
     m_mainBackendWorkerNew.stopWorker();
     m_mainBackendNewThread.quit();
@@ -275,17 +255,6 @@ void MainWindow::on_getGameWin_clicked(){
     image.save(capImagePath);
 }
 
-void MainWindow::on_test1_clicked(){
-    // 首先检查后台是否繁忙
-    if(m_mainBackendWorker.isBusy()){
-        QMessageBox::warning(this, "脚本正在后台运行", "请先手动停止或等待脚本运行结束");
-        return;
-    }
-
-    emit startTest1();
-    ui->isBusyBox->setChecked(true);
-
-}
 
 void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& msg){
     ui->isBusyBox->setChecked(false);
@@ -301,7 +270,6 @@ void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& msg){
 }
 
 void MainWindow::on_stopBtn_clicked(){
-    m_mainBackendWorker.stopWorker();
     m_mainBackendWorkerNew.stopWorker();
 }
 
@@ -342,7 +310,7 @@ void MainWindow::checkSpecialBoss(const SpecialBossSetting& setting){
     }
 
     // 检查此时是否正忙
-    if(m_mainBackendWorkerNew.isBusy() || m_mainBackendWorker.isBusy()){
+    if(m_mainBackendWorkerNew.isBusy() ){
         QMessageBox::warning(this, "后台正忙", "请停止其他脚本，再启用本脚本");
         return;
     }
@@ -432,7 +400,7 @@ void MainWindow::onSendImageAsWallpaper(const QImage& img){
 void MainWindow::on_startLockEcho_clicked(){
     qInfo() << QString("MainWindow::on_startLockEcho_clicked");
 
-    if(m_mainBackendWorkerNew.isBusy() || m_mainBackendWorker.isBusy()){
+    if(m_mainBackendWorkerNew.isBusy()){
         QMessageBox::warning(this, "有其他后台正忙", "请等待任务结束或手动停止后台任务，再启动锁定声骸");
         return;
     }
@@ -490,7 +458,7 @@ void MainWindow::on_startNormalBoss_clicked(){
         return;
     }
 
-    if(m_mainBackendWorkerNew.isBusy() || m_mainBackendWorker.isBusy()){
+    if(m_mainBackendWorkerNew.isBusy()){
         QMessageBox::warning(this, "有其他后台正忙", "请等待任务结束或手动停止后台任务，再启动普通boss轮刷");
         return;
     }
@@ -555,7 +523,6 @@ bool MainWindow::initialCheck()
     if(toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)){
         qWarning() << QString("toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)");
 
-        this->m_mainBackendWorker.stopWorker();
         this->m_mainBackendWorkerNew.stopWorker();
         this->m_autoChangeWallpaperBackendWorker.stopWorker();
 
@@ -590,8 +557,6 @@ void MainWindow::onCheckLic()
     qInfo() << QString("MainWindow::onCheckLic()");
     if(toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)){
         qWarning() << QString("toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)");
-
-        this->m_mainBackendWorker.stopWorker();
         this->m_mainBackendWorkerNew.stopWorker();
         this->m_autoChangeWallpaperBackendWorker.stopWorker();
 

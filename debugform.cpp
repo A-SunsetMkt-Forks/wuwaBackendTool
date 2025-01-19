@@ -9,13 +9,10 @@ DebugForm::DebugForm(QWidget *parent) :
     lockWidgetList.push_back(ui->colorEditText);
     lockWidgetList.push_back(ui->getGameWin);
     lockWidgetList.push_back(ui->tempThres);
-    lockWidgetList.push_back(ui->test1);
-    lockWidgetList.push_back(ui->testFastSwitch);
+
     lockWidgetList.push_back(ui->testFindColor);
     lockWidgetList.push_back(ui->testFindPic);
-    lockWidgetList.push_back(ui->testNoSwitch);
-    lockWidgetList.push_back(ui->testPress2);
-    lockWidgetList.push_back(ui->testPressM);
+
     lockWidgetList.push_back(ui->testRebootGame);
     lockWidgetList.push_back(ui->activateBtn);
     lockWidgetList.push_back(ui->deactivateBtn);
@@ -136,62 +133,6 @@ void DebugForm::on_confirmPwd_clicked(){
     else{
         QMessageBox::critical(this, "密码错误", "请重新输入密码");
     }
-}
-
-void DebugForm::on_testPress2_clicked(){
-    bool isInit = Utils::initWuwaHwnd();
-    // 尝试后台激活窗口（并不强制将窗口置前）
-    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
-    DWORD currentThreadId = GetCurrentThreadId();
-    AttachThreadInput(currentThreadId, threadId, TRUE);
-    SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
-    Sleep(300);
-
-    Utils::middleClickWindowClientArea(Utils::hwnd, 2, 2);
-    Sleep(300);
-
-    Utils::keyPress(Utils::hwnd, '2', 1);
-    // VK_F3 #define VK_F3 0x72
-    Sleep(300);
-
-    Utils::keyPress(Utils::hwnd, 'R', 1);
-    Sleep(100);
-    Utils::keyPress(Utils::hwnd, 'E', 1);
-    Sleep(100);
-    Utils::keyPress(Utils::hwnd, 'Q', 1);
-    Sleep(100);
-
-    Utils::clickWindowClient(Utils::hwnd);
-    Sleep(100);
-    Utils::clickWindowClient(Utils::hwnd);
-    Sleep(100);
-    Utils::clickWindowClient(Utils::hwnd);
-    Sleep(100);
-    Utils::clickWindowClient(Utils::hwnd);
-    Sleep(100);
-
-
-    AttachThreadInput(currentThreadId, threadId, FALSE);
-}
-
-void DebugForm::on_testPressM_clicked(){
-
-    bool isInit = Utils::initWuwaHwnd();
-    // 尝试后台激活窗口（并不强制将窗口置前）
-    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
-    DWORD currentThreadId = GetCurrentThreadId();
-    AttachThreadInput(currentThreadId, threadId, TRUE);
-    SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);   // 只要这行可以 只在一开始弹出 后续放到后台也可以传
-
-    Utils::keyPress(Utils::hwnd, 'M', 1);
-
-
-    AttachThreadInput(currentThreadId, threadId, FALSE);
-
-}
-
-void DebugForm::on_testFastSwitch_clicked(){
-    emit startTestFastSwitch();
 }
 
 void DebugForm::on_testRebootGame_clicked(){

@@ -28,7 +28,6 @@
 #include "utils.h"    //通用工具
 #include "generalpanel.h"  // 子面板
 #include "speicalbosswidget.h"   // 特殊boss面板
-#include "mainbackendworker.h"  // 后台线程
 #include "globalhotkeyfilter.h"   // 允许全局快捷键 停止脚本程序
 #include "settingparams.h"    // 每种应用场景都有自己的一套参数
 
@@ -64,9 +63,6 @@ private:
     // 生成默认的声骸锁定参数 并应用到UI
     void genDefaultNormalBossSetting();
 
-    // 后台工作线程和后台工作器
-    QThread m_mainBackendThread;
-    MainBackendWorker m_mainBackendWorker;
 
     // 自动切换背景
     QThread m_autoChangeWallpaperBackendThread;
@@ -85,7 +81,6 @@ private:
     void registerGlobalHotKey();
 
 signals:
-    void startTest1();
 
     // 转发信号 要求后台执行 特殊boss
     void startSpecialBoss(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
@@ -108,8 +103,6 @@ private slots:
 
     void on_getGameWin_clicked();
 
-    // 测试 ESC 点击活动 ESC 往前走
-    void on_test1_clicked();
 
     // 响应 ESC 点击活动 ESC 往前走 结束的信号
     void onStartTest1Done(const bool &isNormalEnd, const QString& msg);

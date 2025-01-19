@@ -54,19 +54,15 @@ SOURCES += \
     commonTools/debugmessagehandler.cpp \
     generalpanel.cpp \
     utils.cpp \
-    mainbackendworker.cpp \
     globalhotkeyfilter.cpp \
     speicalbosswidget.cpp \
     settingparams.cpp \
     debugform.cpp \
-    fastswitchfightbackendworker.cpp \
-    noswitchfightbackendworker.cpp \
     echolockentriespanel.cpp \
     abstractentrypanel.cpp \
     entrypanel.cpp \
     autochangewallpaperbackendworker.cpp \
     welcomedialog.cpp \
-    wuwahwndwatcher.cpp \
     mainbackendworkernew.cpp \
     normalbosspanel.cpp \
     fightbackendworkernew.cpp \
@@ -84,8 +80,6 @@ HEADERS += \
     speicalbosswidget.h \
     settingparams.h \
     debugform.h \
-    fastswitchfightbackendworker.h \
-    noswitchfightbackendworker.h \
     echolockentriespanel.h \
     abstractentrypanel.h \
     entrypanel.h \

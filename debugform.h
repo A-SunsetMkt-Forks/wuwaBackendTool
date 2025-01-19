@@ -35,8 +35,6 @@ private:
     DebugBackendWorker m_debugBackendWorker;
 
 signals:
-    // 片段测试 测试速切战斗
-    void startTestFastSwitch();
 
     // 测试重启游戏
     void startTestRebootGame(const QString& launcherWindowTitle);
@@ -52,13 +50,7 @@ public slots:
     // 输入密码 启用测试功能
     void on_confirmPwd_clicked();
 
-    // 测试按数字2
-    void on_testPress2_clicked();
-    // 测试按字母M
-    void on_testPressM_clicked();
 
-    // 测试两种战斗
-    void on_testFastSwitch_clicked();
 
     // 测试通过启动器重启游戏
     void on_testRebootGame_clicked();
