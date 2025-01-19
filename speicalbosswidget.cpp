@@ -84,8 +84,3 @@ SpecialBossSetting SpeicalBossWidget::getSetting()
     return setting;
 }
 
-void SpeicalBossWidget::on_activateBtn_clicked(){
-    qInfo() << QString("准备启动特殊BOSS脚本 ");
-    SpecialBossSetting setting = this->getSetting();
-    emit startSpecialBoss(setting);
-}

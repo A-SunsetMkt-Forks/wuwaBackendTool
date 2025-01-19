@@ -274,69 +274,6 @@ void MainWindow::on_stopBtn_clicked(){
 }
 
 
-
-
-
-
-void MainWindow::checkSpecialBoss(const SpecialBossSetting& setting){
-    // 检查窗口是否已经启动
-    bool isWuwaInit = Utils::initWuwaHwnd();
-    if(!isWuwaInit){
-        QMessageBox::warning(this, "尚未启动鸣潮", "请先启动鸣潮再尝试启动脚本");
-        return;
-    }
-
-    bool isWuwaRunning = Utils::isWuwaRunning();
-    if(!isWuwaRunning){
-        QMessageBox::warning(this, "尚未启动鸣潮", "请先启动鸣潮再尝试启动脚本");
-        return;
-    }
-
-    // 获取一张图 然后检查其分辨率
-    QImage image = Utils::captureWindowToQImage(Utils::hwnd);
-    if(image.isNull()){
-        QMessageBox::warning(this, "不可以将鸣潮最小化", "请将鸣潮置于前台，启动脚本后可将其他窗口置于鸣潮上面。但不可将鸣潮最小化");
-        return;
-    }
-
-    // 检查分辨率
-    if(image.width() != Utils::CLIENT_WIDTH || image.height() != Utils::CLIENT_HEIGHT){
-        QMessageBox::warning(this, "脚本仅支持1280 720窗口模式",
-                             QString("当前分辨率 %1 * %2\n"
-                                     "可考虑将windows DPI 缩放改为100%\n"
-                                     "并多次切换游戏分辨率，最后设置为1280 * 720\n"
-                                     "然后重启游戏，启动脚本").arg(image.width()).arg(image.height()));
-        return;
-    }
-
-    // 检查此时是否正忙
-    if(m_mainBackendWorkerNew.isBusy() ){
-        QMessageBox::warning(this, "后台正忙", "请停止其他脚本，再启用本脚本");
-        return;
-    }
-
-    // 从通用面板获取一些额外参数
-    RebootGameSetting rebootGameSetting = ui->generalPanel->getRebootGameSetting();
-    emit startSpecialBoss(setting, rebootGameSetting);
-    ui->isBusyBox->setChecked(true);
-}
-
-void MainWindow::onStartSpecialBossDone(const bool& isNormalEnd, const QString& msg, \
-                                        const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting){
-    Q_UNUSED(setting);
-    Q_UNUSED(rebootGameSetting);
-    ui->isBusyBox->setChecked(false);
-
-    if(isNormalEnd){
-        //QMessageBox::information(this, "特殊boss正常结束", msg);
-    }
-    else{
-        //QMessageBox::critical(this, "特殊boss异常结束", msg);
-    }
-
-    qInfo() << QString("onStartSpecialBossDone, result %1, msg %2").arg(isNormalEnd).arg(msg);
-}
-
 // 更新壁纸
 void MainWindow::onSendImageAsWallpaper(const QImage& img){
     return;
@@ -482,6 +419,48 @@ void MainWindow::onNormalBossDone(const bool& isNormalEnd, const QString& errMsg
     }
 
     qInfo() << QString("onNormalBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
+}
+
+void MainWindow::on_startSingleBoss_clicked(){
+    qInfo() << QString("准备启动特殊BOSS脚本 ");
+
+    // 检查窗口是否已经启动
+    bool isWuwaInit = Utils::initWuwaHwnd();
+    if(!isWuwaInit){
+        QMessageBox::warning(this, "尚未启动鸣潮", "请先启动鸣潮再尝试启动脚本");
+        return;
+    }
+
+    bool isWuwaRunning = Utils::isWuwaRunning();
+    if(!isWuwaRunning){
+        QMessageBox::warning(this, "尚未启动鸣潮", "请先启动鸣潮再尝试启动脚本");
+        return;
+    }
+
+    // 获取一张图 然后检查其分辨率
+    QImage image = Utils::captureWindowToQImage(Utils::hwnd);
+    if(image.isNull()){
+        QMessageBox::warning(this, "不可以将鸣潮最小化", "请将鸣潮置于前台，启动脚本后可将其他窗口置于鸣潮上面。但不可将鸣潮最小化");
+        return;
+    }
+
+    // 检查分辨率
+    if(image.width() != Utils::CLIENT_WIDTH || image.height() != Utils::CLIENT_HEIGHT){
+        QMessageBox::warning(this, "脚本仅支持1280 720窗口模式",
+                             QString("当前分辨率 %1 * %2\n"
+                                     "可考虑将windows DPI 缩放改为100%\n"
+                                     "并多次切换游戏分辨率，最后设置为1280 * 720\n"
+                                     "然后重启游戏，启动脚本").arg(image.width()).arg(image.height()));
+        return;
+    }
+
+    if(m_mainBackendWorkerNew.isBusy()){
+        QMessageBox::warning(this, "有其他后台正忙", "请等待任务结束或手动停止后台任务，再启动普通boss轮刷");
+        return;
+    }
+
+    SpecialBossSetting setting = ui->specialBossPanel->getSetting();
+    emit startSpecialBoss(setting);
 }
 
 // 启动时只检查一次：若无文件 / 被篡改 / 已过期 => 让用户输入密码重置

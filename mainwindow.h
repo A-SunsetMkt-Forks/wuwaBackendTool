@@ -82,8 +82,6 @@ private:
 
 signals:
 
-    // 转发信号 要求后台执行 特殊boss
-    void startSpecialBoss(const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
 
     // 开启自动更新壁纸
     void startChangeWallpaper();
@@ -93,6 +91,10 @@ signals:
 
     // 要求后台线程轮刷普通boss
     void startNormalBoss(const NormalBossSetting& setting);
+
+    // 单独boss反复刷
+    void startSpecialBoss(const SpecialBossSetting& setting);
+
 
 private slots:
     // 每1分钟检查 是否过期
@@ -116,11 +118,6 @@ private slots:
     // 更新壁纸
     void onSendImageAsWallpaper(const QImage& img);
 
-    // 接收特殊boss脚本启动请求 检查窗口句柄和分辨率 没问题就转发信号
-    void checkSpecialBoss(const SpecialBossSetting& setting);
-
-    // 后台特殊boss线程结束
-    void onStartSpecialBossDone(const bool& isNormalEnd, const QString& msg, const SpecialBossSetting& setting, const RebootGameSetting& rebootGameSetting);
 
     // 启动声骸锁定
     void on_startLockEcho_clicked();
@@ -132,6 +129,9 @@ private slots:
     void on_startNormalBoss_clicked();
     // 普通boss结束
     void onNormalBossDone(const bool& isNormalEnd, const QString& errMsg, const NormalBossSetting &normalBossSetting);
+
+    // 启动单刷boss
+    void on_startSingleBoss_clicked();
 
 private:
     QTimer checkLicTimer;   // 每60秒检查一次licence  可能不需要了 开启时检查即可

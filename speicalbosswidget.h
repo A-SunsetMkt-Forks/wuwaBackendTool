@@ -25,7 +25,7 @@ signals:
     void startSpecialBoss(const SpecialBossSetting& setting);
 
 public slots:
-    void on_activateBtn_clicked();
+
 
 };
 
