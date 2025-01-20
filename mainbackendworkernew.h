@@ -53,6 +53,8 @@ private:
     // 复苏
     bool revive();
 
+    bool reviveSpecialBoss();
+
 
     // 轮刷boss的总准备工作 完成后应该是在残像探寻界面
     bool normalBossPreperation(const NormalBossSetting &normalBossSetting, QString& errMsg);
@@ -116,6 +118,8 @@ private:
 
     // 三个单独boss
     bool dreamlessPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
+    bool hecatePreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
+    bool juePreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
 
     // 单独boss战斗和拾取声骸
     bool specialBossFightPickupEcho(const SpecialBossSetting &specialBossSetting, const QString& bossEnName, QString& errMsg);

@@ -148,7 +148,8 @@ void DebugForm::on_testRebootGame_clicked(){
 
 void DebugForm::on_activateBtn_clicked(){
     if(m_debugBackendWorker.isBusy()){
-        QMessageBox::warning(this, "已经激活 截图中", "请先停止，然后修改参数，最后再次激活启动");
+        qWarning() << "请先停止，然后修改参数，最后再次激活启动";
+        //QMessageBox::warning(this, "已经激活 截图中", "请先停止，然后修改参数，最后再次激活启动");
         return;
     }
     ui->isActivate->setChecked(true);
@@ -201,11 +202,13 @@ void DebugForm::on_scrCap_clicked(){
 void DebugForm::onActivateCapDone(const bool& isOK, const QString& msg){
     ui->isActivate->setChecked(false);
     if(isOK){
-        QMessageBox::information(this, "激活和捕获图像停止", msg);
+        qInfo() << "停止激活成功";
+        //QMessageBox::information(this, "激活和捕获图像停止", msg);
         return;
     }
     else{
-        QMessageBox::warning(this, "激活和捕获图像错误", msg);
+        qWarning() << "停止激活成功 但后台有报错信息 " << msg;
+        //QMessageBox::warning(this, "激活和捕获图像错误", msg);
         return;
     }
 }

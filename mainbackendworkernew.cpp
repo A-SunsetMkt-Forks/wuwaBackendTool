@@ -440,6 +440,38 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
 
                 break;
 
+            case SpecialBossSetting::SpecialBoss::Hecate:
+                if(!hecatePreparation(specialBossSetting, errMsg)){
+                    skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
+                    if(!hecatePreparation(specialBossSetting, errMsg)){
+                        qWarning() << QString("赫卡忒 准备工作失败 %1").arg(errMsg);
+                        if(isSpecialBossStop(true, false, QString("赫卡忒 准备工作失败 %1").arg(errMsg), specialBossSetting)) return;
+                    }
+                    continue;
+                }
+
+                if(!specialBossFightPickupEcho(specialBossSetting, "hecate", errMsg)){
+                    qWarning() << QString("赫卡忒 战斗失败 %1").arg(errMsg);
+                }
+
+                break;
+
+            case SpecialBossSetting::SpecialBoss::Jue:
+                if(!juePreparation(specialBossSetting, errMsg)){
+                    skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
+                    if(!juePreparation(specialBossSetting, errMsg)){
+                        qWarning() << QString("角 准备工作失败 %1").arg(errMsg);
+                        if(isSpecialBossStop(true, false, QString("角 准备工作失败 %1").arg(errMsg), specialBossSetting)) return;
+                    }
+                    continue;
+                }
+
+                if(!specialBossFightPickupEcho(specialBossSetting, "jue", errMsg)){
+                    qWarning() << QString("角 战斗失败 %1").arg(errMsg);
+                }
+
+                break;
+
             default:
                 qWarning() << "boss 未适配";
                 if(isSpecialBossStop(true, false, "boss 未适配", specialBossSetting)) return;
@@ -2293,7 +2325,7 @@ bool MainBackendWorkerNew::dreamlessPreparation(const SpecialBossSetting &specia
     // 向前走3秒 然后锁定找title 锁定boss
     // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
-    for(int i = 0; i < 6 && isBusy(); i++){
+    for(int i = 0; i < 5 && isBusy(); i++){
         Sleep(500);
     }
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
@@ -2325,6 +2357,83 @@ bool MainBackendWorkerNew::dreamlessPreparation(const SpecialBossSetting &specia
     Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "未能找到无妄者的title");
     return false;
 }
+
+bool MainBackendWorkerNew::hecatePreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg){
+    // 向前走3秒 然后锁定找title 锁定boss
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+    for(int i = 0; i < 4 && isBusy(); i++){
+        Sleep(500);
+    }
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+
+    if(!isBusy()){
+        return true;
+    }
+
+    // 1秒没找到boss的title 认为失败 跳过
+    const int maxRunFindBossMs = 1000;
+    const int detectBossPeroidMs = 200;
+    int timeCost = 0;
+
+    int x, y;
+    double similarity;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("hecateTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    if(loopFindPic(bossTitle, 0.8, maxRunFindBossMs, detectBossPeroidMs, "未能找到赫卡忒的title", similarity, x, y, timeCost)){
+        Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+        qInfo() << QString("locked %1").arg("赫卡忒");
+        Sleep(250);
+        return true;
+    }
+    // 可能是没找到或被用户打断
+    if(!isBusy()){
+        return true;
+    }
+
+    // 没找到 记录错误
+    Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "未能找到赫卡忒的title");
+    return false;
+}
+
+bool MainBackendWorkerNew::juePreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg){
+    // 向前走3秒 然后锁定找title 锁定boss
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    /*
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+    for(int i = 0; i < 4 && isBusy(); i++){
+        Sleep(500);
+    }
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+
+    if(!isBusy()){
+        return true;
+    }
+    */
+
+    // 1秒没找到boss的title 认为失败 跳过
+    const int maxRunFindBossMs = 3000;
+    const int detectBossPeroidMs = 200;
+    int timeCost = 0;
+
+    int x, y;
+    double similarity;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("jueTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    if(loopFindPic(bossTitle, 0.8, maxRunFindBossMs, detectBossPeroidMs, "未能找到角的title", similarity, x, y, timeCost)){
+        Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+        qInfo() << QString("locked %1").arg("角");
+        Sleep(250);
+        return true;
+    }
+    // 可能是没找到或被用户打断
+    if(!isBusy()){
+        return true;
+    }
+
+    // 没找到 记录错误
+    Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "未能找到角的title");
+    return false;
+}
+
 
 bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &specialBossSetting, const QString& bossEnName, QString& errMsg){
     // 保证已经锁定了boss
@@ -2378,7 +2487,7 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
                 // 可能需要复苏 + 跳过月卡
                 skipMonthCard();
                 // ##### 单刷boss的复苏怎么处理
-                if(!revive()){
+                if(!reviveSpecialBoss()){
                     qWarning() << QString("复活失败");
                     m_fightBackendWorkerNew.stopWorker();
                     return false;
@@ -2416,7 +2525,7 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
     // 拾取声骸  记得计数+1
     // 切换3号位 防止椿不会动
     Utils::keyPress(Utils::hwnd, '3', 1);
-    revive();
+    reviveSpecialBoss();
     cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
     Sleep(50);
@@ -3211,7 +3320,12 @@ bool MainBackendWorkerNew::revive(){
 }
 
 
+bool MainBackendWorkerNew::reviveSpecialBoss(){
+    //qInfo() << QString("尝试复苏 特殊boss副本");
 
+    // 完成复活
+    return true;
+}
 
 
 
