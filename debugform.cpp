@@ -160,6 +160,8 @@ void DebugForm::on_deactivateBtn_clicked(){
 }
 
 void DebugForm::on_scrCap_clicked(){
+    QElapsedTimer timer;
+    timer.start();
     bool isWuwaInit = Utils::initWuwaHwnd();
     if(!isWuwaInit){
         qWarning() << QString("未能绑定鸣潮窗口句柄");
@@ -187,12 +189,12 @@ void DebugForm::on_scrCap_clicked(){
 
     QString capImagePath = QString("%1").arg(ui->saveImgPath->toPlainText());
     bool isSave = image.save(capImagePath);
-
+    int timeCostMs = timer.elapsed();
     if(isSave){
-        qInfo() << QString("成功保存截图到 %1").arg(capImagePath);
+        qInfo() << QString("成功保存截图到 %1, 耗时 %2ms").arg(capImagePath).arg(timeCostMs);
     }
     else{
-        qWarning() << QString("保存截图到 %1 失败").arg(capImagePath);
+        qWarning() << QString("保存截图到 %1 失败, 耗时 %2ms").arg(capImagePath).arg(timeCostMs);
     }
 }
 

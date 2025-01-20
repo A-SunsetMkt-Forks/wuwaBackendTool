@@ -136,7 +136,8 @@
      </rect>
     </property>
     <property name="text">
-     <string>激活窗体 不断截图</string>
+     <string>激活窗体 不断截图
+CTRL+O</string>
     </property>
    </widget>
    <widget class="QPushButton" name="deactivateBtn">

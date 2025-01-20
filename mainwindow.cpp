@@ -216,16 +216,24 @@ void MainWindow::registerGlobalHotKey() {
     // 注册截图 快捷键
     //if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy, VK_F9, VK_NUMPAD5)) {  // F9 + 5
     //if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy, MOD_ALT, 0x50)) {
-    if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy, MOD_CONTROL, 0x50)) {
-        qDebug() << "Failed to register F9 + 5!";
+    if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy, MOD_CONTROL, 0x50)) { // CTRL + P
+        qDebug() << "Failed to register CTRL + P!";
     } else {
-        qDebug() << "F9 + 5 hotkey registered.";
+        qDebug() << "CTRL + P hotkey registered.";
+    }
+
+    if(!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdActivateWuwa, MOD_CONTROL, 'O')) {
+        qDebug() << "Failed to register CTRL + O!";
+    }
+    else{
+        qDebug() << "CTRL + O hotkey registered.";
     }
 }
 
 void MainWindow::unregisterGlobalHotKey() {
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyId);
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy);
+    UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdActivateWuwa);
 }
 
 void MainWindow::onHotKeyActivated(int id) {
@@ -235,7 +243,9 @@ void MainWindow::onHotKeyActivated(int id) {
     } else if (id == toggleHotKeyIdScrCpy) {
         qDebug() << "收到 F9 + 5，触发截图";
         ui->debugPanel->on_scrCap_clicked();
-    } else {
+    } else if(id == toggleHotKeyIdActivateWuwa){
+        ui->debugPanel->on_activateBtn_clicked();
+    }else {
         qWarning() << "Unhandled hotkey ID:" << id;
     }
 
