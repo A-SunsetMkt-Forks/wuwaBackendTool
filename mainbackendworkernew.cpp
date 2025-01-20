@@ -420,6 +420,10 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
         QString errMsg;
         switchEchoListPos = cv::Point(-1, -1);  // 残像探寻图像坐标初始化为不可用
         while(isBusy()){
+            if(!isBusy())  {
+                if(isSpecialBossStop(true, false, QString("重新挑战boss失败 %1").arg(errMsg), specialBossSetting)) return;
+            }
+
             skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
             // 准备工作
             switch (specialBossSetting.boss) {
@@ -480,6 +484,10 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
 
             }
 
+            if(!isBusy())  {
+                if(isSpecialBossStop(true, false, QString("重新挑战boss失败 %1").arg(errMsg), specialBossSetting)) return;
+            }
+
             // 重新挑战
             if(!repeatBattle(specialBossSetting, errMsg)){
                 skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
@@ -490,7 +498,15 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
                 continue;
             }
 
+            if(!isBusy())  {
+                if(isSpecialBossStop(true, false, QString("重新挑战boss失败 %1").arg(errMsg), specialBossSetting)) return;
+            }
+
             Sleep(500);
+        }
+
+        if(!isBusy())  {
+            if(isSpecialBossStop(true, false, QString("重新挑战boss失败 %1").arg(errMsg), specialBossSetting)) return;
         }
     }
     else{
@@ -960,16 +976,17 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
 
         Sleep(50);
     }
-
+    m_fightBackendWorkerNew.stopWorker();
     // 可能需要复苏 + 跳过月卡
     skipMonthCard();
 
     if(!isBusy()){
-
+        m_fightBackendWorkerNew.stopWorker();
         return true;
     }
 
     if(timer.elapsed() >= maxFightMs){
+        m_fightBackendWorkerNew.stopWorker();
         return true;
     }
 
@@ -2509,23 +2526,24 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
 
         Sleep(50);
     }
-
+    m_fightBackendWorkerNew.stopWorker();
     // 可能需要复苏 + 跳过月卡
     skipMonthCard();
 
     if(!isBusy()){
-
+        m_fightBackendWorkerNew.stopWorker();
         return true;
     }
 
     if(timer.elapsed() >= maxFightMs){
+        m_fightBackendWorkerNew.stopWorker();
         return true;
     }
 
     // 拾取声骸  记得计数+1
     // 切换3号位 防止椿不会动
     Utils::keyPress(Utils::hwnd, '3', 1);
-    reviveSpecialBoss();
+    //reviveSpecialBoss();
     cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
     Sleep(50);
@@ -3321,9 +3339,41 @@ bool MainBackendWorkerNew::revive(){
 
 
 bool MainBackendWorkerNew::reviveSpecialBoss(){
-    //qInfo() << QString("尝试复苏 特殊boss副本");
+    qInfo() << QString("尝试复苏 特殊boss副本");
+    // 停止战斗线程 等死
+    m_fightBackendWorkerNew.stopWorker();
 
-    // 完成复活
+    cv::Mat noTakeReviveMedi = cv::imread(QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("noTakeReviveMedi.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    double similarity;
+    int x, y;
+    int timeCostMs;
+    // 等待速切弹出复活药界面
+    if(!loopFindPic(noTakeReviveMedi, 0.9, defaultMaxWaitMs, defaultRefreshMs, "复苏等待默认时长后仍未弹出复活药画面", similarity, x, y, timeCostMs)){
+        //cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        //qWarning() << "复苏等待默认时长后仍未弹出复活药画面";
+        //Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "复苏等待默认时长后仍未弹出复活药画面");
+        return false;
+    }
+
+
+    // 关闭复活药界面
+    Sleep(defaultRefreshMs * 2);
+    Utils::clickWindowClientArea(Utils::hwnd, x + noTakeReviveMedi.cols / 2, y + noTakeReviveMedi.rows / 2);
+
+    // 等待 直到看到重新挑战
+    cv::Mat reChallenge = cv::imread(QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("reviveSpecialBoss.bmp").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+
+    if(!loopFindPic(reChallenge, 0.9, 20000, defaultRefreshMs, "等了20秒还没被boss打死", similarity, x, y, timeCostMs)){
+        //cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        //qWarning() << "复苏等待默认时长后仍未弹出复活药画面";
+        //Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "复苏等待默认时长后仍未弹出复活药画面");
+        return false;
+    }
+
+    Sleep(defaultRefreshMs * 2);
+    Utils::clickWindowClientArea(Utils::hwnd, x + reChallenge.cols / 2, y + reChallenge.rows / 2);
+    Sleep(250);
+
     return true;
 }
 
