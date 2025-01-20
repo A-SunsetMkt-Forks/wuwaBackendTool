@@ -228,12 +228,20 @@ void MainWindow::registerGlobalHotKey() {
     else{
         qDebug() << "CTRL + O hotkey registered.";
     }
+
+    if(!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdDeactivateWuwa, MOD_CONTROL, 'I')) {
+        qDebug() << "Failed to register CTRL + I!";
+    }
+    else{
+        qDebug() << "CTRL + I hotkey registered.";
+    }
 }
 
 void MainWindow::unregisterGlobalHotKey() {
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyId);
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy);
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdActivateWuwa);
+    UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdDeactivateWuwa);
 }
 
 void MainWindow::onHotKeyActivated(int id) {
@@ -245,6 +253,8 @@ void MainWindow::onHotKeyActivated(int id) {
         ui->debugPanel->on_scrCap_clicked();
     } else if(id == toggleHotKeyIdActivateWuwa){
         ui->debugPanel->on_activateBtn_clicked();
+    } else if(id == toggleHotKeyIdDeactivateWuwa){
+        ui->debugPanel->on_deactivateBtn_clicked();
     }else {
         qWarning() << "Unhandled hotkey ID:" << id;
     }

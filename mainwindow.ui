@@ -37,17 +37,17 @@
       <string>普通boss</string>
      </attribute>
     </widget>
+    <widget class="SpeicalBossWidget" name="specialBossPanel">
+     <attribute name="title">
+      <string>角 无妄者 赫卡忒</string>
+     </attribute>
+    </widget>
     <widget class="GeneralPanel" name="generalPanel">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
      <attribute name="title">
       <string>通用面板</string>
-     </attribute>
-    </widget>
-    <widget class="SpeicalBossWidget" name="specialBossPanel">
-     <attribute name="title">
-      <string>角和无妄者</string>
      </attribute>
     </widget>
     <widget class="DebugForm" name="debugPanel">

@@ -136,7 +136,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>激活窗体 不断截图
+     <string>激活窗体 
 CTRL+O</string>
     </property>
    </widget>
@@ -150,7 +150,8 @@ CTRL+O</string>
      </rect>
     </property>
     <property name="text">
-     <string>断开激活</string>
+     <string>断开激活
+CTRL+I</string>
     </property>
    </widget>
    <widget class="QSpinBox" name="capImgWaitMs">
@@ -230,7 +231,7 @@ CTRL+O</string>
      </rect>
     </property>
     <property name="text">
-     <string>截图中?</string>
+     <string>激活中?</string>
     </property>
    </widget>
    <widget class="QPushButton" name="scrCap">
