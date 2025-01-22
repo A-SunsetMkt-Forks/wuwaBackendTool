@@ -587,7 +587,7 @@ bool MainBackendWorkerNew::enterEchoInterface(){
     cv::Mat echoYellowImg = cv::imread(QString("%1/bag_echo_yellow.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     int x, y;
 
-    if(Utils::findPic(capImg(searchEchoIconROI).clone(), echoYellowImg, 0.9, x, y)){
+    if(Utils::findPic(capImg(searchEchoIconROI).clone(), echoYellowImg, 0.8, x, y)){
         cv::Rect echoIconRoi = cv::Rect(x + searchEchoIconROI.x, y + searchEchoIconROI.y, echoWhiteImg.cols, echoWhiteImg.rows);
         //Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
         Sleep(500);
@@ -598,7 +598,7 @@ bool MainBackendWorkerNew::enterEchoInterface(){
         return true;
     }
 
-    if(Utils::findPic(capImg(searchEchoIconROI).clone(), echoWhiteImg, 0.9, x, y)){
+    if(Utils::findPic(capImg(searchEchoIconROI).clone(), echoWhiteImg, 0.8, x, y)){
         cv::Rect echoIconRoi = cv::Rect(x + searchEchoIconROI.x, y + searchEchoIconROI.y, echoWhiteImg.cols, echoWhiteImg.rows);
         //Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
         Sleep(500);
