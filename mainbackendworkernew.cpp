@@ -2699,7 +2699,7 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
     Utils::clickWindowClientArea(Utils::hwnd, x + bossIcon.cols/2, y + bossIcon.rows/2);
     cv::Mat confirm = cv::imread(QString("%1/%2Confirm.bmp").arg(Utils::IMAGE_DIR_EI()).arg(bossEnName).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     int timeCostMs = 0;
-    if(!loopFindPic(confirm, 0.6, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss确认信息", similarity, x, y, timeCostMs)){
+    if(!loopFindPic(confirm, 0.55, defaultMaxWaitMs, defaultRefreshMs, "未能找到boss确认信息", similarity, x, y, timeCostMs)){
         if(!isBusy()){
             return true;
         }

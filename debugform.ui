@@ -16,7 +16,7 @@
   <widget class="QPlainTextEdit" name="pwd">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>560</x>
      <y>10</y>
      <width>291</width>
      <height>41</height>
@@ -26,7 +26,7 @@
   <widget class="QPushButton" name="confirmPwd">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>870</x>
      <y>10</y>
      <width>121</width>
      <height>41</height>
@@ -40,9 +40,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>60</y>
+     <y>130</y>
      <width>981</width>
-     <height>431</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="title">
@@ -116,8 +116,8 @@
    <widget class="QPushButton" name="testRebootGame">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>300</y>
+      <x>10</x>
+      <y>240</y>
       <width>181</width>
       <height>51</height>
      </rect>
@@ -234,20 +234,20 @@ CTRL+I</string>
      <string>激活中?</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="scrCap">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>210</y>
-      <width>211</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>截图一次
+  </widget>
+  <widget class="QPushButton" name="scrCap">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>371</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>截图一次
 CTRL+P</string>
-    </property>
-   </widget>
+   </property>
   </widget>
  </widget>
  <resources/>

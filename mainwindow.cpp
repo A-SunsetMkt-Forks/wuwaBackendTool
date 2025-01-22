@@ -502,6 +502,16 @@ bool MainWindow::initialCheck()
     bool ok = false;
     licStartTime = readLicenseFile(ok);
 
+    // 设置新时间
+    InternetTimeFetcher fetcher;
+    fetcher.fetchInternetTime(toolCurrentTime);
+    if(!toolCurrentTime.isValid()){
+        QMessageBox::critical(this, "错误", "无法联网获取时间");
+        //qApp->quit();
+        //std::exit(0);
+        return false;
+    }
+
     if(!ok) {
         // 文件不存在或被破坏 => 立即提示
         QMessageBox::warning(this, "提示", "授权文件缺失或损坏，需要最高权限初始化。");
@@ -519,17 +529,11 @@ bool MainWindow::initialCheck()
             //std::exit(0);
             return false;
         }
+
+        licStartTime = toolCurrentTime;
     }
 
-    // 设置新时间
-    InternetTimeFetcher fetcher;
-    fetcher.fetchInternetTime(toolCurrentTime);
-    if(!toolCurrentTime.isValid()){
-        QMessageBox::critical(this, "错误", "无法联网获取时间");
-        //qApp->quit();
-        //std::exit(0);
-        return false;
-    }
+
 
     // 检查是否已经过期
     if(toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)){
