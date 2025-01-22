@@ -526,7 +526,7 @@ bool MainBackendWorkerNew::enterBagInterface() {
     int x, y;
 
     // 检测背包按钮
-    bool isDetectBag = Utils::findPic(capImg(searchBagROI).clone(), bagIcon, 0.8, x, y);
+    bool isDetectBag = Utils::findPic(capImg(searchBagROI).clone(), bagIcon, 0.7, x, y);
 
     if (!isDetectBag) {
         // 最多尝试3次按 ESC
@@ -542,7 +542,7 @@ bool MainBackendWorkerNew::enterBagInterface() {
             }
 
             capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-            if (Utils::findPic(capImg(searchBagROI).clone(), bagIcon, 0.8, x, y)) {
+            if (Utils::findPic(capImg(searchBagROI).clone(), bagIcon, 0.7, x, y)) {
                 isDetectBag = true;
                 break;
             }

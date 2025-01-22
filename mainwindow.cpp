@@ -46,7 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // 注册自定义类型
     registerType();
 
-    this->setWindowTitle("鸣潮自动刷boss脚本 v1.1.0 alpha 永久免费 无广告病毒");
+    // 固定窗口标题不变
+    this->setWindowTitle("鸣潮工具解放肝脏永久免费");
 
     // 绑定日志
     // debug 重定向
@@ -61,12 +62,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // 为logLevelBox设置本文代理格式
     CustomDelegate *delegate = new CustomDelegate(ui->logLevelBox);
     ui->logLevelBox->setItemDelegate(delegate);
-
-    if (Utils::isRunningAsAdmin()) {
-        qDebug() << "Program is running as Administrator.";
-    } else {
-        qDebug() << "Program is NOT running as Administrator." ;
-    }
 
     // 为锁定声骸填充默认参数
     genDefaultLockEchoSetting();
@@ -149,8 +144,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->debugPanel->setAttribute(Qt::WA_StyledBackground, true);
     }
 
-
-    if(!Utils::isRunningAsAdmin()){
+    bool isAdmin = Utils::isRunningAsAdmin();
+    if(!isAdmin){
         QMessageBox::warning(this, "请以管理员身份重启软件", "不以管理员身份启动，可能某些指令鸣潮不予理会");
     }
 }

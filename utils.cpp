@@ -233,14 +233,13 @@ bool Utils::keyPress(HWND hwnd, int vkCode, int times){
 
 bool Utils::isRunningAsAdmin() {
     BOOL isAdmin = FALSE;
-    PSID adminGroup = nullptr;
+    PSID administratorsGroup;
     SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
-
-    if (AllocateAndInitializeSid(&ntAuthority, 2,
-                                 SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
-                                 0, 0, 0, 0, 0, 0, &adminGroup)) {
-        CheckTokenMembership(nullptr, adminGroup, &isAdmin);
-        FreeSid(adminGroup);
+    if (AllocateAndInitializeSid(
+                &ntAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
+                0, 0, 0, 0, 0, 0, &administratorsGroup)) {
+        CheckTokenMembership(NULL, administratorsGroup, &isAdmin);
+        FreeSid(administratorsGroup);
     }
     return isAdmin;
 }
