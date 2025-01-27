@@ -21,6 +21,8 @@ public:
     bool isBusy();
     void stopWorker();
 
+    static QAtomicInt lastMode;   // 0 表示未启动过，1表示后台刷取普通boss 2表示后台单刷特殊boss  3表示。。。。
+
 private:
     QAtomicInt m_isRunning;   //原子int 防止多线程冲突
 

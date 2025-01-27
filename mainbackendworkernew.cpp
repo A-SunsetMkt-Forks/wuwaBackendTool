@@ -1,5 +1,7 @@
 #include "mainbackendworkernew.h"
 
+QAtomicInt MainBackendWorkerNew::lastMode = 0;
+
 MainBackendWorkerNew::MainBackendWorkerNew(QObject *parent) : QObject(parent)
 {
     m_isRunning.store(0);
@@ -247,6 +249,7 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
 
 void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBossSetting){
     m_isRunning.store(1);
+    MainBackendWorkerNew::lastMode.store(1);
     isFirstSkipMonthCard = false;
     qInfo() << QString("MainBackendWorkerNew::onStartNormalBoss");
 
@@ -320,7 +323,7 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
                     if(!isPrepared){
                         skipMonthCard();
                         if(!normalBossPreperation(normalBossSetting, errMsg)){
-                            Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0,errMsg);
+                            Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, "boss准备工作失败" + errMsg);
                             if(isNormalBossStop(true, false, errMsg, normalBossSetting)) return;
                         }
                     }
@@ -336,7 +339,7 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
                         //skipMonthCard();
                         //if(!oneBossLoopDone){ }
 
-                        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, oneBossErr);
+                        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, "boss单次刷取失败" + oneBossErr);
                         qWarning() << QString("刷 %1 出现问题 : %2").arg(normalBossSetting.Enum2QString(thisBoss)).arg(oneBossErr);
                     }
 
@@ -357,6 +360,7 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
 
 void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialBossSetting){
     m_isRunning.store(1);
+    MainBackendWorkerNew::lastMode.store(2);
     isFirstSkipMonthCard = false;
     qInfo() << QString("MainBackendWorkerNew::onStartSpecialBoss");
 
@@ -2603,7 +2607,7 @@ bool MainBackendWorkerNew::repeatBattle(const SpecialBossSetting &specialBossSet
     int maxWaitMs = 3 * 1000;
     int timeCost = 0;
     // 找到左上角的重新挑战按键
-    isFind = loopFindPic(repeatChallenge, 0.8, maxWaitMs, 250, "未能找到重新挑战按钮", similarity, x, y, timeCost);
+    isFind = loopFindPic(repeatChallenge, 0.7, maxWaitMs, 250, "未能找到重新挑战按钮", similarity, x, y, timeCost);  // 从0.8 降低为0.7  防止jue找不到
     if(!isBusy()){
         return true;
     }

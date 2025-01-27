@@ -3,6 +3,7 @@
 const QString Utils::wuwaWindowTitle = "鸣潮  ";
 QMutex Utils::m_locker;
 HWND Utils::hwnd = nullptr;
+QString Utils::m_exePath = "";
 
 const int Utils::CLIENT_WIDTH = 1280;
 const int Utils::CLIENT_HEIGHT = 720;
@@ -48,6 +49,7 @@ QImage Utils::HBitmapToQImage(HBITMAP hBitmap, HDC hDC) {
 
 bool Utils::initWuwaHwnd(){
     QMutexLocker locker(&m_locker);
+
     // 转换为宽字符（Unicode）
     Utils::hwnd = FindWindow(nullptr, (LPCWSTR)wuwaWindowTitle.utf16());
     if (!hwnd) {
@@ -56,8 +58,39 @@ bool Utils::initWuwaHwnd(){
     }
     else{
         qInfo() << QString("wuwa hwnd is bind, hwnd 0x%1").arg(reinterpret_cast<quintptr>(hwnd), 0, 16);
-        return true;
+        //return true;
     }
+
+    // 2. 获取进程 ID
+    DWORD processId = 0;
+    GetWindowThreadProcessId(hwnd, &processId);
+    if (processId == 0) {
+        qWarning() << "GetWindowThreadProcessId failed!";
+        return false;
+    }
+
+    // 3. 打开进程
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processId);
+    if (!hProcess) {
+        qWarning() << "OpenProcess failed!";
+        return false;
+    }
+
+    // 4. 获取可执行文件路径
+    TCHAR exePath[MAX_PATH] = { 0 };
+    if (GetModuleFileNameEx(hProcess, NULL, exePath, MAX_PATH)) {
+        // 如需在 Qt 中使用，可转换为 QString
+        Utils::m_exePath = QString::fromWCharArray(exePath);
+        qInfo() << "Target process executable path:" << Utils::m_exePath;
+    } else {
+        qWarning() << "GetModuleFileNameEx failed!";
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    // 5. 关闭句柄，返回成功
+    CloseHandle(hProcess);
+    return true;
 }
 
 bool Utils::isWuwaRunning(){

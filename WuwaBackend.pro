@@ -44,8 +44,9 @@ LIBS += -L$$PWD/3rd/opencv/x64/mingw/lib/ -llibopencv_imgcodecs410
 LIBS += -L$$PWD/3rd/opencv/x64/mingw/lib/ -llibopencv_imgproc410
 LIBS += -L$$PWD/3rd/opencv/x64/mingw/lib/ -llibopencv_highgui410
 
+#LIBS += -L$$PWD/3rd/ -lPsapi
 # 链接 Windows GDI 和用户库
-LIBS += -lgdi32 -luser32
+LIBS += -lgdi32 -luser32 -lPsapi
 
 SOURCES += \
         main.cpp \

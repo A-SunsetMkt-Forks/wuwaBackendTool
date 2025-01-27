@@ -32,6 +32,14 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
+    <widget class="GeneralPanel" name="generalPanel">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <attribute name="title">
+      <string>通用面板</string>
+     </attribute>
+    </widget>
     <widget class="NormalBossPanel" name="normalBossPanel">
      <attribute name="title">
       <string>普通boss</string>
@@ -40,14 +48,6 @@
     <widget class="SpeicalBossWidget" name="specialBossPanel">
      <attribute name="title">
       <string>角 无妄者 赫卡忒</string>
-     </attribute>
-    </widget>
-    <widget class="GeneralPanel" name="generalPanel">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <attribute name="title">
-      <string>通用面板</string>
      </attribute>
     </widget>
     <widget class="DebugForm" name="debugPanel">

@@ -431,13 +431,15 @@ void MainWindow::onNormalBossDone(const bool& isNormalEnd, const QString& errMsg
     ui->isBusyBox->setChecked(false);
 
     if(isNormalEnd){
-        QMessageBox::information(this, "轮刷普通boss结束", errMsg);
+        //QMessageBox::information(this, "轮刷普通boss结束", errMsg);
+        qInfo() << QString("onNormalBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
     }
     else{
-        QMessageBox::critical(this, "轮刷普通boss结束", errMsg);
+        //QMessageBox::critical(this, "轮刷普通boss结束", errMsg);
+        qCritical() << QString("onNormalBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
     }
 
-    qInfo() << QString("onNormalBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
+
 }
 
 void MainWindow::on_startSingleBoss_clicked(){
@@ -487,13 +489,16 @@ void MainWindow::onSpecialBossDone(const bool& isNormalEnd, const QString& errMs
     ui->isBusyBox->setChecked(false);
 
     if(isNormalEnd){
-        QMessageBox::information(this, "单刷特殊boss结束", errMsg);
+        //QMessageBox::information(this, "单刷特殊boss结束", errMsg);
+
+        qInfo() << QString("onSpecialBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
     }
     else{
-        QMessageBox::critical(this, "单刷特殊boss结束", errMsg);
+        //QMessageBox::critical(this, "单刷特殊boss结束", errMsg);
+
+        qCritical() << QString("onSpecialBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
     }
 
-    qInfo() << QString("onSpecialBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
 }
 
 // 启动时只检查一次：若无文件 / 被篡改 / 已过期 => 让用户输入密码重置

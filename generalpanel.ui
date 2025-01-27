@@ -37,10 +37,10 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>690</x>
+     <x>670</x>
      <y>10</y>
-     <width>301</width>
-     <height>191</height>
+     <width>321</width>
+     <height>201</height>
     </rect>
    </property>
    <property name="title">
@@ -203,7 +203,7 @@
     <rect>
      <x>20</x>
      <y>180</y>
-     <width>641</width>
+     <width>571</width>
      <height>41</height>
     </rect>
    </property>
@@ -242,7 +242,7 @@
     <rect>
      <x>20</x>
      <y>290</y>
-     <width>641</width>
+     <width>571</width>
      <height>41</height>
     </rect>
    </property>
@@ -263,7 +263,7 @@
     <rect>
      <x>20</x>
      <y>410</y>
-     <width>641</width>
+     <width>571</width>
      <height>41</height>
     </rect>
    </property>
@@ -283,9 +283,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>370</y>
-     <width>781</width>
-     <height>31</height>
+     <y>350</y>
+     <width>531</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="font">
@@ -294,7 +294,34 @@
     </font>
    </property>
    <property name="text">
-    <string>当前时间  修改本地时间无用  可能略微超出有效期1分钟左右</string>
+    <string>当前时间  修改本地时间无用
+可能略微超出有效期1分钟左右</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>300</y>
+     <width>211</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>选中你的鸣潮exe</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>340</y>
+     <width>341</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
    </property>
   </widget>
  </widget>

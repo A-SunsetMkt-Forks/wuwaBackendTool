@@ -19,6 +19,9 @@ basic tool functions
 // 获取窗体 句柄
 #include <windows.h>
 #include <wingdi.h>
+//#include <TlHelp32.h>
+#include <psapi.h>
+#pragma comment(lib, "psapi.lib")
 
 #include <opencv2/opencv.hpp>
 
@@ -51,6 +54,9 @@ public:
 
     // 软件开启强制倒计时秒数
     static const int WELCOME_SEC;
+
+    // 一旦启动后 绑定鸣潮exe路径
+    static QString m_exePath;
 
     // store images dir
     // 懒加载静态变量
