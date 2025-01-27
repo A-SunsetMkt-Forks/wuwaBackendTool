@@ -15,6 +15,7 @@ basic tool functions
 #include <QCoreApplication>
 #include <QDir>
 #include <QTime>
+#include <QProcess>
 
 // 获取窗体 句柄
 #include <windows.h>
@@ -125,6 +126,9 @@ public:
 
     // 调试使用 保存某个场景 做标记图并保存
     static bool saveDebugImg(const cv::Mat& scrShot, const cv::Rect& templateRoi, const int& clickX, const int& clickY, const QString& hint);
+
+    // winapi 启动一个exe
+    static bool myCreateProcess(const std::wstring &exePath, const std::wstring &workingDir);
 
 private:
     static const QString wuwaWindowTitle;

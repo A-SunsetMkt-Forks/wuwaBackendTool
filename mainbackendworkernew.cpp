@@ -555,7 +555,10 @@ void MainBackendWorkerNew::onRebootGame(){
         qWarning() << "鸣潮 Executable does not exist or is not executable:" << exePath;
         return;
     }
+    QString workingDir = fileInfo.absolutePath();
+    QString exeFileName = fileInfo.fileName();
 
+    qInfo() << QString("10s 后重启游戏 工作路径 %1   游戏文件名 %2").arg(workingDir).arg(exeFileName);
     // 等待 直到窗体不再存在
     int maxWaitWuwaQuitMs = 60000;
     int waitMs = 0;
@@ -572,32 +575,83 @@ void MainBackendWorkerNew::onRebootGame(){
         return;
     }
 
-    Sleep(10000);  // 等10秒 确保关闭了
+    Sleep(5000);  // 等10秒 确保关闭了
+    // 1. 转换为 std::wstring
+    std::wstring wExePath  = exePath.toStdWString();
+    std::wstring wWorkDir  = workingDir.toStdWString();
 
-    if(m_wuwaProcess == nullptr){
-        m_wuwaProcess = new QProcess(this);
-    }
-    m_wuwaProcess->start(exePath);
-    // 等待进程启动
-    if (!m_wuwaProcess->waitForStarted(3000)) {
-        qWarning() << "Failed to start process:" << m_wuwaProcess->errorString();
-        m_wuwaProcess->deleteLater();
+    // 2. 调试输出
+    qDebug() << "Try to create process from exePath:" << exePath
+             << "with working directory:" << workingDir;
+
+    // 3. 调用自定义的 myCreateProcess
+    bool ok = Utils::myCreateProcess(wExePath, wWorkDir);
+    if (!ok) {
+        qWarning() << "Failed to launch process:" << exePath;
         return;
     }
-    qInfo() << "Process started successfully in background thread.";
-
-
-
-    // 如果能到这里，说明成功“启动”了
-    qDebug() << "Process started successfully.";
+    qInfo() << "Launch wuwa process succeeded:" << exePath;
+    Sleep(10000);
 
     // 最大等待300S 点击 进入游戏
+    if(!Utils::initWuwaHwnd()){
+        qWarning() << QString("进程启动 但无法获取有效window句柄");
+        return;
+    }
 
-    // 最大等待300s 找到背包
+    // 尝试后台激活窗口（并不强制将窗口置前）
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
 
+    if(AttachThreadInput(currentThreadId, threadId, TRUE)) {
+        // 激活窗口
+        SendMessage(Utils::hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+
+        // 最大等待300s 找到背包
+        const int maxWaitLinkStartMs = 300000;
+        int waitLinkStartMs = 0;
+        int x, y, timeCost;
+        double similarity;
+        cv::Mat linkStart = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("linkStart").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        if(!loopFindPic(linkStart, 0.8, maxWaitLinkStartMs, 200, "重启鸣潮后 未能找到 点击连接 按钮", similarity, x, y, timeCost)){
+            qWarning() << QString("重启鸣潮后 未能找到 点击连接 按钮");
+            Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, "重启鸣潮后 未能找到 点击连接 按钮");
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            return;
+        }
+
+        // 点击按钮 没响应继续点
+        Utils::clickWindowClientArea(Utils::hwnd, x + linkStart.cols / 2 , y + linkStart.rows / 2);
+        qInfo() << QString("找到了点击连接 按钮，点击它");
+        bool isEnterGame = false;
+        for(int i = 0; i < 10; i++){
+            int xOut, yOut;
+            cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            if(!Utils::findPic(capImg, linkStart, 0.8, xOut, yOut)){
+                // 找不到了才说明对了
+                isEnterGame = true;
+                break;
+            }
+            Utils::clickWindowClientArea(Utils::hwnd, x + linkStart.cols / 2 , y + linkStart.rows / 2);
+            qInfo() << QString("找到了点击连接 按钮，点击它");
+            Sleep(250);
+        }
+
+        if(!isEnterGame){
+            qWarning() << QString("重启鸣潮后 找到了点击连接 按钮，点击它N次仍未进入游戏");
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            return;
+        }
+
+    }
+    else{
+        qWarning() << QString("重启游戏后 无法激活窗体发送指令");
+        return;
+    }
+
+    AttachThreadInput(currentThreadId, threadId, FALSE);
     // 最后发出指令 要求UI 点击启动脚本
     return ;
-
 }
 
 bool MainBackendWorkerNew::enterBagInterface() {

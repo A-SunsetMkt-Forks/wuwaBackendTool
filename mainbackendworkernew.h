@@ -222,7 +222,6 @@ private:
     // 后台监控线程
     QThread m_watcherThread;
     WuwaWatcher m_watcher;
-    QProcess* m_wuwaProcess = nullptr;
 
     // 脚本线程启动 强制执行一次月卡判断
     bool isFirstSkipMonthCard = false;

@@ -852,3 +852,57 @@ bool Utils::saveDebugImg(const cv::Mat& scrShot, const cv::Rect& templateRoi, co
         return false;
     }
 }
+
+bool Utils::myCreateProcess(const std::wstring &exePath, const std::wstring &workingDir)
+{
+    STARTUPINFOW si = { sizeof(si) };
+    PROCESS_INFORMATION pi = {};
+    std::wstring cmdLine = exePath; // CreateProcess 会修改 cmdLine
+
+    BOOL success = CreateProcessW(
+        nullptr,
+        &cmdLine[0],  // 可写缓冲区
+        nullptr,
+        nullptr,
+        FALSE,
+        0,
+        nullptr,
+        workingDir.c_str(),
+        &si,
+        &pi
+    );
+
+    if (!success) {
+        DWORD err = GetLastError();
+        LPWSTR msgBuf = nullptr;
+        FormatMessageW(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr,
+            err,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPWSTR)&msgBuf,
+            0,
+            nullptr
+        );
+
+        // 这里改用 qWarning 输出
+        qWarning().noquote()
+            << QStringLiteral("CreateProcessW failed with error %1: %2")
+               .arg(err)
+               // 注意：msgBuf 是 wchar_t*；我们要转换到 QString
+               .arg(msgBuf ? QString::fromWCharArray(msgBuf).trimmed() : QStringLiteral("Unknown Error"));
+
+        if (msgBuf)
+            LocalFree(msgBuf);
+
+        return false;
+    }
+
+    // 进程成功创建
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    qDebug().noquote()
+        << QStringLiteral("CreateProcessW succeeded for: %1").arg(QString::fromWCharArray(exePath.c_str()));
+    return true;
+}
