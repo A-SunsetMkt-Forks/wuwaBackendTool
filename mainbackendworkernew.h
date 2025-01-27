@@ -153,6 +153,9 @@ signals:
     // 要求后台监控重启游戏工作
     void startWatcher();
 
+    // 要求UI 点击对应按钮 启动脚本
+
+
 public slots:
     // 响应UI要求 开始自动锁定声骸
     void onStartLockEcho(const LockEchoSetting &lockEchoSetting);

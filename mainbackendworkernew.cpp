@@ -591,11 +591,22 @@ void MainBackendWorkerNew::onRebootGame(){
         return;
     }
     qInfo() << "Launch wuwa process succeeded:" << exePath;
-    Sleep(10000);
 
-    // 最大等待300S 点击 进入游戏
-    if(!Utils::initWuwaHwnd()){
-        qWarning() << QString("进程启动 但无法获取有效window句柄");
+    const int maxWaitInitHwnd = 20000;
+    int waitInitHwnd = 0;
+    bool isInitWuwaHwnd = false;
+    while(waitInitHwnd < maxWaitInitHwnd){
+        // 最大等待300S 点击 进入游戏
+        isInitWuwaHwnd = Utils::initWuwaHwnd();
+        if(isInitWuwaHwnd){
+            break;
+        }
+        Sleep(1000);
+        waitInitHwnd += 1000;
+    }
+
+    if(!isInitWuwaHwnd){
+        qWarning() << QString("尝试等待20s 仍未获取到有效HWND");
         return;
     }
 
@@ -612,8 +623,20 @@ void MainBackendWorkerNew::onRebootGame(){
         int waitLinkStartMs = 0;
         int x, y, timeCost;
         double similarity;
+        bool isFoundLinkStart = false;
         cv::Mat linkStart = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("linkStart").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
-        if(!loopFindPic(linkStart, 0.8, maxWaitLinkStartMs, 200, "重启鸣潮后 未能找到 点击连接 按钮", similarity, x, y, timeCost)){
+        while(waitLinkStartMs < maxWaitLinkStartMs){
+            cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            if(Utils::findPic(capImg, linkStart, 0.8, x, y)){
+                isFoundLinkStart = true;
+                break;
+            }
+
+            Sleep(1000);
+            waitLinkStartMs += 1000;
+        }
+
+        if(!isFoundLinkStart){
             qWarning() << QString("重启鸣潮后 未能找到 点击连接 按钮");
             Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, "重启鸣潮后 未能找到 点击连接 按钮");
             AttachThreadInput(currentThreadId, threadId, FALSE);
@@ -639,10 +662,34 @@ void MainBackendWorkerNew::onRebootGame(){
 
         if(!isEnterGame){
             qWarning() << QString("重启鸣潮后 找到了点击连接 按钮，点击它N次仍未进入游戏");
+            Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, "重启鸣潮后 找到了点击连接 按钮，点击它N次仍未进入游戏");
             AttachThreadInput(currentThreadId, threadId, FALSE);
             return;
         }
 
+        const int maxWaitBagMs = 30000;
+        int waitBagMs = 0;
+        bool isFoundBag = false;
+        cv::Mat bag = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("bag").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        while(waitBagMs < maxWaitBagMs){
+            cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+            if(Utils::findPic(capImg, bag, 0.65, x, y)){
+                isFoundBag = true;
+                break;
+            }
+
+            Sleep(1000);
+            waitBagMs += 1000;
+        }
+
+        if(!isFoundBag){
+            qWarning() << QString("重启鸣潮后 点击了进入游戏 但是30秒后未发现背包");
+            Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), 0, 0, "重启鸣潮后 点击了进入游戏 但是30秒后未发现背包");
+            AttachThreadInput(currentThreadId, threadId, FALSE);
+            return;
+        }
+
+        qInfo() << QString("重启完毕 找到了背包 要求UI继续脚本");
     }
     else{
         qWarning() << QString("重启游戏后 无法激活窗体发送指令");
@@ -650,7 +697,7 @@ void MainBackendWorkerNew::onRebootGame(){
     }
 
     AttachThreadInput(currentThreadId, threadId, FALSE);
-    // 最后发出指令 要求UI 点击启动脚本
+    // emit XX
     return ;
 }
 
