@@ -55,8 +55,10 @@ public:
     // 软件开启强制倒计时秒数
     static const int WELCOME_SEC;
 
-    // 一旦启动后 绑定鸣潮exe路径
-    static QString m_exePath;
+    static QString EXE_PATH() {
+        QMutexLocker locker(&m_locker);
+        return m_exePath;
+    }
 
     // store images dir
     // 懒加载静态变量
@@ -133,6 +135,9 @@ private:
 
 
     static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
+
+    // 一旦启动后 绑定鸣潮exe路径
+    static QString m_exePath;
 
 };
 

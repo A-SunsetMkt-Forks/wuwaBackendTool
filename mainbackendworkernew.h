@@ -6,9 +6,12 @@
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QThread>
+#include <QProcess>
+
 #include "utils.h"
 #include "settingparams.h"
 #include "fightbackendworkernew.h"
+#include "wuwawatcher.h"
 
 
 
@@ -21,10 +24,15 @@ public:
     bool isBusy();
     void stopWorker();
 
-    static QAtomicInt lastMode;   // 0 表示未启动过，1表示后台刷取普通boss 2表示后台单刷特殊boss  3表示。。。。
+    static int getLastMode() {
+        return lastMode.load();
+    }
+
 
 private:
     QAtomicInt m_isRunning;   //原子int 防止多线程冲突
+
+    static QAtomicInt lastMode;   // 0 表示未启动过，1表示后台刷取普通boss 2表示后台单刷特殊boss  3表示。。。。
 
     // 启动时 初始化套装名字和图片列表
     void initEchoSetName2IconMap();
@@ -142,6 +150,9 @@ signals:
     // 要求战斗线程开始工作
     void startFight();
 
+    // 要求后台监控重启游戏工作
+    void startWatcher();
+
 public slots:
     // 响应UI要求 开始自动锁定声骸
     void onStartLockEcho(const LockEchoSetting &lockEchoSetting);
@@ -151,6 +162,9 @@ public slots:
 
     // 响应UI要求 开始单刷特殊boss
     void onStartSpecialBoss(const SpecialBossSetting &specialBossSetting);
+
+    // 响应后台监控的要求 重启游戏
+    void onRebootGame();
 
 
 
@@ -204,6 +218,11 @@ private:
     // 战斗线程
     QThread m_fightThread;
     FightBackendWorkerNew m_fightBackendWorkerNew;
+
+    // 后台监控线程
+    QThread m_watcherThread;
+    WuwaWatcher m_watcher;
+    QProcess* m_wuwaProcess = nullptr;
 
     // 脚本线程启动 强制执行一次月卡判断
     bool isFirstSkipMonthCard = false;

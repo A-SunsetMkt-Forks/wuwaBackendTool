@@ -424,8 +424,7 @@
 ALT+F12可停止脚本运行
 选中的boss必须开通了快速旅行！！
 现在有复活检测 需要背包至少有一个复活药
-有的声骸没捡到没关系的挂一晚上都有了
-暂时仅本页面可用 其他功能测试中</string>
+有的声骸没捡到没关系的挂一晚上都有了</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_10">

@@ -13,6 +13,14 @@ MainBackendWorkerNew::MainBackendWorkerNew(QObject *parent) : QObject(parent)
     m_fightThread.start();
     connect(this, &MainBackendWorkerNew::startFight, &this->m_fightBackendWorkerNew, &FightBackendWorkerNew::onStartFight);
 
+    // 初始化后台监控游戏重启线程
+    //QThread m_watcherThread;
+    //WuwaWatcher m_watcher;
+    m_watcher.moveToThread(&m_watcherThread);
+    m_watcherThread.start();
+    connect(this, &MainBackendWorkerNew::startWatcher, &this->m_watcher, &WuwaWatcher::startWatcher);
+    connect(&this->m_watcher, &WuwaWatcher::rebootGame, this, &MainBackendWorkerNew::onRebootGame);
+
 }
 
 MainBackendWorkerNew::~MainBackendWorkerNew()
@@ -20,6 +28,10 @@ MainBackendWorkerNew::~MainBackendWorkerNew()
     m_fightBackendWorkerNew.stopWorker();
     m_fightThread.quit();
     m_fightThread.wait();
+
+    m_watcher.stopWorker();
+    m_watcherThread.quit();
+    m_watcherThread.wait();
 
 }
 
@@ -34,6 +46,8 @@ bool MainBackendWorkerNew::isBusy(){
 
 void MainBackendWorkerNew::stopWorker(){
     m_fightBackendWorkerNew.stopWorker();
+    m_watcher.stopWorker();
+
     m_isRunning.store(0);
     qInfo() << QString("MainBackendWorkerNew 线程结束");
 }
@@ -78,9 +92,9 @@ void MainBackendWorkerNew::initEchoSetName2IconMap(){
     // 遍历 QVector 加载图片
     for (const QString &key : echoSetNameVector) {
         cv::Mat icon = cv::imread(
-            QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key).toLocal8Bit().toStdString(),
-            cv::IMREAD_UNCHANGED
-        );
+                    QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key).toLocal8Bit().toStdString(),
+                    cv::IMREAD_UNCHANGED
+                    );
 
         // 加入到 QMap 中
         echoSet2echoSetIconMap[key] = icon;
@@ -119,9 +133,9 @@ void MainBackendWorkerNew::initEntryName2IconMap(){
     // 遍历 QVector 加载图片
     for (const QString &key : entryNameVector) {
         cv::Mat icon = cv::imread(
-            QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key).toLocal8Bit().toStdString(),
-            cv::IMREAD_UNCHANGED
-        );
+                    QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI(), key).toLocal8Bit().toStdString(),
+                    cv::IMREAD_UNCHANGED
+                    );
 
         // 加入到 QMap 中
         entryName2entryIconMap[key] = icon;
@@ -250,6 +264,9 @@ void MainBackendWorkerNew::onStartLockEcho(const LockEchoSetting &lockEchoSettin
 void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBossSetting){
     m_isRunning.store(1);
     MainBackendWorkerNew::lastMode.store(1);
+
+    emit startWatcher();
+
     isFirstSkipMonthCard = false;
     qInfo() << QString("MainBackendWorkerNew::onStartNormalBoss");
 
@@ -317,7 +334,6 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
             for(NormalBossEnum thisBoss : allBossList){
                 if(normalBossSetting.isBossEnabled(thisBoss)){
                     skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
-
                     // 回到主界面 通过索拉指南 残像探寻 进入boss
                     bool isPrepared = normalBossPreperation(normalBossSetting, errMsg);
                     if(!isPrepared){
@@ -361,6 +377,9 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
 void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialBossSetting){
     m_isRunning.store(1);
     MainBackendWorkerNew::lastMode.store(2);
+
+    emit startWatcher();
+
     isFirstSkipMonthCard = false;
     qInfo() << QString("MainBackendWorkerNew::onStartSpecialBoss");
 
@@ -429,6 +448,7 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
             }
 
             skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
+
             // 准备工作
             switch (specialBossSetting.boss) {
             case SpecialBossSetting::SpecialBoss::Rover:
@@ -523,6 +543,62 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
 
 }
 
+// 响应后台监控的要求 重启游戏
+void MainBackendWorkerNew::onRebootGame(){
+    // #####  不保真  需要测试
+    QString exePath = QDir::toNativeSeparators(Utils::EXE_PATH());
+    exePath.replace("\\", "/");
+
+    qInfo() << QString("收到重启要求 重启鸣潮进程 %1").arg(exePath);
+    QFileInfo fileInfo(exePath);
+    if (!fileInfo.exists() || !fileInfo.isExecutable()) {
+        qWarning() << "鸣潮 Executable does not exist or is not executable:" << exePath;
+        return;
+    }
+
+    // 等待 直到窗体不再存在
+    int maxWaitWuwaQuitMs = 60000;
+    int waitMs = 0;
+    const int sleepPeriod = 200;
+    while(waitMs < maxWaitWuwaQuitMs){
+        Sleep(sleepPeriod);
+        if(!Utils::isWuwaRunning()){
+            break;
+        }
+    }
+
+    if(waitMs >= maxWaitWuwaQuitMs){
+        qWarning() << QString("收到重启请求 但是检测到鸣潮始终未关闭");
+        return;
+    }
+
+    Sleep(10000);  // 等10秒 确保关闭了
+
+    if(m_wuwaProcess == nullptr){
+        m_wuwaProcess = new QProcess(this);
+    }
+    m_wuwaProcess->start(exePath);
+    // 等待进程启动
+    if (!m_wuwaProcess->waitForStarted(3000)) {
+        qWarning() << "Failed to start process:" << m_wuwaProcess->errorString();
+        m_wuwaProcess->deleteLater();
+        return;
+    }
+    qInfo() << "Process started successfully in background thread.";
+
+
+
+    // 如果能到这里，说明成功“启动”了
+    qDebug() << "Process started successfully.";
+
+    // 最大等待300S 点击 进入游戏
+
+    // 最大等待300s 找到背包
+
+    // 最后发出指令 要求UI 点击启动脚本
+    return ;
+
+}
 
 bool MainBackendWorkerNew::enterBagInterface() {
     cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
@@ -2802,34 +2878,34 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
     onePageTimeCost.start();
     capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
     cv::Mat lockTrueMat = cv::imread(
-        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("lockTrue.bmp").toLocal8Bit().toStdString(),
-        cv::IMREAD_UNCHANGED
-    );
+                QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("lockTrue.bmp").toLocal8Bit().toStdString(),
+                cv::IMREAD_UNCHANGED
+                );
     cv::Mat lockFalseMat = cv::imread(
-        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("lockFalse.bmp").toLocal8Bit().toStdString(),
-        cv::IMREAD_UNCHANGED
-    );
+                QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("lockFalse.bmp").toLocal8Bit().toStdString(),
+                cv::IMREAD_UNCHANGED
+                );
     cv::Mat discardTrueMat = cv::imread(
-        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("discardTrue.bmp").toLocal8Bit().toStdString(),
-        cv::IMREAD_UNCHANGED
-    );
+                QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("discardTrue.bmp").toLocal8Bit().toStdString(),
+                cv::IMREAD_UNCHANGED
+                );
     cv::Mat discardFalseMat = cv::imread(
-        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("discardFalse.bmp").toLocal8Bit().toStdString(),
-        cv::IMREAD_UNCHANGED
-    );
+                QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("discardFalse.bmp").toLocal8Bit().toStdString(),
+                cv::IMREAD_UNCHANGED
+                );
 
     cv::Mat cost1Mat = cv::imread(
-        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost1.bmp").toLocal8Bit().toStdString(),
-        cv::IMREAD_UNCHANGED
-    );
+                QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost1.bmp").toLocal8Bit().toStdString(),
+                cv::IMREAD_UNCHANGED
+                );
     cv::Mat cost3Mat = cv::imread(
-        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost3.bmp").toLocal8Bit().toStdString(),
-        cv::IMREAD_UNCHANGED
-    );
+                QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost3.bmp").toLocal8Bit().toStdString(),
+                cv::IMREAD_UNCHANGED
+                );
     cv::Mat cost4Mat = cv::imread(
-        QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost4.bmp").toLocal8Bit().toStdString(),
-        cv::IMREAD_UNCHANGED
-    );
+                QString("%1/%2").arg(Utils::IMAGE_DIR_EI()).arg("cost4.bmp").toLocal8Bit().toStdString(),
+                cv::IMREAD_UNCHANGED
+                );
 
 
     for (int i = 0; i < maxColNum && isBusy(); i++) {
@@ -2868,10 +2944,10 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             // 如果找到了相似度最大的套装
             if (!bestEchoSetName.isEmpty()) {
                 qInfo() << QString("%1 行 %2 列 是 %3 (相似度: %4)")
-                               .arg(j + 1)
-                               .arg(i + 1)
-                               .arg(echoSetNameTranslationMap[bestEchoSetName])
-                               .arg(maxSimilarity);
+                           .arg(j + 1)
+                           .arg(i + 1)
+                           .arg(echoSetNameTranslationMap[bestEchoSetName])
+                           .arg(maxSimilarity);
                 //markImg(cv::Rect(echoSetRect.x + 20, echoSetRect.y + 20, echoSet2echoSetIconMap[bestEchoSetName].cols, echoSet2echoSetIconMap[bestEchoSetName].rows))= echoSet2echoSetIconMap[bestEchoSetName];
                 //cv::putText(markImg, bestEchoSetName.toLocal8Bit().toStdString(), cv::Point(x + echoSetRect.x, y + echoSetRect.y), cv::FONT_HERSHEY_SIMPLEX, 1.0,  cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
                 if (!bestEchoSetName.isEmpty() && echoSet2echoSetIconMap.contains(bestEchoSetName)) {
@@ -3127,8 +3203,8 @@ bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, 
 }
 
 bool MainBackendWorkerNew::loopFindPic(const cv::Mat& templateImg, const double& requireSimilarity, \
-                 const int &maxWaitMs, const int &refreshMs, const QString& ifFailedMsg, double& similarity, \
-                 int& x, int& y, int& timeCostMs){
+                                       const int &maxWaitMs, const int &refreshMs, const QString& ifFailedMsg, double& similarity, \
+                                       int& x, int& y, int& timeCostMs){
     QElapsedTimer timer;
     timer.start();
 

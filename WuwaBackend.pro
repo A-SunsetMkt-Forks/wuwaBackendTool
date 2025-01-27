@@ -68,7 +68,8 @@ SOURCES += \
     normalbosspanel.cpp \
     fightbackendworkernew.cpp \
     commonTools/encrypttools.cpp \
-    debugbackendworker.cpp
+    debugbackendworker.cpp \
+    wuwawatcher.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -92,7 +93,8 @@ HEADERS += \
     fightbackendworkernew.h \
     internettimefetcher.h \
     commonTools/encrypttools.h \
-    debugbackendworker.h
+    debugbackendworker.h \
+    wuwawatcher.h
 
 FORMS += \
         mainwindow.ui \
