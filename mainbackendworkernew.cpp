@@ -697,7 +697,7 @@ void MainBackendWorkerNew::onRebootGame(){
     }
 
     AttachThreadInput(currentThreadId, threadId, FALSE);
-    // emit XX
+    emit askUIstart(MainBackendWorkerNew::lastMode.load());
     return ;
 }
 

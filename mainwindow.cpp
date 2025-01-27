@@ -89,6 +89,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, &MainWindow::startSpecialBoss, &this->m_mainBackendWorkerNew, &MainBackendWorkerNew::onStartSpecialBoss);
     connect(&this->m_mainBackendWorkerNew, &MainBackendWorkerNew::specialBossDone, this, &MainWindow::onSpecialBossDone);
 
+    // 重启游戏 要求继续刷boss
+    connect(&this->m_mainBackendWorkerNew, &MainBackendWorkerNew::askUIstart, this, &MainWindow::onAskUIStart);
+
     // 注册全局快捷键 允许快捷停止脚本运行
     registerGlobalHotKey();
 
@@ -499,6 +502,19 @@ void MainWindow::onSpecialBossDone(const bool& isNormalEnd, const QString& errMs
         qCritical() << QString("onSpecialBossDone, result %1, msg %2").arg(isNormalEnd).arg(errMsg);
     }
 
+}
+
+void MainWindow::onAskUIStart(const int type){
+    if(type == 1){
+        on_startNormalBoss_clicked();
+    }
+    else if(type == 2){
+        on_startSingleBoss_clicked();
+    }
+    else{
+        qWarning() << QString("MainWindow::onAskUIStart  type = %1, UNDEFINED value").arg(type);
+        return;
+    }
 }
 
 // 启动时只检查一次：若无文件 / 被篡改 / 已过期 => 让用户输入密码重置

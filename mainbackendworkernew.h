@@ -154,6 +154,7 @@ signals:
     void startWatcher();
 
     // 要求UI 点击对应按钮 启动脚本
+    void askUIstart(const int type);
 
 
 public slots:

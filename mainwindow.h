@@ -136,6 +136,9 @@ private slots:
     void on_startSingleBoss_clicked();
     void onSpecialBossDone(const bool& isNormalEnd, const QString& errMsg, const SpecialBossSetting &specialBossSetting);
 
+    // 后台 重启游戏完毕 要求继续刷取boss
+    void onAskUIStart(const int type);
+
 
 private:
     QTimer checkLicTimer;   // 每60秒检查一次licence  可能不需要了 开启时检查即可
