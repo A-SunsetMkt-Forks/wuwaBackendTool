@@ -91,7 +91,7 @@ public:
 
     // 点击客户端的某个位置 鼠标左键
     static bool clickWindowClientArea(HWND hwnd, int x, int y);
-    static bool clickWindowClientArea2(HWND hwnd, int x, int y);
+
     // 向窗体发送单击指令
     static bool clickWindowClient(HWND hwnd);
 

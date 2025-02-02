@@ -280,6 +280,7 @@ bool Utils::isRunningAsAdmin() {
 
 // 模拟鼠标点击目标窗口的客户区坐标
 bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
+    /*
     if(hwnd == nullptr || !IsWindow(hwnd)){
         return false;
     }
@@ -308,20 +309,13 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
              << x << ", " << y << ")" ;
 
     return true;
-}
+    */
 
-bool Utils::clickWindowClientArea2(HWND hwnd, int x, int y){
-    if (hwnd == nullptr || !IsWindow(hwnd)) {
+    if(hwnd == nullptr || !IsWindow(hwnd)){
         return false;
     }
 
     QMutexLocker locker(&m_locker);
-
-    // 使用 moveMouseToClientArea 将鼠标移动到指定客户区坐标
-    if (!Utils::moveMouseToClientArea(hwnd, x, y)) {
-        qWarning() << "Failed to move mouse to client area coordinates.";
-        return false;
-    }
 
     // 将客户区坐标转换为屏幕坐标
     POINT clientPoint = { x, y };
@@ -330,15 +324,20 @@ bool Utils::clickWindowClientArea2(HWND hwnd, int x, int y){
         return false;
     }
 
-    // 如果 x, y 是“客户区坐标”，则直接组合到 lParam
-    LPARAM lParam = MAKELPARAM(x, y);
+    // 使用 SendInput 模拟鼠标点击
+    INPUT input = {0};
+    input.type = INPUT_MOUSE;
 
-    // 发送鼠标按下消息
-    PostMessage(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
+    // 鼠标按下事件
+    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+    input.mi.dx = clientPoint.x;
+    input.mi.dy = clientPoint.y;
+    SendInput(1, &input, sizeof(INPUT));
     Sleep(50);  // 给消息处理留一点缓冲时间
 
-    // 发送鼠标松开消息
-    PostMessage(hwnd, WM_LBUTTONUP, 0, lParam);
+    // 鼠标弹起事件
+    input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+    SendInput(1, &input, sizeof(INPUT));
     Sleep(50);
 
     qDebug() << "Simulated click at client area coordinates: ("
@@ -860,37 +859,37 @@ bool Utils::myCreateProcess(const std::wstring &exePath, const std::wstring &wor
     std::wstring cmdLine = exePath; // CreateProcess 会修改 cmdLine
 
     BOOL success = CreateProcessW(
-        nullptr,
-        &cmdLine[0],  // 可写缓冲区
-        nullptr,
-        nullptr,
-        FALSE,
-        0,
-        nullptr,
-        workingDir.c_str(),
-        &si,
-        &pi
-    );
+                nullptr,
+                &cmdLine[0],  // 可写缓冲区
+            nullptr,
+            nullptr,
+            FALSE,
+            0,
+            nullptr,
+            workingDir.c_str(),
+            &si,
+            &pi
+            );
 
     if (!success) {
         DWORD err = GetLastError();
         LPWSTR msgBuf = nullptr;
         FormatMessageW(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr,
-            err,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPWSTR)&msgBuf,
-            0,
-            nullptr
-        );
+                    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                    nullptr,
+                    err,
+                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                    (LPWSTR)&msgBuf,
+                    0,
+                    nullptr
+                    );
 
         // 这里改用 qWarning 输出
         qWarning().noquote()
-            << QStringLiteral("CreateProcessW failed with error %1: %2")
-               .arg(err)
-               // 注意：msgBuf 是 wchar_t*；我们要转换到 QString
-               .arg(msgBuf ? QString::fromWCharArray(msgBuf).trimmed() : QStringLiteral("Unknown Error"));
+                << QStringLiteral("CreateProcessW failed with error %1: %2")
+                   .arg(err)
+                   // 注意：msgBuf 是 wchar_t*；我们要转换到 QString
+                   .arg(msgBuf ? QString::fromWCharArray(msgBuf).trimmed() : QStringLiteral("Unknown Error"));
 
         if (msgBuf)
             LocalFree(msgBuf);
@@ -903,6 +902,6 @@ bool Utils::myCreateProcess(const std::wstring &exePath, const std::wstring &wor
     CloseHandle(pi.hThread);
 
     qDebug().noquote()
-        << QStringLiteral("CreateProcessW succeeded for: %1").arg(QString::fromWCharArray(exePath.c_str()));
+            << QStringLiteral("CreateProcessW succeeded for: %1").arg(QString::fromWCharArray(exePath.c_str()));
     return true;
 }

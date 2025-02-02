@@ -878,7 +878,7 @@ bool MainBackendWorkerNew::enterEchoList(){
         // 之前记录过残像探寻的坐标 直接点击
         double similarity;
         int x, y, timeCostMs;
-        Utils::moveMouseToClientArea(Utils::hwnd, switchEchoListPos.x, switchEchoListPos.y);
+        //Utils::moveMouseToClientArea(Utils::hwnd, switchEchoListPos.x, switchEchoListPos.y);
         Sleep(250);
         Utils::clickWindowClientArea(Utils::hwnd, switchEchoListPos.x, switchEchoListPos.y);
         Sleep(250);
@@ -908,7 +908,7 @@ bool MainBackendWorkerNew::enterEchoList(){
             cv::Mat echoBossListDefault = cv::imread(QString("%1/echoBossListDefault.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
             // 至多再点击4次 进不去就说明有问题了
             for(int i = 0; i < 4 && isBusy(); i++){
-                Utils::moveMouseToClientArea(Utils::hwnd, x + echoListUncheckedImg.cols / 2, y + echoListUncheckedImg.rows / 2);
+                //Utils::moveMouseToClientArea(Utils::hwnd, x + echoListUncheckedImg.cols / 2, y + echoListUncheckedImg.rows / 2);
                 Sleep(250);
                 Utils::clickWindowClientArea(Utils::hwnd, x + echoListUncheckedImg.cols / 2, y + echoListUncheckedImg.rows / 2);
                 Sleep(250);
@@ -1193,7 +1193,7 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
                 // ALT 左键 ALT松
                 Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
                 Sleep(500);
-                Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+                //Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
                 Sleep(500);
                 //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
                 Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
@@ -2743,7 +2743,7 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
                 // ALT 左键 ALT松
                 Utils::sendKeyToWindow(Utils::hwnd, VK_MENU, WM_KEYDOWN);
                 Sleep(500);
-                Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
+                //Utils::moveMouseToClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
                 Sleep(500);
                 //Utils::saveDebugImg(capImg, cv::Rect(), absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2, "pickUpEcho");
                 Utils::clickWindowClientArea(Utils::hwnd, absorbX + absorbMat.cols / 2, absorbY + absorbMat.rows / 2 );
@@ -2857,7 +2857,7 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
                                     scrollEchoListsEndPos.x, scrollEchoListsEndPos.y, \
                                     20, 20);
             Sleep(500);
-            Utils::moveMouseToClientArea(Utils::hwnd, scrollEchoListsWaitPos.x, scrollEchoListsWaitPos.y);
+            //Utils::moveMouseToClientArea(Utils::hwnd, scrollEchoListsWaitPos.x, scrollEchoListsWaitPos.y);
             Sleep(1000);
         }
         else{
@@ -3080,7 +3080,7 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
             }
 
             // 左键单击 选中当前声骸
-            Utils::moveMouseToClientArea(Utils::hwnd, echoRect.x + echoRect.width / 2,  echoRect.y + echoRect.height / 2);
+            //Utils::moveMouseToClientArea(Utils::hwnd, echoRect.x + echoRect.width / 2,  echoRect.y + echoRect.height / 2);
             Sleep(100);
             Utils::clickWindowClientArea(Utils::hwnd, echoRect.x + echoRect.width / 2,  echoRect.y + echoRect.height / 2);
             Sleep(500);
@@ -3233,6 +3233,7 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
 }
 
 bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy, int steps, int stepPauseMs) {
+    /*
     if (hwnd == nullptr || !IsWindow(hwnd)) {
         qWarning() << "Invalid window handle.";
         return false;
@@ -3295,6 +3296,68 @@ bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, 
     // 模拟松开鼠标左键
     LPARAM endLParam = MAKELPARAM(endx, endy);
     PostMessage(hwnd, WM_LBUTTONUP, 0, endLParam);
+    Sleep(50); // 缓冲时间
+
+    qDebug() << "Simulated drag from (" << startx << ", " << starty << ") to ("
+             << endx << ", " << endy << ")";
+
+    return true;
+    */
+
+    if (hwnd == nullptr || !IsWindow(hwnd)) {
+        qWarning() << "Invalid window handle.";
+        return false;
+    }
+
+    // 将起始点转换为屏幕坐标
+    POINT startPoint = { startx, starty };
+    if (!ClientToScreen(hwnd, &startPoint)) {
+        qWarning() << "Failed to convert start point to screen coordinates.";
+        return false;
+    }
+
+    // 将终点转换为屏幕坐标
+    POINT endPoint = { endx, endy };
+    if (!ClientToScreen(hwnd, &endPoint)) {
+        qWarning() << "Failed to convert end point to screen coordinates.";
+        return false;
+    }
+
+    // 使用 SendInput 模拟鼠标按下事件
+    INPUT input = {0};
+    input.type = INPUT_MOUSE;
+    input.mi.dx = startPoint.x;
+    input.mi.dy = startPoint.y;
+    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+    SendInput(1, &input, sizeof(INPUT));
+    Sleep(200); // 模拟按住时间
+
+    // 模拟鼠标拖拽过程
+    for (int i = 1; i <= steps && isBusy(); ++i) {
+        int intermediateX = startPoint.x + (endPoint.x - startPoint.x) * i / steps;
+        int intermediateY = startPoint.y + (endPoint.y - startPoint.y) * i / steps;
+
+        // 使用 SendInput 模拟鼠标移动（保持左键按下）
+        input.mi.dx = intermediateX;
+        input.mi.dy = intermediateY;
+        input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_LEFTDOWN;  // 保持左键按下
+        SendInput(1, &input, sizeof(INPUT));
+        Sleep(stepPauseMs); // 每步的延迟  默认50
+
+        if (i == steps) {
+            Sleep(1000); // 在最后一步，给时间给窗口响应
+        }
+    }
+
+    if (!isBusy()) {
+        return true;
+    }
+
+    // 使用 SendInput 模拟鼠标松开事件
+    input.mi.dx = endPoint.x;
+    input.mi.dy = endPoint.y;
+    input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+    SendInput(1, &input, sizeof(INPUT));
     Sleep(50); // 缓冲时间
 
     qDebug() << "Simulated drag from (" << startx << ", " << starty << ") to ("
@@ -3396,7 +3459,7 @@ void MainBackendWorkerNew::skipMonthCard(){
     }
 
     // 点击月卡图案
-    Utils::moveMouseToClientArea(Utils::hwnd, x + monthCardImg.cols/2, y + monthCardImg.rows/2);
+    //Utils::moveMouseToClientArea(Utils::hwnd, x + monthCardImg.cols/2, y + monthCardImg.rows/2);
     Sleep(250);
     Utils::clickWindowClientArea(Utils::hwnd, x + monthCardImg.cols/2, y + monthCardImg.rows/2);
     Sleep(250);
@@ -3411,7 +3474,7 @@ void MainBackendWorkerNew::skipMonthCard(){
 
     // 找到了奖励图标
     if(isFoundReward){
-        Utils::moveMouseToClientArea(Utils::hwnd, x + monthCardImg.cols/2, y + monthCardImg.rows/2);
+        //Utils::moveMouseToClientArea(Utils::hwnd, x + monthCardImg.cols/2, y + monthCardImg.rows/2);
         Sleep(250);
         Utils::clickWindowClientArea(Utils::hwnd, 630, 560);
         Sleep(250);
