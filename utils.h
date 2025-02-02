@@ -98,9 +98,7 @@ public:
     // 向窗体发送滚轮指令 要求传送值是120的整数倍 可以是负数
     static bool scrollWindowClientArea(HWND hwnd, int x, int y, int delta);
     // 向窗体发送拖拽指令
-    static bool dragWindowClient(HWND hwnd, int startx, int starty, int endx, int endy);
-    static bool dragWindowClient2(HWND hwnd, int startx, int starty, int endx, int endy);
-    static bool dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy);
+
     // 点击客户端的某个位置 鼠标中键
     static bool middleClickWindowClientArea(HWND hwnd, int x, int y);
 

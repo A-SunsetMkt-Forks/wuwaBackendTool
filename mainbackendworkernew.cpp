@@ -3233,7 +3233,7 @@ bool MainBackendWorkerNew::lockOnePageEcho(const LockEchoSetting& lockEchoSettin
 }
 
 bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, int endx, int endy, int steps, int stepPauseMs) {
-    /*
+
     if (hwnd == nullptr || !IsWindow(hwnd)) {
         qWarning() << "Invalid window handle.";
         return false;
@@ -3302,8 +3302,8 @@ bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, 
              << endx << ", " << endy << ")";
 
     return true;
-    */
 
+        /*
     if (hwnd == nullptr || !IsWindow(hwnd)) {
         qWarning() << "Invalid window handle.";
         return false;
@@ -3364,6 +3364,7 @@ bool MainBackendWorkerNew::dragWindowClient3(HWND hwnd, int startx, int starty, 
              << endx << ", " << endy << ")";
 
     return true;
+    */
 }
 
 bool MainBackendWorkerNew::loopFindPic(const cv::Mat& templateImg, const double& requireSimilarity, \
