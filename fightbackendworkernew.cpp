@@ -56,17 +56,29 @@ void FightBackendWorkerNew::onStartFight(){
     while(isBusy()){
         const int teamSize = 3;
         for(int i = 0; i < teamSize && isBusy(); i++){\
+            // 多按几次没事的 当修正视角了
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+
             if(!checkPause()) break;
             Utils::keyPress(Utils::hwnd, i + 1 + '0', 1);  // 切人
             Sleep(waitMs);
+
+            // 多按几次没事的 当修正视角了
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
 
             if(!checkPause()) break;
             Utils::keyPress(Utils::hwnd, 'R', 1);
             Sleep(waitMs);
 
+            // 多按几次没事的 当修正视角了
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+
             if(!checkPause()) break;
             Utils::keyPress(Utils::hwnd, 'E', 1);
             Sleep(waitMs);
+
+            // 多按几次没事的 当修正视角了
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
 
             if(!checkPause()) break;
             Utils::keyPress(Utils::hwnd, 'Q', 1);

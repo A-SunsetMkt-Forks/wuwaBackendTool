@@ -1089,6 +1089,9 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     timer.start();
     emit startFight();
 
+    // 多按几次没事的 当修正视角了
+    Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+
     // 每隔250ms判断boss状态
     // 能检测到背包图标 检测不到bosstitle 说明boss 死了 停止战斗
     // 能检测到背包图标 检测得到bosstitle 说明boss还活着 继续锤 恢复战斗
@@ -2520,6 +2523,10 @@ bool MainBackendWorkerNew::nightmareThunderingMephisPreparation(const NormalBoss
 }
 
 bool MainBackendWorkerNew::dreamlessPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg){
+    // 听说有时候没有boss A两下就刷出来了
+    //Utils::clickWindowClient(Utils::hwnd);
+    //Sleep(50);
+
     // 向前走3秒 然后锁定找title 锁定boss
     // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
@@ -2608,8 +2615,8 @@ bool MainBackendWorkerNew::juePreparation(const SpecialBossSetting &specialBossS
     }
     */
 
-    // 1秒没找到boss的title 认为失败 跳过
-    const int maxRunFindBossMs = 3000;
+    // 5秒没找到boss的title 认为失败 跳过  角多等一会
+    const int maxRunFindBossMs = 5000;
     const int detectBossPeroidMs = 200;
     int timeCost = 0;
 
@@ -2640,6 +2647,9 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
     timer.start();
     emit startFight();
 
+    // 多按几次没事的 当修正视角了
+    Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+
     // 每隔250ms判断boss状态
     // 能检测到背包图标 检测不到bosstitle 说明boss 死了 停止战斗
     // 能检测到背包图标 检测得到bosstitle 说明boss还活着 继续锤 恢复战斗
@@ -2657,6 +2667,7 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
         bool isFindTitle = Utils::findPic(capImg, bossTitle, 0.6, titleX, titleY, similarityTitle);
         bool isFindBag = Utils::findPic(capImg, bagImg, 0.7, bagX, bagY, similarityBag);
+
 
         if(isFindBag && isFindTitle){
             voteBossDead = 0;
@@ -2827,6 +2838,8 @@ bool MainBackendWorkerNew::repeatBattle(const SpecialBossSetting &specialBossSet
     if(!isBusy()){
         return true;
     }
+
+    // ##### todo 能找到背包 才说明完全成功
 
     return true;
 
@@ -3469,7 +3482,7 @@ void MainBackendWorkerNew::skipMonthCard(){
     int timeCostMs = 0;
     while(isBusy() && !isFoundReward && timeCostMs < 2000){
         cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-        isFoundReward = Utils::findPic(capImg, monthCardReward, 0.8, x, y);
+        isFoundReward = Utils::findPic(capImg, monthCardReward, 0.75, x, y);
         timeCostMs += 250;
     }
 

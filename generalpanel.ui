@@ -298,6 +298,34 @@
 可能略微超出有效期1分钟左右</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_11">
+   <property name="geometry">
+    <rect>
+     <x>600</x>
+     <y>220</y>
+     <width>391</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Agency FB</family>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+     <underline>false</underline>
+    </font>
+   </property>
+   <property name="text">
+    <string>设置 控制 开启
+镜头重置
+移动镜头修正
+战斗镜头修正 这三个选项
+
+设置 按键 键鼠 战斗和探索
+目标选择和切换 选择上面的模式</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
