@@ -30,7 +30,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="GeneralPanel" name="generalPanel">
      <property name="styleSheet">
@@ -47,7 +47,7 @@
     </widget>
     <widget class="SpeicalBossWidget" name="specialBossPanel">
      <attribute name="title">
-      <string>角 无妄者 赫卡忒</string>
+      <string>周本</string>
      </attribute>
     </widget>
     <widget class="DebugForm" name="debugPanel">

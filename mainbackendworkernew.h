@@ -126,10 +126,11 @@ private:
     bool nightmareTempestMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     bool nightmareThunderingMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
-    // 三个单独boss
+    // 周本
     bool dreamlessPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
     bool hecatePreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
     bool juePreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
+    bool fredericenPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
 
     // 单独boss战斗和拾取声骸
     bool specialBossFightPickupEcho(const SpecialBossSetting &specialBossSetting, const QString& bossEnName, QString& errMsg);

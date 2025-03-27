@@ -32,7 +32,8 @@ struct SpecialBossSetting{
     enum SpecialBoss{
         Jue,   // 角 今州岁主
         Rover,   // 无妄者 二姐
-        Hecate    // 赫卡忒
+        Hecate,    // 赫卡忒
+        Frederice   // ​芙露德莉丝
     };
 
     enum PickupShape {

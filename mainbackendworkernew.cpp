@@ -500,6 +500,22 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
 
                 break;
 
+            case SpecialBossSetting::SpecialBoss::Frederice:
+                if(!fredericenPreparation(specialBossSetting, errMsg)){
+                    skipMonthCard();   // 返回false以后 跳过月卡 再尝试一次 如果仍然失败 则退出
+                    if(!fredericenPreparation(specialBossSetting, errMsg)){
+                        qWarning() << QString("​芙露德莉丝 准备工作失败 %1").arg(errMsg);
+                        if(isSpecialBossStop(true, false, QString("​芙露德莉丝 准备工作失败 %1").arg(errMsg), specialBossSetting)) return;
+                    }
+                    continue;
+                }
+
+                if(!specialBossFightPickupEcho(specialBossSetting, "frederice", errMsg)){
+                    qWarning() << QString("​芙露德莉丝 战斗失败 %1").arg(errMsg);
+                }
+
+                break;
+
             default:
                 qWarning() << "boss 未适配";
                 if(isSpecialBossStop(true, false, "boss 未适配", specialBossSetting)) return;
@@ -2636,6 +2652,31 @@ bool MainBackendWorkerNew::juePreparation(const SpecialBossSetting &specialBossS
 
     // 没找到 记录错误
     Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "未能找到角的title");
+    return false;
+}
+
+bool MainBackendWorkerNew::fredericenPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg){
+    // 5秒没找到boss的title 认为失败 跳过  角多等一会
+    const int maxRunFindBossMs = 5000;
+    const int detectBossPeroidMs = 200;
+    int timeCost = 0;
+
+    int x, y;
+    double similarity;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("fredericeTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    if(loopFindPic(bossTitle, 0.8, maxRunFindBossMs, detectBossPeroidMs, "未能找到​芙露德莉丝的title", similarity, x, y, timeCost)){
+        Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+        qInfo() << QString("locked %1").arg("​芙露德莉丝");
+        Sleep(250);
+        return true;
+    }
+    // 可能是没找到或被用户打断
+    if(!isBusy()){
+        return true;
+    }
+
+    // 没找到 记录错误
+    Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "未能找到​芙露德莉丝的title");
     return false;
 }
 

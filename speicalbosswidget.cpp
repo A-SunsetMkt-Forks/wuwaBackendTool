@@ -24,7 +24,8 @@ SpecialBossSetting SpeicalBossWidget::getSetting()
         setting.boss = SpecialBossSetting::SpecialBoss::Rover;
     } else if (ui->HecateRadioButton->isChecked()){
         setting.boss = SpecialBossSetting::SpecialBoss::Hecate;
-
+    } else if(ui->FredericeRadioButton->isChecked()){
+        setting.boss = SpecialBossSetting::SpecialBoss::Frederice;
     }
 
     // 设置拾取方式
