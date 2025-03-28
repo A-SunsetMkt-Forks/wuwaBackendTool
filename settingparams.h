@@ -151,7 +151,7 @@ struct LockEchoSetting{
 };
 Q_DECLARE_METATYPE(LockEchoSetting)
 
-// Boss枚举  少了乌龟
+// Boss枚举
 enum class NormalBossEnum {
     DragonOfDirge,            // 叹息古龙
     SentryConstruct,          // 异构武装
@@ -173,7 +173,8 @@ enum class NormalBossEnum {
     NightmareInfernoRider,    // 梦魇燎照之骑士
     NightmareMourningAix,     // 梦魇哀声鸷
     NightmareTempestMephis,   // 梦魇云闪之鳞
-    NightmareThunderingMephis // 梦魇朔雷之鳞
+    NightmareThunderingMephis, // 梦魇朔雷之鳞
+    NightmareLampylumenMyriad   // 梦魇辉萤军势
 };
 
 // Boss设置结构
@@ -183,7 +184,7 @@ struct NormalBossSetting {
     // 默认构造函数，初始化所有Boss为启用
     NormalBossSetting() {
         for (int i = static_cast<int>(NormalBossEnum::DragonOfDirge);
-             i <= static_cast<int>(NormalBossEnum::NightmareThunderingMephis); ++i) {
+             i <= static_cast<int>(NormalBossEnum::NightmareLampylumenMyriad); ++i) {
             bossSettings[static_cast<NormalBossEnum>(i)] = false;
         }
     }
@@ -212,6 +213,7 @@ struct NormalBossSetting {
             case NormalBossEnum::NightmareMourningAix: return "nightmareMourningAix";
             case NormalBossEnum::NightmareTempestMephis: return "nightmareTempestMephis";
             case NormalBossEnum::NightmareThunderingMephis: return "nightmareThunderingMephis";
+            case NormalBossEnum::NightmareLampylumenMyriad: return "nightmareLampylumenMyriad";
             default: return "unknown";
         }
     }

@@ -37,6 +37,7 @@ NormalBossSetting NormalBossPanel::getNormalBossSettingFromUI() {
     setting.setBossEnabled(NormalBossEnum::NightmareMourningAix, ui->nightmareMourningAix->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareTempestMephis, ui->nightmareTempestMephis->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareThunderingMephis, ui->nightmareThunderingMephis->isChecked());
+    setting.setBossEnabled(NormalBossEnum::NightmareLampylumenMyriad, ui->nightmareLampylumenMyriad->isChecked());
 
     return setting;
 }
@@ -64,4 +65,5 @@ void NormalBossPanel::setNormalBossSetting2UI(const NormalBossSetting& setting) 
     ui->nightmareMourningAix->setChecked(setting.isBossEnabled(NormalBossEnum::NightmareMourningAix));
     ui->nightmareTempestMephis->setChecked(setting.isBossEnabled(NormalBossEnum::NightmareTempestMephis));
     ui->nightmareThunderingMephis->setChecked(setting.isBossEnabled(NormalBossEnum::NightmareThunderingMephis));
+    ui->nightmareLampylumenMyriad->setChecked(setting.isBossEnabled(NormalBossEnum::NightmareLampylumenMyriad));
 }

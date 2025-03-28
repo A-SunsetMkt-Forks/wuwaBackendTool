@@ -125,6 +125,7 @@ private:
     bool nightmareMourningAixPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     bool nightmareTempestMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     bool nightmareThunderingMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    bool nightmareLampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
     // 周本
     bool dreamlessPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);

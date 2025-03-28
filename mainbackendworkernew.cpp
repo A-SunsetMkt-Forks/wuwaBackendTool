@@ -1089,6 +1089,11 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
         }
         break;
 
+    case NormalBossEnum::NightmareLampylumenMyriad:
+        if(!nightmareLampylumenMyriadPreparation(normalBossSetting, errMsg)){
+            return false;
+        }
+        break;
 
     default:
         qWarning() << QString("BOSS %1 is not finished coding yet").arg(NormalBossSetting::Enum2QString(bossName));
@@ -2538,6 +2543,70 @@ bool MainBackendWorkerNew::nightmareThunderingMephisPreparation(const NormalBoss
     return isTraced;
 }
 
+bool MainBackendWorkerNew::nightmareLampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "nightmareLampylumenMyriad", "梦魇辉萤军势", errMsg);
+    if(!isGeneralPrepared){
+        return false;
+    }
+
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+
+    // 如果跑了 N秒没找到 认为失败 跳过
+    const int maxRunFindBossMs = 10*1000;
+    const int detectBossPeroidMs = 500;
+
+    QElapsedTimer timer;
+    timer.start();
+    int x, y;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("nightmareLampylumenMyriadTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isTraced = false;
+    while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+        double similarity;
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+
+            // 找到boss title了
+            isTraced = true;
+
+            for(int i = 0; i < 5 && isBusy(); i++){
+                Sleep(500);
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+            qInfo() << QString("locked %1").arg("梦魇辉萤军势");
+            Sleep(250);
+            break;
+        }
+
+        Sleep(detectBossPeroidMs);
+    }
+
+    if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
+        return true;
+    }
+
+    if(!isTraced){
+        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockNightmareLampylumenMyriad");
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
+    }
+    return isTraced;
+}
+
 bool MainBackendWorkerNew::dreamlessPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg){
     // 听说有时候没有boss A两下就刷出来了
     //Utils::clickWindowClient(Utils::hwnd);
@@ -2911,8 +2980,9 @@ bool MainBackendWorkerNew::echoList2bossPositionPreparation(const NormalBossSett
                                     scrollEchoListsEndPos.x, scrollEchoListsEndPos.y, \
                                     20, 20);
             Sleep(500);
-            //Utils::moveMouseToClientArea(Utils::hwnd, scrollEchoListsWaitPos.x, scrollEchoListsWaitPos.y);
-            Sleep(1000);
+            Utils::moveMouseToClientArea(Utils::hwnd, scrollEchoListsWaitPos.x, scrollEchoListsWaitPos.y);
+            //Utils::moveMouseToClientArea(Utils::hwnd, 1, 1);
+            Sleep(750);
         }
         else{
             break;  //找到了icon
