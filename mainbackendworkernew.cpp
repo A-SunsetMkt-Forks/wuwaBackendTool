@@ -2725,8 +2725,9 @@ bool MainBackendWorkerNew::juePreparation(const SpecialBossSetting &specialBossS
 }
 
 bool MainBackendWorkerNew::fredericenPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg){
+
     // 5秒没找到boss的title 认为失败 跳过  角多等一会
-    const int maxRunFindBossMs = 5000;
+    const int maxRunFindBossMs = 3000;
     const int detectBossPeroidMs = 200;
     int timeCost = 0;
 
@@ -2888,6 +2889,8 @@ bool MainBackendWorkerNew::specialBossFightPickupEcho(const SpecialBossSetting &
         return true;
     }
 
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+    Sleep(250);
     if(isAbsorb) {pickUpNormalBossEcho = pickUpNormalBossEcho + 1;}
     qInfo() << QString("pickUpEchoNumber %1").arg(pickUpNormalBossEcho);
 
