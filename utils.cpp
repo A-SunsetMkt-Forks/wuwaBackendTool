@@ -109,6 +109,90 @@ bool Utils::isWuwaRunning(){
     }
 }
 
+void Utils::killProcessByWindow(HWND hwnd) {
+    DWORD processId = 0;
+    DWORD threadId = GetWindowThreadProcessId(hwnd, &processId);
+    if (processId == 0) {
+        qWarning() << "Failed to get process ID";
+        return;
+    }
+
+    HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, processId);
+    if (!hProcess) {
+        qWarning() << "OpenProcess failed. Error:" << GetLastError();
+        return;
+    }
+
+    if (!TerminateProcess(hProcess, 1)) {
+        qWarning() << "TerminateProcess failed. Error:" << GetLastError();
+    }
+    CloseHandle(hProcess);
+}
+
+// 强制终止指定路径的进程（QString 版本）
+void Utils::killProcessByPath(const QString& targetPath) {
+    // 检查文件是否存在（严格模式）
+    if (!QFileInfo::exists(targetPath)) {
+        qDebug() << "目标文件不存在:" << targetPath;
+        return;
+    }
+
+    // 转换为Windows原生路径格式（保留原始大小写和格式）
+    const std::wstring target = QDir::toNativeSeparators(targetPath).toStdWString();
+
+    // 创建进程快照
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE) {
+        qWarning() << "创建进程快照失败，错误码:" << GetLastError();
+        return;
+    }
+
+    PROCESSENTRY32W pe = { sizeof(PROCESSENTRY32W) };
+    bool processFound = false;
+
+    if (Process32FirstW(hSnapshot, &pe)) {
+        do {
+            HANDLE hProcess = OpenProcess(
+                PROCESS_QUERY_INFORMATION | PROCESS_TERMINATE,
+                FALSE,
+                pe.th32ProcessID
+            );
+
+            if (hProcess) {
+                wchar_t exePath[MAX_PATH] = {0};
+                DWORD bufSize = MAX_PATH;
+
+                // 使用兼容性更好的函数获取路径
+                if (GetModuleFileNameExW(hProcess, NULL, exePath, bufSize)) {
+                    // 标准化路径格式
+                    std::wstring processPath = exePath;
+                    processPath = QDir::toNativeSeparators(
+                        QString::fromWCharArray(processPath.c_str())
+                    ).toStdWString();
+
+                    // 不区分大小写比较
+                    if (_wcsicmp(processPath.c_str(), target.c_str()) == 0) {
+                        if (TerminateProcess(hProcess, 1)) {
+                            qInfo() << "已终止进程:" << targetPath;
+                            processFound = true;
+                        } else {
+                            qWarning() << "终止进程失败，PID:"
+                                      << pe.th32ProcessID << "错误码:" << GetLastError();
+                        }
+                    }
+                }
+                CloseHandle(hProcess);
+            }
+        } while (Process32NextW(hSnapshot, &pe));
+    }
+
+    CloseHandle(hSnapshot);
+
+    if (!processFound) {
+        qDebug() << "未找到运行中的进程:" << targetPath;
+    }
+}
+
 QStringList Utils::getAllWindowTitles(){
     QStringList windowTitles;
 

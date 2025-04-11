@@ -20,7 +20,8 @@ basic tool functions
 // 获取窗体 句柄
 #include <windows.h>
 #include <wingdi.h>
-//#include <TlHelp32.h>
+#include <winbase.h>
+#include <tlHelp32.h>
 #include <psapi.h>
 #pragma comment(lib, "psapi.lib")
 
@@ -40,6 +41,10 @@ public:
     // judge if wuwa process is still running
     static bool isWuwaRunning();
 
+    // 暴力关闭鸣潮进程
+    static void killProcessByWindow(HWND hwnd);
+
+    static void killProcessByPath(const QString& targetPath);
 
     // 枚举获取所有的窗体
     static QStringList getAllWindowTitles();

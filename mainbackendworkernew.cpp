@@ -563,6 +563,7 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
 void MainBackendWorkerNew::onRebootGame(){
     // #####  不保真  需要测试
     QString exePath = QDir::toNativeSeparators(Utils::EXE_PATH());
+    Utils::killProcessByPath(exePath);
     exePath.replace("\\", "/");
 
     qInfo() << QString("收到重启要求 重启鸣潮进程 %1").arg(exePath);
@@ -573,6 +574,8 @@ void MainBackendWorkerNew::onRebootGame(){
     }
     QString workingDir = fileInfo.absolutePath();
     QString exeFileName = fileInfo.fileName();
+    //把这个也连带强制关闭
+    Utils::killProcessByPath(workingDir + "/ThirdParty/KrPcSdk_Mainland/KRSDKExternal.exe");
 
     qInfo() << QString("10s 后重启游戏 工作路径 %1   游戏文件名 %2").arg(workingDir).arg(exeFileName);
     // 等待 直到窗体不再存在
