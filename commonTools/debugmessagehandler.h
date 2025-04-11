@@ -158,6 +158,7 @@ private:
         logFile = new QFile(logFileName);
         if (logFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
             logStream = new QTextStream(logFile);
+            logStream->setCodec("UTF-8");
         } else {
             delete logFile;
             logFile = nullptr;

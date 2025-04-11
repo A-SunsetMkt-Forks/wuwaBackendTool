@@ -48,6 +48,10 @@ LIBS += -L$$PWD/3rd/opencv/x64/mingw/lib/ -llibopencv_highgui410
 # 链接 Windows GDI 和用户库
 LIBS += -lgdi32 -luser32 -lPsapi
 
+win32-g++ {
+    QMAKE_CXXFLAGS += -finput-charset=UTF-8 -fexec-charset=UTF-8
+}
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
