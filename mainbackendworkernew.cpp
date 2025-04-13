@@ -273,6 +273,7 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
     // 初始化句柄
     bool isInit = Utils::initWuwaHwnd();
     if(!isInit){
+        m_watcher.stopWorker();
         emit normalBossDone(false, QString("未能初始化鸣潮窗口句柄"), normalBossSetting);
         m_isRunning.store(0);
         return;
@@ -280,6 +281,7 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
 
     bool isWuwaRunning = Utils::isWuwaRunning();
     if(!isWuwaRunning){
+        m_watcher.stopWorker();
         emit normalBossDone(false, QString("未能初始化鸣潮窗口句柄"), normalBossSetting);
         m_isRunning.store(0);
         return;
@@ -291,6 +293,7 @@ void MainBackendWorkerNew::onStartNormalBoss(const NormalBossSetting &normalBoss
 
     // 每一步都需要执行该检查 封装为匿名函数
     auto isNormalBossStop = [&](bool isAbort, bool isNormalEnd, const QString& msg, const NormalBossSetting &normalBossSetting) {
+        m_watcher.stopWorker();
         bool isWuwaRunning = Utils::isWuwaRunning();
         if(!isWuwaRunning){
             // 鸣潮已经被关闭 异常结束
@@ -386,6 +389,7 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
     // 初始化句柄
     bool isInit = Utils::initWuwaHwnd();
     if(!isInit){
+        m_watcher.stopWorker();
         emit specialBossDone(false, QString("未能初始化鸣潮窗口句柄"), specialBossSetting);
         m_isRunning.store(0);
         return;
@@ -393,6 +397,7 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
 
     bool isWuwaRunning = Utils::isWuwaRunning();
     if(!isWuwaRunning){
+        m_watcher.stopWorker();
         emit specialBossDone(false, QString("未能初始化鸣潮窗口句柄"), specialBossSetting);
         m_isRunning.store(0);
         return;
@@ -404,6 +409,7 @@ void MainBackendWorkerNew::onStartSpecialBoss(const SpecialBossSetting &specialB
 
     // 每一步都需要执行该检查 封装为匿名函数
     auto isSpecialBossStop = [&](bool isAbort, bool isNormalEnd, const QString& msg, const SpecialBossSetting &specialBossSetting) {
+        m_watcher.stopWorker();
         bool isWuwaRunning = Utils::isWuwaRunning();
         if(!isWuwaRunning){
             // 鸣潮已经被关闭 异常结束
@@ -644,9 +650,10 @@ void MainBackendWorkerNew::onRebootGame(){
         double similarity;
         bool isFoundLinkStart = false;
         cv::Mat linkStart = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("linkStart").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+        cv::Mat linkStart1280720 = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("linkStart1280720").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
         while(waitLinkStartMs < maxWaitLinkStartMs){
             cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-            if(Utils::findPic(capImg, linkStart, 0.8, x, y)){
+            if(Utils::findPic(capImg, linkStart, 0.75, x, y) || Utils::findPic(capImg, linkStart1280720, 0.75, x, y)){
                 isFoundLinkStart = true;
                 break;
             }
@@ -669,7 +676,7 @@ void MainBackendWorkerNew::onRebootGame(){
         for(int i = 0; i < 10; i++){
             int xOut, yOut;
             cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-            if(!Utils::findPic(capImg, linkStart, 0.8, xOut, yOut)){
+            if(!Utils::findPic(capImg, linkStart, 0.8, xOut, yOut) && !Utils::findPic(capImg, linkStart1280720, 0.8, xOut, yOut)){
                 // 找不到了才说明对了
                 isEnterGame = true;
                 break;
@@ -3677,7 +3684,7 @@ bool MainBackendWorkerNew::revive(){
         // 应该能找到 小型信标这几个汉字
         if(!Utils::findPic(capImg, tpRevive1check, 0.8, x, y, similarity)){
             cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
-            Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "复活信标重叠无法找到小型信标这几个汉字");
+            //Utils::saveDebugImg(capImg, cv::Rect(), 0, 0, "复活信标重叠无法找到小型信标这几个汉字");
             qInfo() << "复活信标重叠无法找到小型信标这几个汉字";
             //return false;
         }

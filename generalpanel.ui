@@ -174,10 +174,19 @@
    <property name="font">
     <font>
      <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel#label_7 {
+    color: red;
+    font-weight: bold;
+}</string>
+   </property>
    <property name="text">
-    <string>本软件永久免费无广告无病毒</string>
+    <string>本软件永久免费无广告无病毒 必须以管理员身份启动
+游戏亮度调整为25 键位设置全部保持默认</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_8">
