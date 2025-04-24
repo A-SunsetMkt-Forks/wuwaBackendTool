@@ -1,4 +1,4 @@
-# 项目名称
+# To legend dog trainer Kuro Games~
 
 欢迎来到本项目！
 
