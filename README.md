@@ -1,4 +1,4 @@
-# To legend dog trainer Kuro Games~
+# To legend dog trainer XXXX Games~
 
 欢迎来到本项目！
 
