@@ -73,7 +73,9 @@ SOURCES += \
     fightbackendworkernew.cpp \
     commonTools/encrypttools.cpp \
     debugbackendworker.cpp \
-    wuwawatcher.cpp
+    wuwawatcher.cpp \
+    towerBattle/readme.cpp \
+    towerofadversitywidget.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -98,7 +100,8 @@ HEADERS += \
     internettimefetcher.h \
     commonTools/encrypttools.h \
     debugbackendworker.h \
-    wuwawatcher.h
+    wuwawatcher.h \
+    towerofadversitywidget.h
 
 FORMS += \
         mainwindow.ui \
@@ -109,7 +112,9 @@ FORMS += \
     abstractentrypanel.ui \
     entrypanel.ui \
     welcomedialog.ui \
-    normalbosspanel.ui
+    normalbosspanel.ui \
+    towerofadversitywidget.ui \
+    towerofadversitywidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
