@@ -14,12 +14,36 @@ public:
     // 获取单例实例（返回引用）
     static TowerBattleDataManager& Instance();
 
-    QVector<double> readData() const ;
-    void writeData(const QVector<double> &data);
 
     // 删除拷贝构造函数和赋值运算符
     TowerBattleDataManager(const TowerBattleDataManager&) = delete;
     TowerBattleDataManager& operator=(const TowerBattleDataManager&) = delete;
+
+    //======= 线程安全的读写接口 =======//
+    // OpenCV图像数据
+    const cv::Mat& getLastCapImg() const;
+    void setLastCapImg(const cv::Mat& newImg);
+
+    // 图像采集参数
+    int getCapFrameRate() const;
+    void setCapFrameRate(int rate);
+    int getTickRate() const;
+    void setTickRate(int rate);
+
+    // 角色状态
+    int getCurrentIndex() const;
+    void setCurrentIndex(int idx);
+    bool isResonanceSkillReady() const;
+    void setResonanceSkillReady(bool ready);
+    bool isResonanceLiberationReady() const;
+    void setResonanceLiberationReady(bool ready);
+    double getResonanceCircuit() const;
+    void setResonanceCircuit(double value);
+    bool isEchoSkillReady() const;
+    void setEchoSkillReady(bool ready);
+    bool isExplorerToolReady() const;
+    void setExplorerToolReady(bool ready);
+
 
 
 private:
@@ -28,9 +52,19 @@ private:
     ~TowerBattleDataManager();
 
     mutable QReadWriteLock readwriteLocker; // 读写锁（mutable 允许 const 函数中使用）
-    QVector<double> testData;
 
-    int
+    // 最后一次获取的图像
+    cv::Mat m_lastCapImg;
+    int m_cap_frame_rate = 30;  // 捕获图像帧率 默认30
+    int m_tick_rate = 10;  // 每秒做多少次判断
+
+    int current_idx = 1;  // 默认1号位
+    bool resonance_skill_ready = true;
+    bool resonance_liberation_ready = true;
+    double resonance_circuit = 0.0;  // 0.0表示空回路 1.0表示满回路
+    bool echo_skill_ready = true;
+    bool explorer_tool_ready = true;
+
 };
 
 #endif // TOWERBATTLEDATAMANAGER_H
