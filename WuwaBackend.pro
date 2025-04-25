@@ -75,7 +75,8 @@ SOURCES += \
     debugbackendworker.cpp \
     wuwawatcher.cpp \
     towerBattle/readme.cpp \
-    towerofadversitywidget.cpp
+    towerofadversitywidget.cpp \
+    towerBattle/towerbattledatamanager.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -101,7 +102,8 @@ HEADERS += \
     commonTools/encrypttools.h \
     debugbackendworker.h \
     wuwawatcher.h \
-    towerofadversitywidget.h
+    towerofadversitywidget.h \
+    towerBattle/towerbattledatamanager.h
 
 FORMS += \
         mainwindow.ui \
