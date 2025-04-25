@@ -1,0 +1,66 @@
+#include "towerofadversitywidget.h"
+#include "ui_towerofadversitywidget.h"
+
+TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::TowerOfAdversityWidget)
+{
+    ui->setupUi(this);
+    //构造队伍信息
+    initTeamInfoMap();
+
+    // 填充到UI
+    for(auto pair : m_teamInfoMap.keys()){
+        ui->supportTeam->addItem(teamEnum2QString(pair));
+        ui->teamInfo->setText(m_teamInfoMap[pair]);
+    }
+
+    ui->readme->setText(QString("教学工具并不能帮你完成所有操作。你需要手动完成开始游戏和闪避等。\n可以动脑多多思考"));
+
+
+}
+
+TowerOfAdversityWidget::~TowerOfAdversityWidget()
+{
+    delete ui;
+}
+
+QString TowerOfAdversityWidget::teamEnum2QString(const Team& team){
+    switch (team) {
+    case Camellya_Sanhua_Shorekeeper:
+        return QString("1椿 2散 3守");
+
+    default:
+        return QString("未知配队");
+
+    }
+}
+
+void TowerOfAdversityWidget::initTeamInfoMap(){
+    QString Camellya_Sanhua_Shorekeeper_str;
+    Camellya_Sanhua_Shorekeeper_str = QString("1号必须是椿 2号必须是散华 3号必须是守岸人\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("椿 要求人物武器90级 00（千古）或01-声骸43311-暴击率65-爆伤250\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("散华 要求人物武器70级 至少5链-共鸣效率120%-生命值10000\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("守 要求人物武器70级 0链奇幻变奏或01-共鸣效率230%-4C必须无归谬误-生命值20000\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("配置越高越好，越高越容易过关。\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("手法讲解:\n\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("启动轴 \n");
+    Camellya_Sanhua_Shorekeeper_str += QString("1椿-EQ\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("2散-ERZ\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("3守-AAAAZ-AAAAZ-EQR↓\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("1椿-EAAAAAAA\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("2散-EAQ↓\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("1椿-AAAE(一日花)R-AAAAAAAAAA↓\n\n");
+
+    Camellya_Sanhua_Shorekeeper_str += QString("循环轴 \n");
+    Camellya_Sanhua_Shorekeeper_str += QString("3守-被动\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("2散-ERZ\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("3守-AAAAZ-EQR↓\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("1椿-EAAAAAAA\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("2散-EQ↓\n");
+    Camellya_Sanhua_Shorekeeper_str += QString("1椿-AAAE(一日花)R-AAAAAAAAAA↓\n\n");
+    m_teamInfoMap[Team::Camellya_Sanhua_Shorekeeper] = Camellya_Sanhua_Shorekeeper_str;
+
+
+
+}

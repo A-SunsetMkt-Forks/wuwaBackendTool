@@ -30,7 +30,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>5</number>
     </property>
     <widget class="GeneralPanel" name="generalPanel">
      <property name="styleSheet">
@@ -58,6 +58,11 @@
     <widget class="EchoLockEntriesPanel" name="echoLockEntriesPanel">
      <attribute name="title">
       <string>声骸锁定</string>
+     </attribute>
+    </widget>
+    <widget class="TowerOfAdversityWidget" name="towerTextBookPanel">
+     <attribute name="title">
+      <string>深塔教学助手</string>
      </attribute>
     </widget>
    </widget>
@@ -140,11 +145,12 @@ ALT+F12</string>
       <x>1020</x>
       <y>600</y>
       <width>271</width>
-      <height>31</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
-     <string>v2.2.0 永久免费无广告无病毒</string>
+     <string>v2.3.0 永久免费无广告无病毒
+to legend dog trainer</string>
     </property>
    </widget>
   </widget>
@@ -198,6 +204,12 @@ ALT+F12</string>
    <class>NormalBossPanel</class>
    <extends>QWidget</extends>
    <header location="global">normalbosspanel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TowerOfAdversityWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">towerofadversitywidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
