@@ -117,7 +117,7 @@
   <widget class="QSpinBox" name="currentIdx">
    <property name="geometry">
     <rect>
-     <x>630</x>
+     <x>690</x>
      <y>50</y>
      <width>91</width>
      <height>22</height>
