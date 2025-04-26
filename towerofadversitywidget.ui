@@ -64,7 +64,7 @@
     <rect>
      <x>310</x>
      <y>50</y>
-     <width>231</width>
+     <width>141</width>
      <height>21</height>
     </rect>
    </property>
@@ -83,6 +83,22 @@
    </property>
    <property name="text">
     <string>开始</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="gameMonitorStatus">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>50</y>
+     <width>121</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
    </property>
   </widget>
  </widget>

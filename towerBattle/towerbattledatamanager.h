@@ -62,6 +62,9 @@ public:
     void setCurrentTeamVec(const QVector<TowerBattleDataManager::Charactor> &currentTeamVec);
     QVector<TowerBattleDataManager::Charactor> getCurrentTeamVec() const;
 
+    // 枚举值转字符串
+    QString teamEnum2QString(const TowerBattleDataManager::Team& team);
+    QString charactorEnum2QString(const TowerBattleDataManager::Charactor& charactor);
 
 private:
     // 构造函数和析构函数私有化

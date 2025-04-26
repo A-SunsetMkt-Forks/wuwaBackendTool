@@ -16,6 +16,7 @@ basic tool functions
 #include <QDir>
 #include <QTime>
 #include <QProcess>
+#include <QLabel>
 
 // 获取窗体 句柄
 #include <windows.h>
@@ -123,6 +124,7 @@ public:
     // QImage 和cvMat互转
     static QImage cvMat2QImage(const cv::Mat& mat);
     static cv::Mat qImage2CvMat(const QImage& image);
+    static bool displayMatOnLabel(QLabel* label, const QImage& image);
 
     // "F48A94" 转换为颜色
     static bool hexToBGR(const QString& hexColor, cv::Vec3b& outColor);

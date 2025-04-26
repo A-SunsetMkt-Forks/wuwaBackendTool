@@ -189,6 +189,7 @@ void MainWindow::registerType(){
     qRegisterMetaType<LockEchoSetting>("LockEchoSetting");
     qRegisterMetaType<SingleEchoSetting>("SingleEchoSetting");
     qRegisterMetaType<NormalBossSetting>("NormalBossSetting");
+    qRegisterMetaType<cv::Mat>("cv::Mat");
 }
 
 void MainWindow::genDefaultLockEchoSetting(){

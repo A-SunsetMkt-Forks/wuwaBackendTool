@@ -121,3 +121,28 @@ QVector<TowerBattleDataManager::Charactor> TowerBattleDataManager::getCurrentTea
 }
 
 
+QString TowerBattleDataManager::teamEnum2QString(const TowerBattleDataManager::Team& team){
+    switch (team) {
+    case TowerBattleDataManager::Team::Camellya_Sanhua_Shorekeeper:
+        return QString("1椿 2散 3守");
+
+    default:
+        return QString("未知配队");
+
+    }
+}
+
+QString TowerBattleDataManager::charactorEnum2QString(const TowerBattleDataManager::Charactor& charactor){
+    switch (charactor) {
+    case TowerBattleDataManager::Charactor::Camellya:
+        return QString("Camellya");
+    case TowerBattleDataManager::Charactor::Sanhua:
+        return QString("Sanhua");
+    case TowerBattleDataManager::Charactor::Shorekeeper:
+        return QString("Shorekeeper");
+
+    default:
+        return QString("未知角色");
+
+    }
+}

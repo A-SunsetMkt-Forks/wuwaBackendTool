@@ -614,6 +614,41 @@ cv::Mat Utils::qImage2CvMat(const QImage& image) {
     }
 }
 
+bool Utils::displayMatOnLabel(QLabel* label, const QImage& image) {
+    // 检查输入有效性
+    if (!label) {
+        qWarning() << "QLabel指针为空!";
+        return false;
+    }
+    if (image.isNull()) {
+        qWarning() << "QImage图像为空!";
+        return false;
+    }
+
+    // 直接转换为QPixmap
+    QPixmap pixmap = QPixmap::fromImage(image);
+    if (pixmap.isNull()) {
+        qWarning() << "QPixmap转换失败!";
+        return false;
+    }
+
+    // 计算缩放后的尺寸（保持宽高比）
+    const int labelWidth = label->width();
+    const int labelHeight = label->height();
+    const double ratio = qMin(static_cast<double>(labelWidth) / pixmap.width(),
+                             static_cast<double>(labelHeight) / pixmap.height());
+    const int scaledWidth = qRound(pixmap.width() * ratio);
+    const int scaledHeight = qRound(pixmap.height() * ratio);
+
+    // 高质量缩放并设置到Label
+    QPixmap scaledPixmap = pixmap.scaled(scaledWidth, scaledHeight,
+                                        Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    label->setPixmap(scaledPixmap);
+    label->setAlignment(Qt::AlignCenter); // 居中显示
+
+    return true;
+}
+
 bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY) {
     if (sourceImage.empty() || templateImage.empty()) {
         qWarning() << QString("findpic input image is emtpy");

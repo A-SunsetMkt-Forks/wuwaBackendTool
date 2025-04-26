@@ -16,7 +16,7 @@ class ImageCapturer : public QObject
 public:
     explicit ImageCapturer(QObject *parent = nullptr);
     void stop();
-    bool isBusy();
+    bool isBusy() const ;
 
 signals:
 

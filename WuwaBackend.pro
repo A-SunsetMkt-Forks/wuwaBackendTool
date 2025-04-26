@@ -74,10 +74,11 @@ SOURCES += \
     commonTools/encrypttools.cpp \
     debugbackendworker.cpp \
     wuwawatcher.cpp \
-    towerBattle/readme.cpp \
     towerofadversitywidget.cpp \
     towerBattle/towerbattledatamanager.cpp \
-    towerBattle/imagecapturer.cpp
+    towerBattle/imagecapturer.cpp \
+    towerBattle/imagecapturermonitor.cpp \
+    towerBattle/teamidxrecognitor.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -105,7 +106,9 @@ HEADERS += \
     wuwawatcher.h \
     towerofadversitywidget.h \
     towerBattle/towerbattledatamanager.h \
-    towerBattle/imagecapturer.h
+    towerBattle/imagecapturer.h \
+    towerBattle/imagecapturermonitor.h \
+    towerBattle/teamidxrecognitor.h
 
 FORMS += \
         mainwindow.ui \

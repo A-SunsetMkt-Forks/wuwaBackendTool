@@ -13,6 +13,7 @@
 
 // 每秒30帧采图工具
 #include "towerBattle/imagecapturer.h"
+#include "towerBattle/imagecapturermonitor.h"
 
 namespace Ui {
 class TowerOfAdversityWidget;
@@ -35,17 +36,18 @@ private:
     QMap<TowerBattleDataManager::Team, QVector<TowerBattleDataManager::Charactor>> m_teamCharactorMap;
 
     // 后台线程管理
+    // 采图管理器
     QThread m_imageCapturerThread;
     ImageCapturer m_imageCapturer;
 
+    QThread m_imageCapturerMonitorThread;
+    ImageCapturerMonitor m_imageCapturerMonitor;
 
     // 初始化配队介绍信息
     void initTeamInfoMap();
     // 初始化配队转角色信息
     void initTeamCharactorMap();
 
-    // 枚举值转队名
-    QString teamEnum2QString(const TowerBattleDataManager::Team& team);
 
 
 public slots:
@@ -57,6 +59,14 @@ public slots:
 
     // 停止线程
     void onStop();
+
+    // 切换游戏图像监视器的状态 或刷新图像
+    void on_updateGameMonitorStatus(const bool& isBusy, const cv::Mat& mat);
+
+signals:
+    // 发送信号 要求采图线程 和监控采图线程工作
+    void start_capturer();
+    void start_capturerMonitor(const ImageCapturer* capturer);
 };
 
 #endif // TOWEROFADVERSITYWIDGET_H

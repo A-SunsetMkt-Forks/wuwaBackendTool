@@ -10,7 +10,7 @@ void ImageCapturer::stop(){
 }
 
 
-bool ImageCapturer::isBusy(){
+bool ImageCapturer::isBusy() const {
     if(m_isBusy.load() == 0 ){
         return false;
     }

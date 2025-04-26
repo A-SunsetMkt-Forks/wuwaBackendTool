@@ -5,6 +5,7 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TowerOfAdversityWidget)
 {
+    TowerBattleDataManager& towerBattleDataManager = TowerBattleDataManager::Instance();
     //构造队伍信息
     initTeamInfoMap();
     initTeamCharactorMap();
@@ -14,7 +15,7 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
 
     // 填充到UI
     for(auto pair : m_teamInfoMap.keys()){
-        ui->supportTeam->addItem(teamEnum2QString(pair));
+        ui->supportTeam->addItem(towerBattleDataManager.teamEnum2QString(pair));
         ui->teamInfo->setText(m_teamInfoMap[pair]);
     }
 
@@ -23,28 +24,36 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     //线程管理
     m_imageCapturer.moveToThread(&m_imageCapturerThread);
     m_imageCapturerThread.start();
+    m_imageCapturerMonitor.moveToThread(&m_imageCapturerMonitorThread);
+    m_imageCapturerMonitorThread.start();
 
+    // 启动采图线程
+    connect(this, &TowerOfAdversityWidget::start_capturer, &this->m_imageCapturer, &ImageCapturer::on_start_capturer);
+    connect(this, &TowerOfAdversityWidget::start_capturerMonitor, &this->m_imageCapturerMonitor, &ImageCapturerMonitor::on_start_monitor);
+
+    // 接收监视器发来的新图像
+    connect(&this->m_imageCapturerMonitor, &ImageCapturerMonitor::updateGameMonitorStatus, this, &TowerOfAdversityWidget::on_updateGameMonitorStatus);
 
 
 }
 
 TowerOfAdversityWidget::~TowerOfAdversityWidget()
 {
-    onStop();
+    if(m_imageCapturerThread.isRunning()){
+        m_imageCapturer.stop();
+        m_imageCapturerThread.quit();
+        m_imageCapturerThread.wait();
+    }
+
+    if(m_imageCapturerMonitorThread.isRunning()){
+        m_imageCapturerMonitor.stop();
+        m_imageCapturerMonitorThread.quit();
+        m_imageCapturerMonitorThread.wait();
+    }
 
     delete ui;
 }
 
-QString TowerOfAdversityWidget::teamEnum2QString(const TowerBattleDataManager::Team& team){
-    switch (team) {
-    case TowerBattleDataManager::Team::Camellya_Sanhua_Shorekeeper:
-        return QString("1椿 2散 3守");
-
-    default:
-        return QString("未知配队");
-
-    }
-}
 
 void TowerOfAdversityWidget::initTeamInfoMap(){
     QString Camellya_Sanhua_Shorekeeper_str;
@@ -87,7 +96,7 @@ void TowerOfAdversityWidget::on_supportTeam_currentTextChanged(const QString &te
     TowerBattleDataManager& towerBattleDataManager = TowerBattleDataManager::Instance();
     bool isFound = false;
     for(auto key : m_teamInfoMap.keys()){
-        if(text == teamEnum2QString(key)){
+        if(text == towerBattleDataManager.teamEnum2QString(key)){
             QVector<TowerBattleDataManager::Charactor> selectTeam = m_teamCharactorMap[key];
             towerBattleDataManager.setCurrentTeamVec(selectTeam);
             isFound = true;
@@ -105,15 +114,44 @@ void TowerOfAdversityWidget::on_supportTeam_currentTextChanged(const QString &te
 
 void TowerOfAdversityWidget::on_startButton_clicked(){
     qInfo() << QString("深塔教学工具 启动");
+    emit start_capturer();
+    emit start_capturerMonitor(&this->m_imageCapturer);
+
 
 }
 
 void TowerOfAdversityWidget::onStop(){
-    if(m_imageCapturerThread.isRunning()){
-        m_imageCapturer.stop();
-        m_imageCapturerThread.quit();
-        m_imageCapturerThread.wait();
-    }
-
+    m_imageCapturer.stop();
+    //m_imageCapturerMonitor.stop();
 }
+
+
+void TowerOfAdversityWidget::on_updateGameMonitorStatus(const bool& isBusy, const cv::Mat& mat){
+    if(!isBusy){
+        QColor dynamicColor(128, 128, 128); // 灰色
+        ui->gameMonitorStatus->setStyleSheet(
+            QString("background-color: %1;").arg(dynamicColor.name())
+        );
+    }
+    else{
+        TowerBattleDataManager& dataManager = TowerBattleDataManager::Instance();
+        cv::Mat lastCapImg = dataManager.getLastCapImg();
+        Utils::displayMatOnLabel(ui->gameMonitor, Utils::cvMat2QImage(lastCapImg));
+        QColor dynamicColor(0, 255, 0); // 绿色
+        ui->gameMonitorStatus->setStyleSheet(
+            QString("background-color: %1;").arg(dynamicColor.name())
+        );
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
