@@ -25,6 +25,7 @@
 #include "commonTools/customdelegate.h"
 #include "commonTools/debugmessagehandler.h"
 
+#include "towerofadversitywidget.h"
 #include "utils.h"    //通用工具
 #include "generalpanel.h"  // 子面板
 #include "speicalbosswidget.h"   // 特殊boss面板

@@ -293,6 +293,10 @@ void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& msg){
 
 void MainWindow::on_stopBtn_clicked(){
     m_mainBackendWorkerNew.stopWorker();
+
+    // 深塔教学工具停止工作
+    ui->towerTextBookPanel->onStop();
+
 }
 
 

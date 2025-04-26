@@ -5,9 +5,12 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TowerOfAdversityWidget)
 {
-    ui->setupUi(this);
     //构造队伍信息
     initTeamInfoMap();
+    initTeamCharactorMap();
+
+    // 初始化UI
+    ui->setupUi(this);
 
     // 填充到UI
     for(auto pair : m_teamInfoMap.keys()){
@@ -17,17 +20,24 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
 
     ui->readme->setText(QString("教学工具并不能帮你完成所有操作。你需要手动完成开始游戏和闪避等。\n可以动脑多多思考"));
 
+    //线程管理
+    m_imageCapturer.moveToThread(&m_imageCapturerThread);
+    m_imageCapturerThread.start();
+
+
 
 }
 
 TowerOfAdversityWidget::~TowerOfAdversityWidget()
 {
+    onStop();
+
     delete ui;
 }
 
-QString TowerOfAdversityWidget::teamEnum2QString(const Team& team){
+QString TowerOfAdversityWidget::teamEnum2QString(const TowerBattleDataManager::Team& team){
     switch (team) {
-    case Camellya_Sanhua_Shorekeeper:
+    case TowerBattleDataManager::Team::Camellya_Sanhua_Shorekeeper:
         return QString("1椿 2散 3守");
 
     default:
@@ -59,8 +69,51 @@ void TowerOfAdversityWidget::initTeamInfoMap(){
     Camellya_Sanhua_Shorekeeper_str += QString("1椿-EAAAAAAA\n");
     Camellya_Sanhua_Shorekeeper_str += QString("2散-EQ↓\n");
     Camellya_Sanhua_Shorekeeper_str += QString("1椿-AAAE(一日花)R-AAAAAAAAAA↓\n\n");
-    m_teamInfoMap[Team::Camellya_Sanhua_Shorekeeper] = Camellya_Sanhua_Shorekeeper_str;
-
-
+    m_teamInfoMap[TowerBattleDataManager::Team::Camellya_Sanhua_Shorekeeper] = Camellya_Sanhua_Shorekeeper_str;
 
 }
+
+
+
+void TowerOfAdversityWidget::initTeamCharactorMap(){
+    m_teamCharactorMap[TowerBattleDataManager::Team::Camellya_Sanhua_Shorekeeper] =\
+    {TowerBattleDataManager::Charactor::UNDEFINED, \
+     TowerBattleDataManager::Charactor::Camellya, \
+     TowerBattleDataManager::Charactor::Sanhua, \
+     TowerBattleDataManager::Charactor::Shorekeeper};
+}
+
+void TowerOfAdversityWidget::on_supportTeam_currentTextChanged(const QString &text){
+    TowerBattleDataManager& towerBattleDataManager = TowerBattleDataManager::Instance();
+    bool isFound = false;
+    for(auto key : m_teamInfoMap.keys()){
+        if(text == teamEnum2QString(key)){
+            QVector<TowerBattleDataManager::Charactor> selectTeam = m_teamCharactorMap[key];
+            towerBattleDataManager.setCurrentTeamVec(selectTeam);
+            isFound = true;
+            break;
+        }
+    }
+
+    if(!isFound){
+        qCritical() << QString("选择配队 %1 非法，尚未支持").arg(text);
+    }
+
+    return;
+}
+
+
+void TowerOfAdversityWidget::on_startButton_clicked(){
+    qInfo() << QString("深塔教学工具 启动");
+
+}
+
+void TowerOfAdversityWidget::onStop(){
+    if(m_imageCapturerThread.isRunning()){
+        m_imageCapturer.stop();
+        m_imageCapturerThread.quit();
+        m_imageCapturerThread.wait();
+    }
+
+}
+

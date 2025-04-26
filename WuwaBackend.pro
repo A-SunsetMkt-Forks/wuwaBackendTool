@@ -76,7 +76,8 @@ SOURCES += \
     wuwawatcher.cpp \
     towerBattle/readme.cpp \
     towerofadversitywidget.cpp \
-    towerBattle/towerbattledatamanager.cpp
+    towerBattle/towerbattledatamanager.cpp \
+    towerBattle/imagecapturer.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -103,7 +104,8 @@ HEADERS += \
     debugbackendworker.h \
     wuwawatcher.h \
     towerofadversitywidget.h \
-    towerBattle/towerbattledatamanager.h
+    towerBattle/towerbattledatamanager.h \
+    towerBattle/imagecapturer.h
 
 FORMS += \
         mainwindow.ui \

@@ -1,5 +1,6 @@
 #include "TowerBattleDataManager.h"
 
+
 TowerBattleDataManager& TowerBattleDataManager::Instance() {
     // C++11 起局部静态变量初始化线程安全
     static TowerBattleDataManager instance;
@@ -108,3 +109,15 @@ void TowerBattleDataManager::setExplorerToolReady(bool ready) {
     QWriteLocker locker(&readwriteLocker);
     explorer_tool_ready = ready;
 }
+
+void TowerBattleDataManager::setCurrentTeamVec(const QVector<TowerBattleDataManager::Charactor> &currentTeamVec){
+    QWriteLocker locker(&readwriteLocker);
+    m_currentTeamVec = currentTeamVec;
+}
+
+QVector<TowerBattleDataManager::Charactor> TowerBattleDataManager::getCurrentTeamVec() const{
+    QReadLocker locker(&readwriteLocker);
+    return m_currentTeamVec;
+}
+
+

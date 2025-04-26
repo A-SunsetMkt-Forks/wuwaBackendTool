@@ -8,9 +8,23 @@
 #include <opencv2/opencv.hpp>
 
 
+
+
 class TowerBattleDataManager
 {
 public:
+    enum Team{
+        Camellya_Sanhua_Shorekeeper
+    };
+
+    enum Charactor{
+        UNDEFINED,
+        Camellya,
+        Sanhua,
+        Shorekeeper
+    };
+
+
     // 获取单例实例（返回引用）
     static TowerBattleDataManager& Instance();
 
@@ -44,6 +58,9 @@ public:
     bool isExplorerToolReady() const;
     void setExplorerToolReady(bool ready);
 
+    // 写入配队
+    void setCurrentTeamVec(const QVector<TowerBattleDataManager::Charactor> &currentTeamVec);
+    QVector<TowerBattleDataManager::Charactor> getCurrentTeamVec() const;
 
 
 private:
@@ -64,6 +81,8 @@ private:
     double resonance_circuit = 0.0;  // 0.0表示空回路 1.0表示满回路
     bool echo_skill_ready = true;
     bool explorer_tool_ready = true;
+
+    QVector<TowerBattleDataManager::Charactor> m_currentTeamVec;  // 四个元素 因为0 什么都不是，1 、2、3才是有效编号
 
 };
 
