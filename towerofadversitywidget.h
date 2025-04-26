@@ -15,6 +15,10 @@
 #include "towerBattle/imagecapturer.h"
 #include "towerBattle/imagecapturermonitor.h"
 
+// 判断当前角色 1 2 3的工具
+#include "towerBattle/teamidxrecognitor.h"
+#include "towerBattle/teamidxrecognitionmonitor.h"
+
 namespace Ui {
 class TowerOfAdversityWidget;
 }
@@ -39,9 +43,14 @@ private:
     // 采图管理器
     QThread m_imageCapturerThread;
     ImageCapturer m_imageCapturer;
-
     QThread m_imageCapturerMonitorThread;
     ImageCapturerMonitor m_imageCapturerMonitor;
+
+    // 判断角色编号1 2 3
+    QThread m_teamIdxRecognitorThread;
+    TeamIdxRecognitor m_teamIdxRecognitor;
+    QThread m_teamIdxRecognitonMonitorThread;
+    TeamIdxRecognitionMonitor m_teamIdxRecognitionMonitor;
 
     // 初始化配队介绍信息
     void initTeamInfoMap();
@@ -63,10 +72,18 @@ public slots:
     // 切换游戏图像监视器的状态 或刷新图像
     void on_updateGameMonitorStatus(const bool& isBusy, const cv::Mat& mat);
 
+    // 更新当前选中1 2 3号
+    void on_updateCurrentTeamIdx(const int& idx);
+
 signals:
     // 发送信号 要求采图线程 和监控采图线程工作
     void start_capturer();
     void start_capturerMonitor(const ImageCapturer* capturer);
+
+    // 要求检测 配队 1 2 3 编号
+    void start_teamIdxRecognitor();
+    void start_teamIdxRecognitonMonitor(const TeamIdxRecognitor* capturer);
+
 };
 
 #endif // TOWEROFADVERSITYWIDGET_H

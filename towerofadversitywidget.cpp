@@ -21,7 +21,8 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
 
     ui->readme->setText(QString("教学工具并不能帮你完成所有操作。你需要手动完成开始游戏和闪避等。\n可以动脑多多思考"));
 
-    //线程管理
+    // ============= 线程管理 =============
+    // 采图线程相关
     m_imageCapturer.moveToThread(&m_imageCapturerThread);
     m_imageCapturerThread.start();
     m_imageCapturerMonitor.moveToThread(&m_imageCapturerMonitorThread);
@@ -34,6 +35,17 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     // 接收监视器发来的新图像
     connect(&this->m_imageCapturerMonitor, &ImageCapturerMonitor::updateGameMonitorStatus, this, &TowerOfAdversityWidget::on_updateGameMonitorStatus);
 
+    // 配队当前角色1 2 3
+    m_teamIdxRecognitor.moveToThread(&m_teamIdxRecognitorThread);
+    m_teamIdxRecognitorThread.start();
+    m_teamIdxRecognitionMonitor.moveToThread(&m_teamIdxRecognitonMonitorThread);
+    m_teamIdxRecognitonMonitorThread.start();
+
+    connect(this, &TowerOfAdversityWidget::start_teamIdxRecognitor, &this->m_teamIdxRecognitor, &TeamIdxRecognitor::on_start_teamIdxRecognition);
+    connect(this, &TowerOfAdversityWidget::start_teamIdxRecognitonMonitor, &this->m_teamIdxRecognitionMonitor, &TeamIdxRecognitionMonitor::on_start_teamIdxRecognitorMonitor);
+
+    // 接收更新的当前角色idx
+    connect(&this->m_teamIdxRecognitionMonitor, &TeamIdxRecognitionMonitor::updateCurrentTeamIdx, this, &TowerOfAdversityWidget::on_updateCurrentTeamIdx);
 
 }
 
@@ -49,6 +61,18 @@ TowerOfAdversityWidget::~TowerOfAdversityWidget()
         m_imageCapturerMonitor.stop();
         m_imageCapturerMonitorThread.quit();
         m_imageCapturerMonitorThread.wait();
+    }
+
+    if(m_teamIdxRecognitorThread.isRunning()){
+        m_teamIdxRecognitor.stop();
+        m_teamIdxRecognitorThread.quit();
+        m_teamIdxRecognitorThread.wait();
+    }
+
+    if(m_teamIdxRecognitonMonitorThread.isRunning()){
+        m_teamIdxRecognitionMonitor.stop();
+        m_teamIdxRecognitonMonitorThread.quit();
+        m_teamIdxRecognitonMonitorThread.wait();
     }
 
     delete ui;
@@ -117,12 +141,17 @@ void TowerOfAdversityWidget::on_startButton_clicked(){
     emit start_capturer();
     emit start_capturerMonitor(&this->m_imageCapturer);
 
+    emit start_teamIdxRecognitor();
+    emit start_teamIdxRecognitonMonitor(&this->m_teamIdxRecognitor);
 
 }
 
 void TowerOfAdversityWidget::onStop(){
     m_imageCapturer.stop();
     //m_imageCapturerMonitor.stop();
+
+    m_teamIdxRecognitor.stop();
+
 }
 
 
@@ -134,9 +163,9 @@ void TowerOfAdversityWidget::on_updateGameMonitorStatus(const bool& isBusy, cons
         );
     }
     else{
-        TowerBattleDataManager& dataManager = TowerBattleDataManager::Instance();
-        cv::Mat lastCapImg = dataManager.getLastCapImg();
-        Utils::displayMatOnLabel(ui->gameMonitor, Utils::cvMat2QImage(lastCapImg));
+        //TowerBattleDataManager& dataManager = TowerBattleDataManager::Instance();
+        //cv::Mat lastCapImg = dataManager.getLastCapImg();
+        Utils::displayMatOnLabel(ui->gameMonitor, Utils::cvMat2QImage(mat));
         QColor dynamicColor(0, 255, 0); // 绿色
         ui->gameMonitorStatus->setStyleSheet(
             QString("background-color: %1;").arg(dynamicColor.name())
@@ -144,7 +173,9 @@ void TowerOfAdversityWidget::on_updateGameMonitorStatus(const bool& isBusy, cons
     }
 }
 
-
+void TowerOfAdversityWidget::on_updateCurrentTeamIdx(const int& idx){
+    ui->currentIdx->setValue(idx);
+}
 
 
 

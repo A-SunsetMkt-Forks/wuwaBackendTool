@@ -78,7 +78,8 @@ SOURCES += \
     towerBattle/towerbattledatamanager.cpp \
     towerBattle/imagecapturer.cpp \
     towerBattle/imagecapturermonitor.cpp \
-    towerBattle/teamidxrecognitor.cpp
+    towerBattle/teamidxrecognitor.cpp \
+    towerBattle/teamidxrecognitionmonitor.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -108,7 +109,8 @@ HEADERS += \
     towerBattle/towerbattledatamanager.h \
     towerBattle/imagecapturer.h \
     towerBattle/imagecapturermonitor.h \
-    towerBattle/teamidxrecognitor.h
+    towerBattle/teamidxrecognitor.h \
+    towerBattle/teamidxrecognitionmonitor.h
 
 FORMS += \
         mainwindow.ui \

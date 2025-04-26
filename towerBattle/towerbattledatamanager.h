@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QReadLocker>
 #include <QWriteLocker>
+#include <QApplication>
 #include <opencv2/opencv.hpp>
 
 
@@ -62,6 +63,12 @@ public:
     void setCurrentTeamVec(const QVector<TowerBattleDataManager::Charactor> &currentTeamVec);
     QVector<TowerBattleDataManager::Charactor> getCurrentTeamVec() const;
 
+    // 获取不可更改的美术资源
+    // [0]是空的 [1 2 3]才是numPad截图
+    QVector<cv::Mat> getNumPads() const;
+    cv::Rect getNumPadRoi() const ;
+
+
     // 枚举值转字符串
     QString teamEnum2QString(const TowerBattleDataManager::Team& team);
     QString charactorEnum2QString(const TowerBattleDataManager::Charactor& charactor);
@@ -75,8 +82,8 @@ private:
 
     // 最后一次获取的图像
     cv::Mat m_lastCapImg;
-    int m_cap_frame_rate = 30;  // 捕获图像帧率 默认30
-    int m_tick_rate = 10;  // 每秒做多少次判断
+    int m_cap_frame_rate = 60;  // 捕获图像帧率 默认30
+    int m_tick_rate = 20;  // 每秒做多少次判断
 
     int current_idx = 1;  // 默认1号位
     bool resonance_skill_ready = true;
@@ -86,6 +93,14 @@ private:
     bool explorer_tool_ready = true;
 
     QVector<TowerBattleDataManager::Charactor> m_currentTeamVec;  // 四个元素 因为0 什么都不是，1 、2、3才是有效编号
+
+    // 初始化时读取的美术资源
+    cv::Mat numPad_1;
+    cv::Mat numPad_2;
+    cv::Mat numPad_3;
+    // 1280 720时对应的numPad区域
+    cv::Rect m_numPadArea = cv::Rect(1128, 87, 102, 313);
+
 
 };
 

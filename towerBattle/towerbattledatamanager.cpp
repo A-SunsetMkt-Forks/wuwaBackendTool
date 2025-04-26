@@ -10,6 +10,19 @@ TowerBattleDataManager& TowerBattleDataManager::Instance() {
 // 私有构造函数（可在此添加初始化逻辑）
 TowerBattleDataManager::TowerBattleDataManager() {
     // 初始化代码
+    // 读取美术资源
+    QString artResourcesDir = QCoreApplication::applicationDirPath() + "/towerBattle/";
+
+    QString numPad_1_path = artResourcesDir + "numPad_1.bmp";
+    numPad_1 = cv::imread(numPad_1_path.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+
+    QString numPad_2_path = artResourcesDir + "numPad_2.bmp";
+    numPad_2 = cv::imread(numPad_2_path.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+
+    QString numPad_3_path = artResourcesDir + "numPad_3.bmp";
+    numPad_3 = cv::imread(numPad_3_path.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+
+
 }
 
 // 私有析构函数（可在此添加清理逻辑）
@@ -118,6 +131,17 @@ void TowerBattleDataManager::setCurrentTeamVec(const QVector<TowerBattleDataMana
 QVector<TowerBattleDataManager::Charactor> TowerBattleDataManager::getCurrentTeamVec() const{
     QReadLocker locker(&readwriteLocker);
     return m_currentTeamVec;
+}
+
+QVector<cv::Mat> TowerBattleDataManager::getNumPads() const {
+    QReadLocker locker(&readwriteLocker);
+    QVector<cv::Mat> numPadVec = {cv::Mat(), numPad_1, numPad_2, numPad_3};
+    return numPadVec;
+}
+
+cv::Rect TowerBattleDataManager::getNumPadRoi() const {
+    QReadLocker locker(&readwriteLocker);
+    return m_numPadArea;
 }
 
 
