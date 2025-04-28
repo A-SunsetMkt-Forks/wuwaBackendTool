@@ -69,17 +69,17 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
 
             // 找到回路存在的位置
             cv::Mat roi = lastCapImg(sanHuaCircuitRoi).clone();
-            double sensitivity = 0.7;
-            double similarity;
+            double sensitivity = 0.8;
+            double simiCircuit, simiCursor;
             int circuitX, circuitY, cursorX, cursorY;
-            if(!Utils::findPic(roi, resonanceCircuit, sensitivity, circuitX, circuitY, similarity)){
+            if(!Utils::findPic(roi, resonanceCircuit, sensitivity, circuitX, circuitY, simiCircuit)){
                 // 无法找到回路
                 dataManager.setResonanceCircuit(0.0);
                 QThread::msleep(sleepMs);
                 continue;
             }
 
-            if(!Utils::findPic(roi, position, sensitivity, cursorX, cursorY, similarity)){
+            if(!Utils::findPic(roi, position, 0.5, cursorX, cursorY, simiCursor)){
                 // 无法找到光标
                 dataManager.setResonanceCircuit(0.0);
                 QThread::msleep(sleepMs);
@@ -87,11 +87,24 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
             }
 
             // 如果光标在右边 则认为OK
-            if(cursorX > circuitX + 5){
-                dataManager.setResonanceCircuit(1.0);
-                QThread::msleep(sleepMs);
-                continue;
+            if(cursorX > 115){
+                if(cursorX > circuitX + 2){
+                    cv::imwrite(QString("sanhuaCircuit.bmp").toLocal8Bit().toStdString(), lastCapImg);
+                    dataManager.setResonanceCircuit(1.0);
+                    //QThread::msleep(sleepMs);
+                    QThread::msleep(250);
+                    continue;
+                }
+                else{
+                    dataManager.setResonanceCircuit(0.0);
+                    QThread::msleep(sleepMs);
+                    continue;
+                }
             }
+            else{
+                dataManager.setResonanceCircuit(0.0);
+            }
+
         }
         else{
 

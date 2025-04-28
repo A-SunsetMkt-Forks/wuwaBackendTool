@@ -37,7 +37,8 @@ void ResonanceCircuitJudgeMonitor::on_start_monitor(const ResonanceCircuitJudger
             // 无需判断 0号角色占位而已
         }
         else if(selectCharactor == TowerBattleDataManager::Charactor::Sanhua){
-            emit updateResonanceCircuitStatus(dataManager.getResonanceCircuit());
+            double val = dataManager.getResonanceCircuit();
+            emit updateResonanceCircuitStatus(val);
             QThread::msleep(sleepMs);
             continue;
         }
