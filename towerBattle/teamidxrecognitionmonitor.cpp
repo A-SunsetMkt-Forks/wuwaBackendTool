@@ -28,6 +28,7 @@ void TeamIdxRecognitionMonitor::on_start_teamIdxRecognitorMonitor(const TeamIdxR
     double tickRate = dataManager.getTickRate();
     double sleepMs = 1000.0 / tickRate;
 
+
     while(isBusy()){
         int currentIdx = dataManager.getCurrentIndex();
         emit updateCurrentTeamIdx(currentIdx);

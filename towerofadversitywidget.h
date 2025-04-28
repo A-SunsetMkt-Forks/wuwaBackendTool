@@ -19,6 +19,10 @@
 #include "towerBattle/teamidxrecognitor.h"
 #include "towerBattle/teamidxrecognitionmonitor.h"
 
+// 判断角色回路状态
+#include "towerBattle/resonancecircuitjudger.h";
+#include "towerBattle/resonancecircuitjudgemonitor.h"
+
 namespace Ui {
 class TowerOfAdversityWidget;
 }
@@ -52,6 +56,12 @@ private:
     QThread m_teamIdxRecognitonMonitorThread;
     TeamIdxRecognitionMonitor m_teamIdxRecognitionMonitor;
 
+    // 判断角色回路
+    QThread m_resonanceCircuitJudgerThread;
+    ResonanceCircuitJudger m_resonanceCircuitJudger;
+    QThread m_resonanceCircuitJudgeMonitorThread;
+    ResonanceCircuitJudgeMonitor m_resonanceCircuitJudgeMonitor;
+
     // 初始化配队介绍信息
     void initTeamInfoMap();
     // 初始化配队转角色信息
@@ -75,6 +85,9 @@ public slots:
     // 更新当前选中1 2 3号
     void on_updateCurrentTeamIdx(const int& idx);
 
+    // 更新回路状态
+    void on_updateResonanceCircuit(const double& value);
+
 signals:
     // 发送信号 要求采图线程 和监控采图线程工作
     void start_capturer();
@@ -83,6 +96,10 @@ signals:
     // 要求检测 配队 1 2 3 编号
     void start_teamIdxRecognitor();
     void start_teamIdxRecognitonMonitor(const TeamIdxRecognitor* capturer);
+
+    // 要求检测共鸣回路
+    void start_resonance_recognition();
+    void start_resonance_recognition_minitor(const ResonanceCircuitJudger* capturer);
 
 };
 

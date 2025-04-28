@@ -47,6 +47,17 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     // 接收更新的当前角色idx
     connect(&this->m_teamIdxRecognitionMonitor, &TeamIdxRecognitionMonitor::updateCurrentTeamIdx, this, &TowerOfAdversityWidget::on_updateCurrentTeamIdx);
 
+    m_resonanceCircuitJudger.moveToThread(&m_resonanceCircuitJudgerThread);
+    m_resonanceCircuitJudgerThread.start();
+    m_resonanceCircuitJudgeMonitor.moveToThread(&m_resonanceCircuitJudgeMonitorThread);
+    m_resonanceCircuitJudgeMonitorThread.start();
+
+    //void start_resonance_recognition();
+    //void start_resonance_recognition_minitor();
+    connect(this, &TowerOfAdversityWidget::start_resonance_recognition, &this->m_resonanceCircuitJudger, &ResonanceCircuitJudger::on_start_resonance_recognition);
+    connect(this, &TowerOfAdversityWidget::start_resonance_recognition_minitor, &this->m_resonanceCircuitJudgeMonitor, &ResonanceCircuitJudgeMonitor::on_start_monitor);
+    connect(&this->m_resonanceCircuitJudgeMonitor, &ResonanceCircuitJudgeMonitor::updateResonanceCircuitStatus, this, &TowerOfAdversityWidget::on_updateResonanceCircuit);
+
 }
 
 TowerOfAdversityWidget::~TowerOfAdversityWidget()
@@ -74,6 +85,19 @@ TowerOfAdversityWidget::~TowerOfAdversityWidget()
         m_teamIdxRecognitonMonitorThread.quit();
         m_teamIdxRecognitonMonitorThread.wait();
     }
+
+    if(m_resonanceCircuitJudgerThread.isRunning()){
+        m_resonanceCircuitJudger.stop();
+        m_resonanceCircuitJudgerThread.quit();
+        m_resonanceCircuitJudgerThread.wait();
+    }
+
+    if(m_resonanceCircuitJudgeMonitorThread.isRunning()){
+        m_resonanceCircuitJudgeMonitor.stop();
+        m_resonanceCircuitJudgeMonitorThread.quit();
+        m_resonanceCircuitJudgeMonitorThread.wait();
+    }
+
 
     delete ui;
 }
@@ -144,13 +168,17 @@ void TowerOfAdversityWidget::on_startButton_clicked(){
     emit start_teamIdxRecognitor();
     emit start_teamIdxRecognitonMonitor(&this->m_teamIdxRecognitor);
 
+    emit start_resonance_recognition();
+    emit start_resonance_recognition_minitor(&this->m_resonanceCircuitJudger);
+
 }
 
 void TowerOfAdversityWidget::onStop(){
     m_imageCapturer.stop();
-    //m_imageCapturerMonitor.stop();
 
     m_teamIdxRecognitor.stop();
+
+    m_resonanceCircuitJudger.stop();
 
 }
 
@@ -177,7 +205,24 @@ void TowerOfAdversityWidget::on_updateCurrentTeamIdx(const int& idx){
     ui->currentIdx->setValue(idx);
 }
 
+void TowerOfAdversityWidget::on_updateResonanceCircuit(const double& value){
 
+    if(value > 0.8){
+        QColor dynamicColor(0, 255, 0);
+        ui->resonanceCircuitStatus->setStyleSheet(
+            QString("background-color: %1;").arg(dynamicColor.name())
+        );
+    }
+    else{
+        QColor dynamicColor(128, 128, 128);
+        ui->resonanceCircuitStatus->setStyleSheet(
+            QString("background-color: %1;").arg(dynamicColor.name())
+        );
+    }
+
+    ui->resonanceCircuitSpinBox->setValue(value);
+    return;
+}
 
 
 

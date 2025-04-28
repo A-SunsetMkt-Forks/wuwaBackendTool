@@ -63,6 +63,8 @@ public:
     bool isExplorerToolReady() const;
     void setExplorerToolReady(bool ready);
 
+
+
     // 写入配队
     void setCurrentTeamVec(const QVector<TowerBattleDataManager::Charactor> &currentTeamVec);
     QVector<TowerBattleDataManager::Charactor> getCurrentTeamVec() const;
@@ -95,6 +97,8 @@ private:
     int current_idx = 1;  // 默认1号位
     bool resonance_skill_ready = true;
     bool resonance_liberation_ready = true;
+
+    // 共鸣回路值 每个角色的情况不一样 需要查看ResonanceCircuitJudger 各个角色的定义
     double resonance_circuit = 0.0;  // 0.0表示空回路 1.0表示满回路
     bool echo_skill_ready = true;
     bool explorer_tool_ready = true;
@@ -107,6 +111,9 @@ private:
     cv::Mat numPad_3;
     // 1280 720时对应的numPad区域
     cv::Rect m_numPadArea = cv::Rect(1128, 87, 102, 313);
+
+
+
 
 
     // 遍历角色美术资源

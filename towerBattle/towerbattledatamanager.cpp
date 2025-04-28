@@ -23,7 +23,7 @@ TowerBattleDataManager::TowerBattleDataManager() {
     numPad_3 = cv::imread(numPad_3_path.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
 
     // 遍历加载美术资源
-    QVector<Charactor> supportCharactorList = {Charactor::Sanhua};
+    QVector<Charactor> supportCharactorList = {Charactor::UNDEFINED, Charactor::Sanhua};
     for (auto charactor : supportCharactorList) {
            QMap<QString, cv::Mat> thisCharactorMap;
            QString charactorArtResPath = artResourcesDir + charactorEnum2QString(charactor) + "/";

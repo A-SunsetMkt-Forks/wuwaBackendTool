@@ -106,7 +106,7 @@
     <rect>
      <x>580</x>
      <y>50</y>
-     <width>51</width>
+     <width>91</width>
      <height>21</height>
     </rect>
    </property>
@@ -128,6 +128,45 @@
    </property>
    <property name="maximum">
     <number>3</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>240</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>共鸣回路</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="resonanceCircuitStatus">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>240</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="resonanceCircuitSpinBox">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>240</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
    </property>
   </widget>
  </widget>
