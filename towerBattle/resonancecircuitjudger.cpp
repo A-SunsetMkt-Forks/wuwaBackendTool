@@ -49,6 +49,8 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
         // 每个角色的判断依据都不一样
         if(selectCharactor == TowerBattleDataManager::Charactor::UNDEFINED){
             // 无需判断 0号角色占位而已
+            QThread::msleep(sleepMs);
+            continue;
         }
         else if(selectCharactor == TowerBattleDataManager::Charactor::Sanhua){
             cv::Mat resonanceCircuit, position;
@@ -68,7 +70,7 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
             const cv::Rect sanHuaCircuitRoi = {529, 659, 209, 20};
 
             // 找到回路存在的位置
-            cv::Mat roi = lastCapImg(sanHuaCircuitRoi).clone();
+            const cv::Mat roi = lastCapImg(sanHuaCircuitRoi);
             double sensitivity = 0.8;
             double simiCircuit, simiCursor;
             int circuitX, circuitY, cursorX, cursorY;
@@ -87,12 +89,12 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
             }
 
             // 如果光标在右边 则认为OK
-            if(cursorX > 115){
-                if(cursorX > circuitX + 2){
+            if(cursorX > 100){
+                if(cursorX > (circuitX + 2) ){
                     cv::imwrite(QString("sanhuaCircuit.bmp").toLocal8Bit().toStdString(), lastCapImg);
                     dataManager.setResonanceCircuit(1.0);
-                    //QThread::msleep(sleepMs);
-                    QThread::msleep(250);
+                    QThread::msleep(sleepMs);
+                    //QThread::msleep(250);
                     continue;
                 }
                 else{
@@ -103,14 +105,16 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
             }
             else{
                 dataManager.setResonanceCircuit(0.0);
+                QThread::msleep(sleepMs);
+                continue;
             }
 
         }
         else{
-
+            QThread::msleep(sleepMs);
+            continue;
         }
 
-        QThread::msleep(sleepMs);
 
     }
 
