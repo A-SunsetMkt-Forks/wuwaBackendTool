@@ -22,6 +22,31 @@ TowerBattleDataManager::TowerBattleDataManager() {
     QString numPad_3_path = artResourcesDir + "numPad_3.bmp";
     numPad_3 = cv::imread(numPad_3_path.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
 
+    // 遍历加载美术资源
+    QVector<Charactor> supportCharactorList = {Charactor::Sanhua};
+    for (auto charactor : supportCharactorList) {
+           QMap<QString, cv::Mat> thisCharactorMap;
+           QString charactorArtResPath = artResourcesDir + charactorEnum2QString(charactor) + "/";
+
+           QDir dir(charactorArtResPath);
+           if (!dir.exists()) continue; // 跳过不存在的目录
+
+           // 遍历路径下的所有.bmp文件
+           QDirIterator it(charactorArtResPath, {"*.bmp"}, QDir::Files);
+           while (it.hasNext()) {
+               QString filePath = it.next();
+               QFileInfo fileInfo(filePath);
+
+               // 读取图像并检查有效性
+               cv::Mat image = cv::imread(filePath.toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+               if (!image.empty()) { // 仅存储非空 cv::Mat
+                   QString key = fileInfo.baseName(); // 文件名（不含扩展名）作为 Key
+                   thisCharactorMap[key] = image;
+               }
+           }
+
+           charactor2artRes[charactor] = thisCharactorMap; // 允许存储空 QMap（但无空 cv::Mat）
+       }
 
 }
 
@@ -168,5 +193,15 @@ QString TowerBattleDataManager::charactorEnum2QString(const TowerBattleDataManag
     default:
         return QString("未知角色");
 
+    }
+}
+
+QMap<QString, cv::Mat> TowerBattleDataManager::getArtResByName(const Charactor& charactor){
+    if(!charactor2artRes.contains(charactor)){
+        return QMap<QString, cv::Mat> ();
+    }
+    else{
+        QReadLocker locker(&readwriteLocker);
+        return charactor2artRes[charactor];
     }
 }

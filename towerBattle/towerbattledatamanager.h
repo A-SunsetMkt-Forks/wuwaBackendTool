@@ -6,6 +6,10 @@
 #include <QReadLocker>
 #include <QWriteLocker>
 #include <QApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QDirIterator>
+
 #include <opencv2/opencv.hpp>
 
 
@@ -68,10 +72,13 @@ public:
     QVector<cv::Mat> getNumPads() const;
     cv::Rect getNumPadRoi() const ;
 
-
     // 枚举值转字符串
     QString teamEnum2QString(const TowerBattleDataManager::Team& team);
     QString charactorEnum2QString(const TowerBattleDataManager::Charactor& charactor);
+
+    // 输入角色枚举 获取对应美术资源
+    QMap<QString, cv::Mat> getArtResByName(const Charactor& charactor);
+
 
 private:
     // 构造函数和析构函数私有化
@@ -101,6 +108,9 @@ private:
     // 1280 720时对应的numPad区域
     cv::Rect m_numPadArea = cv::Rect(1128, 87, 102, 313);
 
+
+    // 遍历角色美术资源
+    QMap<Charactor, QMap<QString, cv::Mat>> charactor2artRes;
 
 };
 
