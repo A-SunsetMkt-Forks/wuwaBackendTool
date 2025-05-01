@@ -21,6 +21,7 @@ bool ResonanceSkillJudgeMonitor::isBusy() const {
 }
 
 void ResonanceSkillJudgeMonitor::on_start_monitor(const ResonanceSkillJudger* judger){
+    m_isBusy.store(1);
     TowerBattleDataManager& dataManager = TowerBattleDataManager::Instance();
     double tickRate = dataManager.getTickRate();
     double sleepMs = 1000.0 / tickRate;

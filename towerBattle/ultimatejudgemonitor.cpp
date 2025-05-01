@@ -27,7 +27,7 @@ void UltimateJudgeMonitor::on_start_monitor(){
     double sleepMs = 1000.0 / tickRate;
 
     while(isBusy()){
-        double isReady = dataManager.isResonanceLiberationReady();
+        double isReady = dataManager.getResonanceLiberationReady();
         emit updateResonanceLiberationReady(isReady);
 
         QThread::msleep(sleepMs);

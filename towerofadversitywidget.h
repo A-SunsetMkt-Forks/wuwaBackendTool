@@ -78,6 +78,12 @@ private:
     UltimateJudgeMonitor m_ultimateJudgeMonitor;
 
     // 判断角色 共鸣技能
+    QThread m_resonanceSkillJudgerThread;
+    ResonanceSkillJudger m_resonanceSkillJudger;
+    QThread m_resonanceSkillJudgeMonitorThread;
+    ResonanceSkillJudgeMonitor m_resonanceSkillJudgeMonitor;
+
+
 
 
     // 初始化配队介绍信息
@@ -109,6 +115,9 @@ public slots:
     // 更新大招状态
     void on_updateResonanceLiberationReady(const double& isReady);
 
+    // 更新共鸣技能状态
+    void on_updateResonanceSkillStatus(const double& val);
+
 signals:
     // 发送信号 要求采图线程 和监控采图线程工作
     void start_capturer();
@@ -125,6 +134,10 @@ signals:
     // 要求检测大招 共鸣解放
     void start_ultimate_judge();
     void start_ultimate_judge_monitor(const UltimateJudger* capturer);
+
+    // 要求检测 共鸣技能
+    void start_resonance_skill_recognition();
+    void start_resonance_skill_recognition_minitor(const ResonanceSkillJudger* capturer);
 
 };
 

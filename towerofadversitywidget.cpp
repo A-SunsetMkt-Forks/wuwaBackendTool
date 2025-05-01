@@ -67,6 +67,18 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     connect(this, &TowerOfAdversityWidget::start_ultimate_judge_monitor, &this->m_ultimateJudgeMonitor, &UltimateJudgeMonitor::on_start_monitor);
     connect(&this->m_ultimateJudgeMonitor, &UltimateJudgeMonitor::updateResonanceLiberationReady, this, &TowerOfAdversityWidget::on_updateResonanceLiberationReady);
 
+    // 共鸣技能判断
+    m_resonanceSkillJudger.moveToThread(&m_resonanceSkillJudgerThread);
+    m_resonanceSkillJudgerThread.start();
+    m_resonanceSkillJudgeMonitor.moveToThread(&m_resonanceSkillJudgeMonitorThread);
+    m_resonanceSkillJudgeMonitorThread.start();
+
+    connect(this, &TowerOfAdversityWidget::start_resonance_skill_recognition, &this->m_resonanceSkillJudger, &ResonanceSkillJudger::on_start_resonance_skill_recognition);
+    connect(this, &TowerOfAdversityWidget::start_resonance_skill_recognition_minitor, &this->m_resonanceSkillJudgeMonitor, &ResonanceSkillJudgeMonitor::on_start_monitor);
+    connect(&this->m_resonanceSkillJudgeMonitor, &ResonanceSkillJudgeMonitor::updateResonanceSkillStatus, this, &TowerOfAdversityWidget::on_updateResonanceSkillStatus);
+
+
+
 }
 
 TowerOfAdversityWidget::~TowerOfAdversityWidget()
@@ -117,6 +129,18 @@ TowerOfAdversityWidget::~TowerOfAdversityWidget()
         m_ultimateJudgeMonitor.stop();
         m_ultimateJudgeMonitorThread.quit();
         m_ultimateJudgeMonitorThread.wait();
+    }
+
+    if(m_resonanceSkillJudgerThread.isRunning()){
+        m_resonanceSkillJudger.stop();
+        m_resonanceSkillJudgerThread.quit();
+        m_resonanceSkillJudgerThread.wait();
+    }
+
+    if(m_resonanceSkillJudgeMonitorThread.isRunning()){
+        m_resonanceSkillJudgeMonitor.stop();
+        m_resonanceSkillJudgeMonitorThread.quit();
+        m_resonanceSkillJudgeMonitorThread.wait();
     }
 
 
@@ -196,6 +220,9 @@ void TowerOfAdversityWidget::on_startButton_clicked(){
     emit start_ultimate_judge();
     emit start_ultimate_judge_monitor(&this->m_ultimateJudger);
 
+    emit start_resonance_skill_recognition();
+    emit start_resonance_skill_recognition_minitor(&this->m_resonanceSkillJudger);
+
 }
 
 void TowerOfAdversityWidget::onStop(){
@@ -206,6 +233,8 @@ void TowerOfAdversityWidget::onStop(){
     m_resonanceCircuitJudger.stop();
 
     m_ultimateJudger.stop();
+
+    m_resonanceSkillJudger.stop();
 
 }
 
@@ -266,8 +295,23 @@ void TowerOfAdversityWidget::on_updateResonanceLiberationReady(const double& isR
     }
 
     ui->resonanceLiberateSpinBox->setValue(isReady);
+}
 
+void TowerOfAdversityWidget::on_updateResonanceSkillStatus(const double& val){
+    if(val > 0.8){
+        QColor dynamicColor(0, 255, 0);
+        ui->resonanceSkillStatus->setStyleSheet(
+            QString("background-color: %1;").arg(dynamicColor.name())
+        );
+    }
+    else{
+        QColor dynamicColor(128, 128, 128);
+        ui->resonanceSkillStatus->setStyleSheet(
+            QString("background-color: %1;").arg(dynamicColor.name())
+        );
+    }
 
+    ui->resonanceSkillSpinBox->setValue(val);
 }
 
 
