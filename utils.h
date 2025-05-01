@@ -135,6 +135,11 @@ public:
     // winapi 启动一个exe
     static bool myCreateProcess(const std::wstring &exePath, const std::wstring &workingDir);
 
+    // 已知圆心和半径 获取从1度到360度的遍历坐标  用于判断协奏
+    static std::vector<cv::Point> getCircleContour(int cx, int cy, int r);
+    // 计算距离
+    static double colorSimilarity(const cv::Vec3b& bgr1, const cv::Vec3b& bgr2);
+
 private:
     static const QString wuwaWindowTitle;
     static QMutex m_locker;  // multi thread locker

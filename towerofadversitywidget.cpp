@@ -77,7 +77,15 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     connect(this, &TowerOfAdversityWidget::start_resonance_skill_recognition_minitor, &this->m_resonanceSkillJudgeMonitor, &ResonanceSkillJudgeMonitor::on_start_monitor);
     connect(&this->m_resonanceSkillJudgeMonitor, &ResonanceSkillJudgeMonitor::updateResonanceSkillStatus, this, &TowerOfAdversityWidget::on_updateResonanceSkillStatus);
 
+    // 协奏能量判断
+    m_concertoEnergyJudger.moveToThread(&m_concertoEnergyJudgerThread);
+    m_concertoEnergyJudgerThread.start();
+    m_concertoEnergyJudgeMonitor.moveToThread(&m_concertoEnergyJudgeMonitorThread);
+    m_concertoEnergyJudgeMonitorThread.start();
 
+    connect(this, &TowerOfAdversityWidget::start_concerto_energy_recognition, &this->m_concertoEnergyJudger, &ConcertoEnergyJudger::on_start_concertoEnergyJudge);
+    connect(this, &TowerOfAdversityWidget::start_concerto_energy_recognition_monitor, &this->m_concertoEnergyJudgeMonitor, &ConcertoEnergyJudgeMonitor::on_start_monitor);
+    connect(&this->m_concertoEnergyJudgeMonitor, &ConcertoEnergyJudgeMonitor::updateConcertoEnergy, this, &TowerOfAdversityWidget::on_updateConcertoEnergy);
 
 }
 
@@ -141,6 +149,18 @@ TowerOfAdversityWidget::~TowerOfAdversityWidget()
         m_resonanceSkillJudgeMonitor.stop();
         m_resonanceSkillJudgeMonitorThread.quit();
         m_resonanceSkillJudgeMonitorThread.wait();
+    }
+
+    if(m_concertoEnergyJudgerThread.isRunning()){
+        m_concertoEnergyJudger.stop();
+        m_concertoEnergyJudgerThread.quit();
+        m_concertoEnergyJudgerThread.wait();
+    }
+
+    if(m_concertoEnergyJudgeMonitorThread.isRunning()){
+        m_concertoEnergyJudgeMonitor.stop();
+        m_concertoEnergyJudgeMonitorThread.quit();
+        m_concertoEnergyJudgeMonitorThread.wait();
     }
 
 
@@ -223,6 +243,8 @@ void TowerOfAdversityWidget::on_startButton_clicked(){
     emit start_resonance_skill_recognition();
     emit start_resonance_skill_recognition_minitor(&this->m_resonanceSkillJudger);
 
+    emit start_concerto_energy_recognition();
+    emit start_concerto_energy_recognition_monitor(&this->m_concertoEnergyJudger);
 }
 
 void TowerOfAdversityWidget::onStop(){
@@ -236,6 +258,7 @@ void TowerOfAdversityWidget::onStop(){
 
     m_resonanceSkillJudger.stop();
 
+    m_concertoEnergyJudger.stop();
 }
 
 
@@ -314,6 +337,9 @@ void TowerOfAdversityWidget::on_updateResonanceSkillStatus(const double& val){
     ui->resonanceSkillSpinBox->setValue(val);
 }
 
+void TowerOfAdversityWidget::on_updateConcertoEnergy(const double &val){
+    ui->concertoEnergySpinBox->setValue(val);
+}
 
 
 

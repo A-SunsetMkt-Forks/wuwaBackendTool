@@ -62,6 +62,9 @@ public:
     double getResonanceCircuit() const;
     void setResonanceCircuit(double value);
 
+    double getConcertoEnergy() const;
+    void setConcertoEnergy(double val);
+
     bool isEchoSkillReady() const;
     void setEchoSkillReady(bool ready);
 
@@ -102,6 +105,9 @@ private:
     int current_idx = 1;  // 默认1号位
     double resonance_skill_ready = 0.0;
     double resonance_liberation_ready = 0.0;
+
+    // 共鸣能量
+    double concerto_energy = 0.0;
 
     // 共鸣回路值 每个角色的情况不一样 需要查看ResonanceCircuitJudger 各个角色的定义
     double resonance_circuit = 0.0;  // 0.0表示空回路 1.0表示满回路

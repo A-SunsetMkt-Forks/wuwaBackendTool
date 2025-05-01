@@ -31,6 +31,10 @@
 #include "towerBattle/resonanceskilljudger.h";
 #include "towerBattle/resonanceskilljudgemonitor.h"
 
+// 判断角色协奏能量
+#include "towerBattle/concertoenergyjudger.h";
+#include "towerBattle/concertoenergyjudgemonitor.h"
+
 
 namespace Ui {
 class TowerOfAdversityWidget;
@@ -77,11 +81,18 @@ private:
     QThread m_ultimateJudgeMonitorThread;
     UltimateJudgeMonitor m_ultimateJudgeMonitor;
 
+
     // 判断角色 共鸣技能
     QThread m_resonanceSkillJudgerThread;
     ResonanceSkillJudger m_resonanceSkillJudger;
     QThread m_resonanceSkillJudgeMonitorThread;
     ResonanceSkillJudgeMonitor m_resonanceSkillJudgeMonitor;
+
+    // 判断角色 协奏能量
+    QThread m_concertoEnergyJudgerThread;
+    ConcertoEnergyJudger m_concertoEnergyJudger;
+    QThread m_concertoEnergyJudgeMonitorThread;
+    ConcertoEnergyJudgeMonitor m_concertoEnergyJudgeMonitor;
 
 
 
@@ -118,6 +129,9 @@ public slots:
     // 更新共鸣技能状态
     void on_updateResonanceSkillStatus(const double& val);
 
+    // 更新协奏能量
+    void on_updateConcertoEnergy(const double &val);
+
 signals:
     // 发送信号 要求采图线程 和监控采图线程工作
     void start_capturer();
@@ -138,6 +152,10 @@ signals:
     // 要求检测 共鸣技能
     void start_resonance_skill_recognition();
     void start_resonance_skill_recognition_minitor(const ResonanceSkillJudger* capturer);
+
+    // 要求检测 协奏能量
+    void start_concerto_energy_recognition();
+    void start_concerto_energy_recognition_monitor(const ConcertoEnergyJudger* capturer);
 
 };
 

@@ -247,6 +247,29 @@
     </rect>
    </property>
   </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>330</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>协奏能量</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="concertoEnergySpinBox">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>330</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

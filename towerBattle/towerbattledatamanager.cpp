@@ -128,6 +128,18 @@ void TowerBattleDataManager::setResonanceCircuit(double value) {
     resonance_circuit = value;
 }
 
+
+double TowerBattleDataManager::getConcertoEnergy() const{
+    QReadLocker locker(&readwriteLocker);
+    return concerto_energy;
+}
+
+void TowerBattleDataManager::setConcertoEnergy(double val){
+    QWriteLocker locker(&readwriteLocker);
+    concerto_energy = val;
+}
+
+
 bool TowerBattleDataManager::isEchoSkillReady() const {
     QReadLocker locker(&readwriteLocker);
     return echo_skill_ready;

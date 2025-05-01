@@ -85,7 +85,9 @@ SOURCES += \
     towerBattle/ultimatejudger.cpp \
     towerBattle/ultimatejudgemonitor.cpp \
     towerBattle/resonanceskilljudger.cpp \
-    towerBattle/resonanceskilljudgemonitor.cpp
+    towerBattle/resonanceskilljudgemonitor.cpp \
+    towerBattle/concertoenergyjudger.cpp \
+    towerBattle/concertoenergyjudgemonitor.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -122,7 +124,9 @@ HEADERS += \
     towerBattle/ultimatejudger.h \
     towerBattle/ultimatejudgemonitor.h \
     towerBattle/resonanceskilljudger.h \
-    towerBattle/resonanceskilljudgemonitor.h
+    towerBattle/resonanceskilljudgemonitor.h \
+    towerBattle/concertoenergyjudger.h \
+    towerBattle/concertoenergyjudgemonitor.h
 
 FORMS += \
         mainwindow.ui \

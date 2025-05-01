@@ -923,3 +923,60 @@ bool Utils::myCreateProcess(const std::wstring &exePath, const std::wstring &wor
             << QStringLiteral("CreateProcessW succeeded for: %1").arg(QString::fromWCharArray(exePath.c_str()));
     return true;
 }
+
+
+std::vector<cv::Point> Utils::getCircleContour(int cx, int cy, int r){
+    std::vector<cv::Point> contour;
+    const double step = 2.0; // 角度步长（可调整精度）
+
+    // 逆时针遍历所有角度
+    for (double theta = 2; theta <= 360; theta += step) {
+        double radians = theta * CV_PI / 180.0;
+
+        // 计算坐标并四舍五入
+        int x = cvRound(cx + r * std::cos(radians));
+        int y = cvRound(cy + r * std::sin(radians));
+
+        // 添加非重复点
+        if (contour.empty() || contour.back() != cv::Point(x, y)) {
+            contour.emplace_back(x, y);
+        }
+    }
+
+    /*
+    // 调整起点到（cx+r, cy）
+    auto it = std::find(contour.begin(), contour.end(), cv::Point(cx + r, cy));
+    if (it != contour.end()) {
+        std::rotate(contour.begin(), it, contour.end());
+    }
+    */
+
+    return contour;
+}
+
+double Utils::colorSimilarity(const cv::Vec3b& stdBGR1,
+                    const cv::Vec3b& bgr2)
+{
+    // 计算各通道差异（注意BGR顺序）
+    const int delta_b = std::abs(stdBGR1[0] - bgr2[0]);
+    const int delta_g = std::abs(stdBGR1[1] - bgr2[1]);
+    const int delta_r = std::abs(stdBGR1[2] - bgr2[2]);
+
+    // 计算三维欧氏距离（BGR立方体空间）
+    const double distance = std::sqrt(
+        delta_b * delta_b +
+        delta_g * delta_g +
+        delta_r * delta_r
+    );
+
+    // 理论最大距离（255√3 ≈ 441.67）
+    //const double max_distance = 255.0 * std::sqrt(3.0);
+    double max_distance = std::abs(255 - stdBGR1[0]) * std::abs(255 - stdBGR1[0]) + std::abs(255 - stdBGR1[1]) * std::abs(255 - stdBGR1[1]) + std::abs(255 - stdBGR1[2]) * std::abs(255 - stdBGR1[2]);
+    max_distance = std::sqrt(max_distance);
+
+    double similarity;
+    // 计算相似度并限幅[0.0, 1.0]
+    similarity = 1.0 - (distance / max_distance);
+    similarity = qMax(0.0, qMin(similarity, 1.0));  // C++14兼容的限幅
+    return similarity;
+}

@@ -70,7 +70,6 @@ void UltimateJudger::on_start_ultimateJudge(){
             int x, y;
             if(Utils::findPic(ultimateRoiMat, ultimate, sensitivity, x, y, simiUltimate)){
                 // 找到大招图标
-                qInfo() << QString("散 大招已经就绪");
                 dataManager.setResonanceLiberationReady(simiUltimate);
                 QThread::msleep(sleepMs);
                 continue;
