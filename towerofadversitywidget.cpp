@@ -47,16 +47,25 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     // 接收更新的当前角色idx
     connect(&this->m_teamIdxRecognitionMonitor, &TeamIdxRecognitionMonitor::updateCurrentTeamIdx, this, &TowerOfAdversityWidget::on_updateCurrentTeamIdx);
 
+    // 共鸣回路判断
     m_resonanceCircuitJudger.moveToThread(&m_resonanceCircuitJudgerThread);
     m_resonanceCircuitJudgerThread.start();
     m_resonanceCircuitJudgeMonitor.moveToThread(&m_resonanceCircuitJudgeMonitorThread);
     m_resonanceCircuitJudgeMonitorThread.start();
 
-    //void start_resonance_recognition();
-    //void start_resonance_recognition_minitor();
     connect(this, &TowerOfAdversityWidget::start_resonance_recognition, &this->m_resonanceCircuitJudger, &ResonanceCircuitJudger::on_start_resonance_recognition);
     connect(this, &TowerOfAdversityWidget::start_resonance_recognition_minitor, &this->m_resonanceCircuitJudgeMonitor, &ResonanceCircuitJudgeMonitor::on_start_monitor);
     connect(&this->m_resonanceCircuitJudgeMonitor, &ResonanceCircuitJudgeMonitor::updateResonanceCircuitStatus, this, &TowerOfAdversityWidget::on_updateResonanceCircuit);
+
+    // 大招判断
+    m_ultimateJudger.moveToThread(&m_ultimateJudgerThread);
+    m_ultimateJudgerThread.start();
+    m_ultimateJudgeMonitor.moveToThread(&m_ultimateJudgeMonitorThread);
+    m_ultimateJudgeMonitorThread.start();
+
+    connect(this, &TowerOfAdversityWidget::start_ultimate_judge, &this->m_ultimateJudger, &UltimateJudger::on_start_ultimateJudge);
+    connect(this, &TowerOfAdversityWidget::start_ultimate_judge_monitor, &this->m_ultimateJudgeMonitor, &UltimateJudgeMonitor::on_start_monitor);
+    connect(&this->m_ultimateJudgeMonitor, &UltimateJudgeMonitor::updateResonanceLiberationReady, this, &TowerOfAdversityWidget::on_updateResonanceLiberationReady);
 
 }
 
@@ -97,6 +106,19 @@ TowerOfAdversityWidget::~TowerOfAdversityWidget()
         m_resonanceCircuitJudgeMonitorThread.quit();
         m_resonanceCircuitJudgeMonitorThread.wait();
     }
+
+    if(m_ultimateJudgerThread.isRunning()){
+        m_ultimateJudger.stop();
+        m_ultimateJudgerThread.quit();
+        m_ultimateJudgerThread.wait();
+    }
+
+    if(m_ultimateJudgeMonitorThread.isRunning()){
+        m_ultimateJudgeMonitor.stop();
+        m_ultimateJudgeMonitorThread.quit();
+        m_ultimateJudgeMonitorThread.wait();
+    }
+
 
 
     delete ui;
@@ -171,6 +193,9 @@ void TowerOfAdversityWidget::on_startButton_clicked(){
     emit start_resonance_recognition();
     emit start_resonance_recognition_minitor(&this->m_resonanceCircuitJudger);
 
+    emit start_ultimate_judge();
+    emit start_ultimate_judge_monitor(&this->m_ultimateJudger);
+
 }
 
 void TowerOfAdversityWidget::onStop(){
@@ -179,6 +204,8 @@ void TowerOfAdversityWidget::onStop(){
     m_teamIdxRecognitor.stop();
 
     m_resonanceCircuitJudger.stop();
+
+    m_ultimateJudger.stop();
 
 }
 
@@ -224,7 +251,24 @@ void TowerOfAdversityWidget::on_updateResonanceCircuit(const double& value){
     return;
 }
 
+void TowerOfAdversityWidget::on_updateResonanceLiberationReady(const double& isReady){
+    if(isReady > 0.8){
+        QColor dynamicColor(0, 255, 0);
+        ui->resonanceLiberateStatus->setStyleSheet(
+            QString("background-color: %1;").arg(dynamicColor.name())
+        );
+    }
+    else{
+        QColor dynamicColor(128, 128, 128);
+        ui->resonanceLiberateStatus->setStyleSheet(
+            QString("background-color: %1;").arg(dynamicColor.name())
+        );
+    }
 
+    ui->resonanceLiberateSpinBox->setValue(isReady);
+
+
+}
 
 
 

@@ -23,6 +23,10 @@
 #include "towerBattle/resonancecircuitjudger.h";
 #include "towerBattle/resonancecircuitjudgemonitor.h"
 
+// 判断角色大招状态
+#include "towerBattle/ultimatejudger.h";
+#include "towerBattle/ultimatejudgemonitor.h"
+
 namespace Ui {
 class TowerOfAdversityWidget;
 }
@@ -62,6 +66,13 @@ private:
     QThread m_resonanceCircuitJudgeMonitorThread;
     ResonanceCircuitJudgeMonitor m_resonanceCircuitJudgeMonitor;
 
+    // 判断角色 共鸣解放 也就是大招
+    QThread m_ultimateJudgerThread;
+    UltimateJudger m_ultimateJudger;
+    QThread m_ultimateJudgeMonitorThread;
+    UltimateJudgeMonitor m_ultimateJudgeMonitor;
+
+
     // 初始化配队介绍信息
     void initTeamInfoMap();
     // 初始化配队转角色信息
@@ -88,6 +99,9 @@ public slots:
     // 更新回路状态
     void on_updateResonanceCircuit(const double& value);
 
+    // 更新大招状态
+    void on_updateResonanceLiberationReady(const double& isReady);
+
 signals:
     // 发送信号 要求采图线程 和监控采图线程工作
     void start_capturer();
@@ -100,6 +114,10 @@ signals:
     // 要求检测共鸣回路
     void start_resonance_recognition();
     void start_resonance_recognition_minitor(const ResonanceCircuitJudger* capturer);
+
+    // 要求检测大招 共鸣解放
+    void start_ultimate_judge();
+    void start_ultimate_judge_monitor(const UltimateJudger* capturer);
 
 };
 

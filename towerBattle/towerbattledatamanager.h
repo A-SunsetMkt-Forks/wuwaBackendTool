@@ -52,14 +52,19 @@ public:
     // 角色状态
     int getCurrentIndex() const;
     void setCurrentIndex(int idx);
-    bool isResonanceSkillReady() const;
-    void setResonanceSkillReady(bool ready);
-    bool isResonanceLiberationReady() const;
-    void setResonanceLiberationReady(bool ready);
+
+    double isResonanceSkillReady() const;
+    void setResonanceSkillReady(double ready);
+
+    double isResonanceLiberationReady() const;
+    void setResonanceLiberationReady(double ready);
+
     double getResonanceCircuit() const;
     void setResonanceCircuit(double value);
+
     bool isEchoSkillReady() const;
     void setEchoSkillReady(bool ready);
+
     bool isExplorerToolReady() const;
     void setExplorerToolReady(bool ready);
 
@@ -95,8 +100,8 @@ private:
     int m_tick_rate = 20;  // 每秒做多少次判断
 
     int current_idx = 1;  // 默认1号位
-    bool resonance_skill_ready = true;
-    bool resonance_liberation_ready = true;
+    double resonance_skill_ready = 0.0;
+    double resonance_liberation_ready = 0.0;
 
     // 共鸣回路值 每个角色的情况不一样 需要查看ResonanceCircuitJudger 各个角色的定义
     double resonance_circuit = 0.0;  // 0.0表示空回路 1.0表示满回路

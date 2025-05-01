@@ -40,11 +40,6 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
     while(isBusy()){
         int charactorIdx = dataManager.getCurrentIndex();
         TowerBattleDataManager::Charactor selectCharactor = team[charactorIdx];
-        cv::Mat lastCapImg = dataManager.getLastCapImg();
-        if(lastCapImg.empty()){
-            QThread::msleep(sleepMs);
-            continue;
-        }
 
         // 每个角色的判断依据都不一样
         if(selectCharactor == TowerBattleDataManager::Charactor::UNDEFINED){
@@ -56,6 +51,8 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
             cv::Mat resonanceCircuit, position;
             if(!currentTeamRes[selectCharactor].contains("resonanceCircuit")){
                 qCritical() << QString("ERROR, Sanhua's resonanceCircuit res is lost");
+                QThread::msleep(sleepMs);
+                continue;
             }
             else{
                 resonanceCircuit = currentTeamRes[selectCharactor]["resonanceCircuit"].clone();
@@ -63,12 +60,19 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
 
             if(!currentTeamRes[selectCharactor].contains("position")){
                 qCritical() << QString("ERROR, Sanhua's position res is lost");
+                QThread::msleep(sleepMs);
+                continue;
             }
             else{
                 position = currentTeamRes[selectCharactor]["position"].clone();
             }
             const cv::Rect sanHuaCircuitRoi = {529, 659, 209, 20};
 
+            cv::Mat lastCapImg = dataManager.getLastCapImg();
+            if(lastCapImg.empty()){
+                QThread::msleep(sleepMs);
+                continue;
+            }
             // 找到回路存在的位置
             const cv::Mat roi = lastCapImg(sanHuaCircuitRoi);
             double sensitivity = 0.8;
@@ -81,33 +85,18 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
                 continue;
             }
 
-            if(!Utils::findPic(roi, position, 0.5, cursorX, cursorY, simiCursor)){
-                // 无法找到光标
-                dataManager.setResonanceCircuit(0.0);
+            if(!Utils::findPic(roi, position, 0.8, cursorX, cursorY, simiCursor)){
+                // 无法找到光标 已经被掩盖起来了
+                dataManager.setResonanceCircuit(1);
+                QThread::msleep(sleepMs);
+                continue;
+            }
+            else{
+                dataManager.setResonanceCircuit(1-simiCursor);
                 QThread::msleep(sleepMs);
                 continue;
             }
 
-            // 如果光标在右边 则认为OK
-            if(cursorX > 100){
-                if(cursorX > (circuitX + 2) ){
-                    cv::imwrite(QString("sanhuaCircuit.bmp").toLocal8Bit().toStdString(), lastCapImg);
-                    dataManager.setResonanceCircuit(1.0);
-                    QThread::msleep(sleepMs);
-                    //QThread::msleep(250);
-                    continue;
-                }
-                else{
-                    dataManager.setResonanceCircuit(0.0);
-                    QThread::msleep(sleepMs);
-                    continue;
-                }
-            }
-            else{
-                dataManager.setResonanceCircuit(0.0);
-                QThread::msleep(sleepMs);
-                continue;
-            }
 
         }
         else{
