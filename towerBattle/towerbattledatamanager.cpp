@@ -98,7 +98,7 @@ void TowerBattleDataManager::setCurrentIndex(int idx) {
     current_idx = idx;
 }
 
-double TowerBattleDataManager::isResonanceSkillReady() const {
+double TowerBattleDataManager::getResonanceSkillReady() const {
     QReadLocker locker(&readwriteLocker);
     return resonance_skill_ready;
 }
@@ -108,7 +108,7 @@ void TowerBattleDataManager::setResonanceSkillReady(double ready) {
     resonance_skill_ready = ready;
 }
 
-double TowerBattleDataManager::isResonanceLiberationReady() const {
+double TowerBattleDataManager::getResonanceLiberationReady() const {
     QReadLocker locker(&readwriteLocker);
     return resonance_liberation_ready;
 }

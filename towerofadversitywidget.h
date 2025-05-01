@@ -27,6 +27,11 @@
 #include "towerBattle/ultimatejudger.h";
 #include "towerBattle/ultimatejudgemonitor.h"
 
+// 判断角色共鸣技能状态
+#include "towerBattle/resonanceskilljudger.h";
+#include "towerBattle/resonanceskilljudgemonitor.h"
+
+
 namespace Ui {
 class TowerOfAdversityWidget;
 }
@@ -71,6 +76,8 @@ private:
     UltimateJudger m_ultimateJudger;
     QThread m_ultimateJudgeMonitorThread;
     UltimateJudgeMonitor m_ultimateJudgeMonitor;
+
+    // 判断角色 共鸣技能
 
 
     // 初始化配队介绍信息

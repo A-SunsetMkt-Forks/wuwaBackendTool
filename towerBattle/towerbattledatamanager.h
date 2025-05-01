@@ -53,10 +53,10 @@ public:
     int getCurrentIndex() const;
     void setCurrentIndex(int idx);
 
-    double isResonanceSkillReady() const;
+    double getResonanceSkillReady() const;
     void setResonanceSkillReady(double ready);
 
-    double isResonanceLiberationReady() const;
+    double getResonanceLiberationReady() const;
     void setResonanceLiberationReady(double ready);
 
     double getResonanceCircuit() const;
