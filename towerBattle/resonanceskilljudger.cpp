@@ -46,6 +46,7 @@ void ResonanceSkillJudger::on_start_resonance_skill_recognition(){
         // 每个角色的判断依据都不一样
         if(selectCharactor == TowerBattleDataManager::Charactor::UNDEFINED){
             // 无需判断 0号角色占位而已
+            dataManager.setResonanceSkillReady(0);
             QThread::msleep(sleepMs);
             continue;
         }

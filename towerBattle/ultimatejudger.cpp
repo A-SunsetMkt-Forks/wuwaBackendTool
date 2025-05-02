@@ -44,6 +44,7 @@ void UltimateJudger::on_start_ultimateJudge(){
         // 每个角色的判断依据都不一样
         if(selectCharactor == TowerBattleDataManager::Charactor::UNDEFINED){
             // 无需判断 0号角色占位而已
+            dataManager.setResonanceLiberationReady(0.0);
             QThread::msleep(sleepMs);
             continue;
         }
