@@ -114,6 +114,39 @@ void UltimateJudger::on_start_ultimateJudge(){
                 continue;
             }
         }
+        else if(selectCharactor == TowerBattleDataManager::Charactor::Shorekeeper){
+            cv::Mat ultimate;
+            if(!currentTeamRes[selectCharactor].contains("ultimate")){
+                qCritical() << QString("ERROR, Shorekeeper's ultimate res is lost");
+                QThread::msleep(sleepMs);
+                continue;
+            }
+            else{
+                ultimate = currentTeamRes[selectCharactor]["ultimate"].clone();
+            }
+
+            cv::Mat lastCapImg = dataManager.getLastCapImg();
+            if(lastCapImg.empty()){
+                QThread::msleep(sleepMs);
+                continue;
+            }
+
+            const cv::Mat ultimateRoiMat = lastCapImg(ultimateRoi).clone();
+            double sensitivity = 0.8;
+            double simiUltimate;
+            int x, y;
+            if(Utils::findPic(ultimateRoiMat, ultimate, sensitivity, x, y, simiUltimate)){
+                // 找到大招图标
+                dataManager.setResonanceLiberationReady(simiUltimate);
+                QThread::msleep(sleepMs);
+                continue;
+            }
+            else{
+                dataManager.setResonanceLiberationReady(simiUltimate);
+                QThread::msleep(sleepMs);
+                continue;
+            }
+        }
         else{
             QThread::msleep(sleepMs);
             continue;

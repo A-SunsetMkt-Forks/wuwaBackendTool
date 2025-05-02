@@ -97,6 +97,31 @@ void ResonanceSkillJudger::on_start_resonance_skill_recognition(){
             QThread::msleep(sleepMs);
             continue;
         }
+        else if(selectCharactor == TowerBattleDataManager::Charactor::Shorekeeper){
+            cv::Mat resonanceSkillMat;
+            if(!currentTeamRes[selectCharactor].contains("skill")){
+                qCritical() << QString("ERROR, Shorekeeper's resonance skill res is lost");
+                QThread::msleep(sleepMs);
+                continue;
+            }
+
+            resonanceSkillMat = currentTeamRes[selectCharactor]["skill"].clone();
+            cv::Mat lastCapImg = dataManager.getLastCapImg();
+            if(lastCapImg.empty()){
+                QThread::msleep(sleepMs);
+                continue;
+            }
+
+            double sensitivity = 0.8;
+            double simi;
+            int x, y;
+            TowerBattleDataManager& dataManager = TowerBattleDataManager::Instance();
+            Utils::findPic(lastCapImg(resonanceSkillRoi).clone(), resonanceSkillMat, sensitivity, x, y, simi);
+            dataManager.setResonanceSkillReady(simi);
+
+            QThread::msleep(sleepMs);
+            continue;
+        }
         else{
             QThread::msleep(sleepMs);
             continue;

@@ -152,6 +152,60 @@ void ConcertoEnergyJudger::on_start_concertoEnergyJudge(){
             QThread::msleep(sleepMs);
             continue;
         }
+        else if(selectCharactor == TowerBattleDataManager::Charactor::Shorekeeper){
+            // 守的颜色是RGB 216 203 106
+            const cv::Vec3b stdBrg = {106, 203, 216};
+            // 获取待判断的圆环
+            std::vector<cv::Point> getConcertoRing = Utils::getCircleContour(19, 19, 16);
+            if(getConcertoRing.empty()){
+                QThread::msleep(sleepMs);
+                continue;
+            }
+
+            cv::Mat lastCapImg = dataManager.getLastCapImg();
+            if(lastCapImg.empty()){
+                QThread::msleep(sleepMs);
+                continue;
+            }
+
+            cv::Mat toCalcRingMat = lastCapImg(resonanceSkillRoi).clone();
+            const double simiThres = 0.8;
+            int validPnts = 0;
+            int totalPnts = 0;
+
+            cv::Mat toCalcRingMatWithMask = toCalcRingMat.clone();
+            for(auto pnt : getConcertoRing){
+                toCalcRingMatWithMask.at<cv::Vec3b>(pnt.y, pnt.x) = {255,255,255};
+            }
+
+            // 创建可调整窗口
+            //cv::namedWindow("resonanceSkillRoi", cv::WINDOW_NORMAL);
+            // 显示图像
+            //cv::imshow("resonanceSkillRoi", toCalcRingMat);
+            // 按任意键关闭
+            //cv::waitKey(0);
+
+            for(int iPnt = 0; iPnt < getConcertoRing.size(); iPnt++){
+                auto pnt = getConcertoRing[iPnt];
+                if(pnt.y < 0 || pnt.y >= toCalcRingMat.rows || pnt.x < 0 || pnt.x >= toCalcRingMat.cols){
+                    continue;
+                }
+                else{
+                    totalPnts++;
+                }
+                cv::Vec3b curPntBGR = toCalcRingMat.at<cv::Vec3b>(pnt.y, pnt.x);
+                double thisPntSimi = Utils::colorSimilarity(stdBrg, curPntBGR);
+                if(thisPntSimi >= simiThres){
+                    validPnts++;
+                }
+            }
+
+            double concertoEnergy = (double)validPnts / (double)totalPnts;   // getConcertoRing.size();
+            dataManager.setConcertoEnergy(concertoEnergy);
+
+            QThread::msleep(sleepMs);
+            continue;
+        }
         else{
             QThread::msleep(sleepMs);
             continue;

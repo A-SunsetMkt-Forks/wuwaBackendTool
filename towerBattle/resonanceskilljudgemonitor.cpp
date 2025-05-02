@@ -51,6 +51,12 @@ void ResonanceSkillJudgeMonitor::on_start_monitor(const ResonanceSkillJudger* ju
             QThread::msleep(sleepMs);
             continue;
         }
+        else if(selectCharactor == TowerBattleDataManager::Charactor::Shorekeeper){
+            double val = dataManager.getResonanceSkillReady();
+            emit updateResonanceSkillStatus(val);
+            QThread::msleep(sleepMs);
+            continue;
+        }
         else{
             QThread::msleep(sleepMs);
             continue;

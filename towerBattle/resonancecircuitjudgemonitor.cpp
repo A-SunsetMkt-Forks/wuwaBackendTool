@@ -46,6 +46,12 @@ void ResonanceCircuitJudgeMonitor::on_start_monitor(const ResonanceCircuitJudger
             QThread::msleep(sleepMs);
             continue;
         }
+        else if(selectCharactor == TowerBattleDataManager::Charactor::Shorekeeper){
+            double val = dataManager.getResonanceCircuit();
+            emit updateResonanceCircuitStatus(val);
+            QThread::msleep(sleepMs);
+            continue;
+        }
         else{
             QThread::msleep(sleepMs);
             continue;
