@@ -6,6 +6,7 @@
 #include <QString>
 #include <QDebug>
 #include <QThread>
+#include <QMessageBox>
 
 // 数据中转站
 #include "towerBattle/towerbattledatamanager.h"
@@ -34,6 +35,9 @@
 // 判断角色协奏能量
 #include "towerBattle/concertoenergyjudger.h";
 #include "towerBattle/concertoenergyjudgemonitor.h"
+
+// 战斗控制
+#include "towerBattle/battlecontroller.h"
 
 
 namespace Ui {
@@ -94,6 +98,10 @@ private:
     QThread m_concertoEnergyJudgeMonitorThread;
     ConcertoEnergyJudgeMonitor m_concertoEnergyJudgeMonitor;
 
+    // 战斗控制
+    QThread m_battleControllerThread;
+    BattleController m_battleController;
+
 
 
 
@@ -132,6 +140,9 @@ public slots:
     // 更新协奏能量
     void on_updateConcertoEnergy(const double &val);
 
+    // 战斗结束
+    void on_battleDone(bool isOK, QString errMsg);
+
 signals:
     // 发送信号 要求采图线程 和监控采图线程工作
     void start_capturer();
@@ -156,6 +167,9 @@ signals:
     // 要求检测 协奏能量
     void start_concerto_energy_recognition();
     void start_concerto_energy_recognition_monitor(const ConcertoEnergyJudger* capturer);
+
+    // 开始战斗
+    void start_battle();
 
 };
 

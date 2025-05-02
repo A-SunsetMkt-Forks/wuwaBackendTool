@@ -49,7 +49,6 @@ void BattleController::on_start_battleController(){
             return;
         }
         else{
-
             m_errMsg = QString("不支持当前配队");
             qCritical() << m_errMsg;
             emit battleDone(false, m_errMsg);

@@ -87,6 +87,12 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
     connect(this, &TowerOfAdversityWidget::start_concerto_energy_recognition_monitor, &this->m_concertoEnergyJudgeMonitor, &ConcertoEnergyJudgeMonitor::on_start_monitor);
     connect(&this->m_concertoEnergyJudgeMonitor, &ConcertoEnergyJudgeMonitor::updateConcertoEnergy, this, &TowerOfAdversityWidget::on_updateConcertoEnergy);
 
+    // 战斗控制
+    m_battleController.moveToThread(&m_battleControllerThread);
+    m_battleControllerThread.start();
+    connect(this, &TowerOfAdversityWidget::start_battle, &this->m_battleController, &BattleController::on_start_battleController);
+    connect(&this->m_battleController, &BattleController::battleDone, this, &TowerOfAdversityWidget::on_battleDone);
+
 }
 
 TowerOfAdversityWidget::~TowerOfAdversityWidget()
@@ -163,6 +169,12 @@ TowerOfAdversityWidget::~TowerOfAdversityWidget()
         m_concertoEnergyJudgeMonitorThread.wait();
     }
 
+    if(m_battleControllerThread.isRunning()){
+        m_battleController.stop();
+        m_battleControllerThread.quit();
+        m_battleControllerThread.wait();
+    }
+
 
 
     delete ui;
@@ -228,23 +240,30 @@ void TowerOfAdversityWidget::on_supportTeam_currentTextChanged(const QString &te
 
 void TowerOfAdversityWidget::on_startButton_clicked(){
     qInfo() << QString("深塔教学工具 启动");
-    emit start_capturer();
-    emit start_capturerMonitor(&this->m_imageCapturer);
+    if(!m_battleController.isBusy()){
+        emit start_capturer();
+        emit start_capturerMonitor(&this->m_imageCapturer);
 
-    emit start_teamIdxRecognitor();
-    emit start_teamIdxRecognitonMonitor(&this->m_teamIdxRecognitor);
+        emit start_teamIdxRecognitor();
+        emit start_teamIdxRecognitonMonitor(&this->m_teamIdxRecognitor);
 
-    emit start_resonance_recognition();
-    emit start_resonance_recognition_minitor(&this->m_resonanceCircuitJudger);
+        emit start_resonance_recognition();
+        emit start_resonance_recognition_minitor(&this->m_resonanceCircuitJudger);
 
-    emit start_ultimate_judge();
-    emit start_ultimate_judge_monitor(&this->m_ultimateJudger);
+        emit start_ultimate_judge();
+        emit start_ultimate_judge_monitor(&this->m_ultimateJudger);
 
-    emit start_resonance_skill_recognition();
-    emit start_resonance_skill_recognition_minitor(&this->m_resonanceSkillJudger);
+        emit start_resonance_skill_recognition();
+        emit start_resonance_skill_recognition_minitor(&this->m_resonanceSkillJudger);
 
-    emit start_concerto_energy_recognition();
-    emit start_concerto_energy_recognition_monitor(&this->m_concertoEnergyJudger);
+        emit start_concerto_energy_recognition();
+        emit start_concerto_energy_recognition_monitor(&this->m_concertoEnergyJudger);
+    }
+    else{
+        QMessageBox::warning(this, "请先停止线程再启动", "请先ALT + F12 停止线程再启动");
+        return;
+    }
+
 }
 
 void TowerOfAdversityWidget::onStop(){
@@ -259,6 +278,8 @@ void TowerOfAdversityWidget::onStop(){
     m_resonanceSkillJudger.stop();
 
     m_concertoEnergyJudger.stop();
+
+    m_battleController.stop();
 }
 
 
@@ -341,6 +362,15 @@ void TowerOfAdversityWidget::on_updateConcertoEnergy(const double &val){
     ui->concertoEnergySpinBox->setValue(val);
 }
 
+void TowerOfAdversityWidget::on_battleDone(bool isOK, QString errMsg){
+    onStop();
+    if(isOK){
+        qInfo() << QString("战斗结束 %1").arg(errMsg);
+    }
+    else{
+        qCritical() << QString("战斗异常结束 %1").arg(errMsg);
+    }
+}
 
 
 
