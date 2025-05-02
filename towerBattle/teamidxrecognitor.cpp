@@ -44,12 +44,12 @@ void TeamIdxRecognitor::on_start_teamIdxRecognition(){
         Utils::findPic(roiImg, numPads[3], 0.7, x, y, numPad3_simi);
         //qInfo() << QString("numPad1_simi %1, numPad2_simi %2, numPad3_simi %3").arg(numPad1_simi).arg(numPad2_simi).arg(numPad3_simi);
 
-        if(numPad1_simi*numPad1_simi + numPad2_simi*numPad2_simi + numPad3_simi*numPad3_simi <= 0.0){
+        //if(numPad1_simi*numPad1_simi + numPad2_simi*numPad2_simi + numPad3_simi*numPad3_simi <= 0.0){
+        if(numPad1_simi < 0.7 && numPad2_simi < 0.7 && numPad3_simi < 0.7){
             dataManager.setCurrentIndex(0);
             QThread::msleep(sleepMs);
             continue;
         }
-
 
 
         if(numPad1_simi < numPad2_simi && numPad1_simi < numPad3_simi){
