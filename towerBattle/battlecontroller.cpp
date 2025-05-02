@@ -125,21 +125,6 @@ bool BattleController::Camellya_Sanhua_Shorekeeper(){
 
     // 散华释放E
     qInfo() << QString("准备释放E技能");
-    while(isBusy() && dataManager.getResonanceSkillReady() <= 0.8 && errCount < 5){
-        errCount++;
-        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
-    }
-    if(!isBusy()){
-        m_errMsg = QString("被用户中断");
-        return true;
-    }
-    if(errCount >= 5){
-        m_errMsg = QString("错误： 启动轴散华第一次登场 E技能始终无法检测到有效图标");
-        return false;
-    }
-    errCount = 0;
-
-    qInfo() << QString("检测到有效E技能图标");
     while(isBusy() && dataManager.getResonanceSkillReady() > 0.8 ){
         Utils::keyPress(Utils::hwnd, 'E', 1);
         QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
@@ -152,12 +137,6 @@ bool BattleController::Camellya_Sanhua_Shorekeeper(){
 
     // 散华释放R
     qInfo() << QString("准备释放R技能");
-    QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
-    if(dataManager.getResonanceLiberationReady() <= 0.8){
-        m_errMsg = QString("错误： 启动轴散华第一次登场无法使用R技能");
-        return false;
-    }
-
     while(isBusy() && dataManager.getResonanceLiberationReady() > 0.8 ){
         Utils::keyPress(Utils::hwnd, 'R', 1);
         QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
@@ -170,14 +149,30 @@ bool BattleController::Camellya_Sanhua_Shorekeeper(){
 
     // 散华Z
     Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONDOWN, 1, 1);
-    while(isBusy() && dataManager.getResonanceCircuit() < 1.0 ){
-        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    int sanhuaVote = 0;
+    while(isBusy() ){
+        if(dataManager.getResonanceCircuit() < 1.0 ){
+            sanhuaVote = 0;
+            QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+        }
+        else{
+            sanhuaVote++;
+            if(sanhuaVote > 2){
+                // 连续3票 认为OK
+                break;
+            }
+            QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+        }
+
+
     }
     if(!isBusy()){
         Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONUP, 1, 1);
         m_errMsg = QString("被用户中断");
         return true;
     }
+
+    //QThread::msleep(1400 + QRandomGenerator::global()->generateDouble() * 50);
     // 松开Z
     Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONUP, 1, 1);
 

@@ -260,7 +260,7 @@ void TowerOfAdversityWidget::on_startButton_clicked(){
         emit start_concerto_energy_recognition();
         emit start_concerto_energy_recognition_monitor(&this->m_concertoEnergyJudger);
 
-        //emit start_battle();
+        emit start_battle();
     }
     else{
         QMessageBox::warning(this, "请先停止线程再启动", "请先ALT + F12 停止线程再启动");

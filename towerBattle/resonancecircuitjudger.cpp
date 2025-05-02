@@ -86,7 +86,7 @@ void ResonanceCircuitJudger::on_start_resonance_recognition(){
                 continue;
             }
 
-            if(!Utils::findPic(roi, position, 0.9, cursorX, cursorY, simiCursor)){
+            if(!Utils::findPic(roi, position, 0.8, cursorX, cursorY, simiCursor)){
                 // 无法找到光标 已经被掩盖起来了
                 dataManager.setResonanceCircuit(1);
                 QThread::msleep(sleepMs);
