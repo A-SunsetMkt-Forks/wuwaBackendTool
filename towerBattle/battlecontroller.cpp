@@ -85,6 +85,7 @@ void BattleController::on_start_battleController(){
 
 bool BattleController::Camellya_Sanhua_Shorekeeper(){
     int errCount = 0;
+    Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
     // ===================== 热身轴
     // 切椿EQ
     TowerBattleDataManager& dataManager = TowerBattleDataManager::Instance();
@@ -163,8 +164,6 @@ bool BattleController::Camellya_Sanhua_Shorekeeper(){
             }
             QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
         }
-
-
     }
     if(!isBusy()){
         Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONUP, 1, 1);
@@ -175,6 +174,7 @@ bool BattleController::Camellya_Sanhua_Shorekeeper(){
     //QThread::msleep(1400 + QRandomGenerator::global()->generateDouble() * 50);
     // 松开Z
     Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONUP, 1, 1);
+    QThread::msleep(2*basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
 
     // 切守
     while(isBusy() && dataManager.getCurrentIndex() !=3 ){
@@ -239,7 +239,7 @@ bool BattleController::Camellya_Sanhua_Shorekeeper(){
     }
 
     // 检测是否满协奏 如果没满 继续A两下
-    while(isBusy() && dataManager.getConcertoEnergy() < 1.0 ){
+    while(isBusy() && dataManager.getConcertoEnergy() <= 0.99 ){
         Utils::clickWindowClientArea(Utils::hwnd, 1, 1);
         QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
     }
@@ -255,6 +255,96 @@ bool BattleController::Camellya_Sanhua_Shorekeeper(){
     // 切椿
     while(isBusy() && dataManager.getCurrentIndex() !=1 ){
         Utils::keyPress(Utils::hwnd, '1', 1);
+        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    }
+    if(!isBusy()){
+        m_errMsg = QString("被用户中断");
+        return true;
+    }
+
+    // 椿转圈圈 转到0.65协奏
+    Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONDOWN, 1, 1);
+    while(isBusy() && dataManager.getConcertoEnergy() < 0.65 ){
+        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    }
+    if(!isBusy()){
+        Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONUP, 1, 1);
+        m_errMsg = QString("被用户中断");
+        return true;
+    }
+    Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONUP, 1, 1);
+
+    // 切散华
+    while(isBusy() && dataManager.getCurrentIndex() !=2 ){
+        Utils::keyPress(Utils::hwnd, '2', 1);
+        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    }
+    if(!isBusy()){
+        m_errMsg = QString("被用户中断");
+        return true;
+    }
+
+    // 散华E
+    Utils::keyPress(Utils::hwnd, 'E', 1);
+    while(isBusy() && dataManager.getResonanceSkillReady() > 0.8 ){
+        Utils::keyPress(Utils::hwnd, 'E', 1);
+        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    }
+    if(!isBusy()){
+        m_errMsg = QString("被用户中断");
+        return true;
+    }
+
+    // A至满协奏
+    while(isBusy() && dataManager.getConcertoEnergy() <= 0.99 ){
+        Utils::clickWindowClientArea(Utils::hwnd, 1, 1);
+        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    }
+    if(!isBusy()){
+        m_errMsg = QString("被用户中断");
+        return true;
+    }
+
+    // 多A一次确保满协奏
+    Utils::clickWindowClientArea(Utils::hwnd, 1, 1);
+    QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+
+    // 切椿
+    while(isBusy() && dataManager.getCurrentIndex() != 1 ){
+        Utils::keyPress(Utils::hwnd, '1', 1);
+        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    }
+    if(!isBusy()){
+        m_errMsg = QString("被用户中断");
+        return true;
+    }
+
+    // 椿 A至满协奏
+    Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONDOWN, 1, 1);
+    while(isBusy() && dataManager.getConcertoEnergy() <= 0.95 ){
+        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    }
+    if(!isBusy()){
+        Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONUP, 1, 1);
+        m_errMsg = QString("被用户中断");
+        return true;
+    }
+    Utils::sendMouseToWindow(Utils::hwnd, WM_LBUTTONUP, 1, 1);
+
+    // 多A一次确保满协奏
+    //Utils::clickWindowClientArea(Utils::hwnd, 1, 1);
+    // 释放E 凑齐花
+    while(isBusy() && dataManager.getResonanceSkillReady() > 0.8 ){
+        Utils::keyPress(Utils::hwnd, 'E', 1);
+        QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
+    }
+    if(!isBusy()){
+        m_errMsg = QString("被用户中断");
+        return true;
+    }
+
+    for(int i = 0; i<5 && isBusy(); i++){
+        Utils::keyPress(Utils::hwnd, 'E', 1);
         QThread::msleep(basicWaitMs + QRandomGenerator::global()->generateDouble() * 50);
     }
     if(!isBusy()){
