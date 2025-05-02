@@ -87,7 +87,11 @@ void ConcertoEnergyJudger::on_start_concertoEnergyJudge(){
                 }
                 cv::Vec3b curPntBGR = toCalcRingMat.at<cv::Vec3b>(pnt.y, pnt.x);
                 double thisPntSimi = Utils::colorSimilarity(stdBrg, curPntBGR);
-                if(thisPntSimi >= simiThres){
+                // 35 20 这个点要严格要求
+                if(thisPntSimi >= simiThres && (pnt.x != 35 || pnt.y != 20)){
+                    validPnts++;
+                }
+                else if(thisPntSimi >= 0.9 && (pnt.x == 35 && pnt.y == 20)){
                     validPnts++;
                 }
             }
@@ -141,7 +145,11 @@ void ConcertoEnergyJudger::on_start_concertoEnergyJudge(){
                 }
                 cv::Vec3b curPntBGR = toCalcRingMat.at<cv::Vec3b>(pnt.y, pnt.x);
                 double thisPntSimi = Utils::colorSimilarity(stdBrg, curPntBGR);
-                if(thisPntSimi >= simiThres){
+                // 35 20 这个点要严格要求
+                if(thisPntSimi >= simiThres && (pnt.x != 35 || pnt.y != 20)){
+                    validPnts++;
+                }
+                else if(thisPntSimi >= 0.9 && (pnt.x == 35 && pnt.y == 20)){
                     validPnts++;
                 }
             }
@@ -195,7 +203,11 @@ void ConcertoEnergyJudger::on_start_concertoEnergyJudge(){
                 }
                 cv::Vec3b curPntBGR = toCalcRingMat.at<cv::Vec3b>(pnt.y, pnt.x);
                 double thisPntSimi = Utils::colorSimilarity(stdBrg, curPntBGR);
-                if(thisPntSimi >= simiThres){
+                // 35 20 这个点要严格要求
+                if(thisPntSimi >= simiThres && (pnt.x != 35 || pnt.y != 20)){
+                    validPnts++;
+                }
+                else if(thisPntSimi >= 0.9 && (pnt.x == 35 && pnt.y == 20)){
                     validPnts++;
                 }
             }
