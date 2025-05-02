@@ -25,6 +25,7 @@
 #include "commonTools/customdelegate.h"
 #include "commonTools/debugmessagehandler.h"
 
+#include "towerofadversitywidget.h"
 #include "utils.h"    //通用工具
 #include "generalpanel.h"  // 子面板
 #include "speicalbosswidget.h"   // 特殊boss面板
@@ -78,6 +79,8 @@ private:
     const int toggleHotKeyIdScrCpy = 2;  // 用于 CTRL+P 的快捷键ID  截图到指定地方
     const int toggleHotKeyIdActivateWuwa = 3;  // CTRL + O  用于激活鸣潮窗体
     const int toggleHotKeyIdDeactivateWuwa = 4;  // CTRL + I  用于取消激活鸣潮窗体
+    const int toggleHotKeyIdStartAutoBattle = 5;  // ALT + 数字0 用于启动自动深塔
+
     // 注册和取消注册快捷键
     void unregisterGlobalHotKey();
     void registerGlobalHotKey();

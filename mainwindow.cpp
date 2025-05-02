@@ -189,6 +189,7 @@ void MainWindow::registerType(){
     qRegisterMetaType<LockEchoSetting>("LockEchoSetting");
     qRegisterMetaType<SingleEchoSetting>("SingleEchoSetting");
     qRegisterMetaType<NormalBossSetting>("NormalBossSetting");
+    qRegisterMetaType<cv::Mat>("cv::Mat");
 }
 
 void MainWindow::genDefaultLockEchoSetting(){
@@ -233,6 +234,13 @@ void MainWindow::registerGlobalHotKey() {
     else{
         qDebug() << "CTRL + I hotkey registered.";
     }
+
+    if(!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdStartAutoBattle, MOD_ALT, '0')) {
+        qDebug() << "Failed to register ALT + 0!";
+    }
+    else{
+        qDebug() << " ALT + 0 hotkey registered.";
+    }
 }
 
 void MainWindow::unregisterGlobalHotKey() {
@@ -240,6 +248,7 @@ void MainWindow::unregisterGlobalHotKey() {
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy);
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdActivateWuwa);
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdDeactivateWuwa);
+    UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdStartAutoBattle);
 }
 
 void MainWindow::onHotKeyActivated(int id) {
@@ -253,7 +262,10 @@ void MainWindow::onHotKeyActivated(int id) {
         ui->debugPanel->on_activateBtn_clicked();
     } else if(id == toggleHotKeyIdDeactivateWuwa){
         ui->debugPanel->on_deactivateBtn_clicked();
-    }else {
+    }else if(id == toggleHotKeyIdStartAutoBattle){
+        ui->towerTextBookPanel->on_startButton_clicked();
+    }
+    else {
         qWarning() << "Unhandled hotkey ID:" << id;
     }
 
@@ -293,6 +305,10 @@ void MainWindow::onStartTest1Done(const bool &isNormalEnd, const QString& msg){
 
 void MainWindow::on_stopBtn_clicked(){
     m_mainBackendWorkerNew.stopWorker();
+
+    // 深塔教学工具停止工作
+    ui->towerTextBookPanel->onStop();
+
 }
 
 
@@ -591,7 +607,7 @@ bool MainWindow::initialCheck()
 
 void MainWindow::onCheckLic()
 {
-    qInfo() << QString("MainWindow::onCheckLic()");
+    //qInfo() << QString("MainWindow::onCheckLic()");
     if(toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)){
         qWarning() << QString("toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)");
         this->m_mainBackendWorkerNew.stopWorker();

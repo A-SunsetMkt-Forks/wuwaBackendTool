@@ -74,8 +74,21 @@ SOURCES += \
     commonTools/encrypttools.cpp \
     debugbackendworker.cpp \
     wuwawatcher.cpp \
-    towerBattle/readme.cpp \
-    towerofadversitywidget.cpp
+    towerofadversitywidget.cpp \
+    towerBattle/towerbattledatamanager.cpp \
+    towerBattle/imagecapturer.cpp \
+    towerBattle/imagecapturermonitor.cpp \
+    towerBattle/teamidxrecognitor.cpp \
+    towerBattle/teamidxrecognitionmonitor.cpp \
+    towerBattle/resonancecircuitjudger.cpp \
+    towerBattle/resonancecircuitjudgemonitor.cpp \
+    towerBattle/ultimatejudger.cpp \
+    towerBattle/ultimatejudgemonitor.cpp \
+    towerBattle/resonanceskilljudger.cpp \
+    towerBattle/resonanceskilljudgemonitor.cpp \
+    towerBattle/concertoenergyjudger.cpp \
+    towerBattle/concertoenergyjudgemonitor.cpp \
+    towerBattle/battlecontroller.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -101,7 +114,21 @@ HEADERS += \
     commonTools/encrypttools.h \
     debugbackendworker.h \
     wuwawatcher.h \
-    towerofadversitywidget.h
+    towerofadversitywidget.h \
+    towerBattle/towerbattledatamanager.h \
+    towerBattle/imagecapturer.h \
+    towerBattle/imagecapturermonitor.h \
+    towerBattle/teamidxrecognitor.h \
+    towerBattle/teamidxrecognitionmonitor.h \
+    towerBattle/resonancecircuitjudger.h \
+    towerBattle/resonancecircuitjudgemonitor.h \
+    towerBattle/ultimatejudger.h \
+    towerBattle/ultimatejudgemonitor.h \
+    towerBattle/resonanceskilljudger.h \
+    towerBattle/resonanceskilljudgemonitor.h \
+    towerBattle/concertoenergyjudger.h \
+    towerBattle/concertoenergyjudgemonitor.h \
+    towerBattle/battlecontroller.h
 
 FORMS += \
         mainwindow.ui \

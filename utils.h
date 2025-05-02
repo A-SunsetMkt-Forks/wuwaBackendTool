@@ -16,6 +16,7 @@ basic tool functions
 #include <QDir>
 #include <QTime>
 #include <QProcess>
+#include <QLabel>
 
 // 获取窗体 句柄
 #include <windows.h>
@@ -97,6 +98,9 @@ public:
     // 点击客户端的某个位置 鼠标左键
     static bool clickWindowClientArea(HWND hwnd, int x, int y);
 
+    // 更复杂的鼠标事件比如按住
+    static bool sendMouseToWindow(HWND hwnd, int buttonEvent, int x, int y);
+
     // 向窗体发送单击指令
     static bool clickWindowClient(HWND hwnd);
 
@@ -123,6 +127,7 @@ public:
     // QImage 和cvMat互转
     static QImage cvMat2QImage(const cv::Mat& mat);
     static cv::Mat qImage2CvMat(const QImage& image);
+    static bool displayMatOnLabel(QLabel* label, const QImage& image);
 
     // "F48A94" 转换为颜色
     static bool hexToBGR(const QString& hexColor, cv::Vec3b& outColor);
@@ -132,6 +137,11 @@ public:
 
     // winapi 启动一个exe
     static bool myCreateProcess(const std::wstring &exePath, const std::wstring &workingDir);
+
+    // 已知圆心和半径 获取从1度到360度的遍历坐标  用于判断协奏
+    static std::vector<cv::Point> getCircleContour(int cx, int cy, int r);
+    // 计算距离
+    static double colorSimilarity(const cv::Vec3b& bgr1, const cv::Vec3b& bgr2);
 
 private:
     static const QString wuwaWindowTitle;

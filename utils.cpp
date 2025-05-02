@@ -394,41 +394,42 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
 
     return true;
 
-        /*
-    if(hwnd == nullptr || !IsWindow(hwnd)){
-        return false;
-    }
+
+}
+
+bool Utils::sendMouseToWindow(HWND hwnd, int buttonEvent, int x, int y) {
+    if (!hwnd || !IsWindow(hwnd)) return false;
 
     QMutexLocker locker(&m_locker);
 
-    // 将客户区坐标转换为屏幕坐标
-    POINT clientPoint = { x, y };
-    if (!ClientToScreen(hwnd, &clientPoint)) {
-        qWarning() << "Failed to convert client area coordinates to screen coordinates.";
-        return false;
+    // 编码坐标到消息参数
+    LPARAM lParam = MAKELPARAM(x, y);
+
+    // 发送鼠标事件
+    PostMessage(hwnd, buttonEvent, 0, lParam); // WParam通常为0或按键组合状态
+
+    // 日志输出
+    QString action;
+    switch (buttonEvent) {
+        case WM_LBUTTONDOWN: action = "Pressed"; break;
+        case WM_LBUTTONUP:   action = "Released"; break;
+        case WM_MOUSEMOVE:   action = "Moved"; break;
+        default:             action = "Unknown";
     }
-
-    // 使用 SendInput 模拟鼠标点击
-    INPUT input = {0};
-    input.type = INPUT_MOUSE;
-
-    // 鼠标按下事件
-    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-    input.mi.dx = clientPoint.x;
-    input.mi.dy = clientPoint.y;
-    SendInput(1, &input, sizeof(INPUT));
-    Sleep(50);  // 给消息处理留一点缓冲时间
-
-    // 鼠标弹起事件
-    input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
-    SendInput(1, &input, sizeof(INPUT));
-    Sleep(50);
-
-    qDebug() << "Simulated click at client area coordinates: ("
-             << x << ", " << y << ")";
-
+    //qDebug() << QString("Mouse: Left (%1,%2), Action: %3").arg(x).arg(y).arg(action);
     return true;
-    */
+    /*
+    // 按下左键
+    sendMouseToWindow(hwnd, WM_LBUTTONDOWN, 100, 100);
+    // 释放左键（必须成对调用）
+    sendMouseToWindow(hwnd, WM_LBUTTONUP, 100, 100);
+    // 在起点按下
+    sendMouseToWindow(hwnd, WM_LBUTTONDOWN, startX, startY);
+    // 移动时保持按下状态
+    sendMouseToWindow(hwnd, WM_MOUSEMOVE, dragX, dragY);
+    // 最终释放
+    sendMouseToWindow(hwnd, WM_LBUTTONUP, endX, endY);
+     */
 }
 
 bool Utils::scrollWindowClientArea(HWND hwnd, int x, int y, int delta) {
@@ -612,6 +613,41 @@ cv::Mat Utils::qImage2CvMat(const QImage& image) {
     default:
         return cv::Mat();
     }
+}
+
+bool Utils::displayMatOnLabel(QLabel* label, const QImage& image) {
+    // 检查输入有效性
+    if (!label) {
+        qWarning() << "QLabel指针为空!";
+        return false;
+    }
+    if (image.isNull()) {
+        qWarning() << "QImage图像为空!";
+        return false;
+    }
+
+    // 直接转换为QPixmap
+    QPixmap pixmap = QPixmap::fromImage(image);
+    if (pixmap.isNull()) {
+        qWarning() << "QPixmap转换失败!";
+        return false;
+    }
+
+    // 计算缩放后的尺寸（保持宽高比）
+    const int labelWidth = label->width();
+    const int labelHeight = label->height();
+    const double ratio = qMin(static_cast<double>(labelWidth) / pixmap.width(),
+                             static_cast<double>(labelHeight) / pixmap.height());
+    const int scaledWidth = qRound(pixmap.width() * ratio);
+    const int scaledHeight = qRound(pixmap.height() * ratio);
+
+    // 高质量缩放并设置到Label
+    QPixmap scaledPixmap = pixmap.scaled(scaledWidth, scaledHeight,
+                                        Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    label->setPixmap(scaledPixmap);
+    label->setAlignment(Qt::AlignCenter); // 居中显示
+
+    return true;
 }
 
 bool Utils::findPic(const cv::Mat& sourceImage, const cv::Mat& templateImage, double threshold, int& outX, int& outY) {
@@ -887,4 +923,61 @@ bool Utils::myCreateProcess(const std::wstring &exePath, const std::wstring &wor
     qDebug().noquote()
             << QStringLiteral("CreateProcessW succeeded for: %1").arg(QString::fromWCharArray(exePath.c_str()));
     return true;
+}
+
+
+std::vector<cv::Point> Utils::getCircleContour(int cx, int cy, int r){
+    std::vector<cv::Point> contour;
+    const double step = 2.0; // 角度步长（可调整精度）
+
+    // 逆时针遍历所有角度
+    for (double theta = 2; theta <= 360; theta += step) {
+        double radians = theta * CV_PI / 180.0;
+
+        // 计算坐标并四舍五入
+        int x = cvRound(cx + r * std::cos(radians));
+        int y = cvRound(cy + r * std::sin(radians));
+
+        // 添加非重复点
+        if (contour.empty() || contour.back() != cv::Point(x, y)) {
+            contour.emplace_back(x, y);
+        }
+    }
+
+    /*
+    // 调整起点到（cx+r, cy）
+    auto it = std::find(contour.begin(), contour.end(), cv::Point(cx + r, cy));
+    if (it != contour.end()) {
+        std::rotate(contour.begin(), it, contour.end());
+    }
+    */
+
+    return contour;
+}
+
+double Utils::colorSimilarity(const cv::Vec3b& stdBGR1,
+                    const cv::Vec3b& bgr2)
+{
+    // 计算各通道差异（注意BGR顺序）
+    const int delta_b = std::abs(stdBGR1[0] - bgr2[0]);
+    const int delta_g = std::abs(stdBGR1[1] - bgr2[1]);
+    const int delta_r = std::abs(stdBGR1[2] - bgr2[2]);
+
+    // 计算三维欧氏距离（BGR立方体空间）
+    const double distance = std::sqrt(
+        delta_b * delta_b +
+        delta_g * delta_g +
+        delta_r * delta_r
+    );
+
+    // 理论最大距离（255√3 ≈ 441.67）
+    //const double max_distance = 255.0 * std::sqrt(3.0);
+    double max_distance = std::abs(255 - stdBGR1[0]) * std::abs(255 - stdBGR1[0]) + std::abs(255 - stdBGR1[1]) * std::abs(255 - stdBGR1[1]) + std::abs(255 - stdBGR1[2]) * std::abs(255 - stdBGR1[2]);
+    max_distance = std::sqrt(max_distance);
+
+    double similarity;
+    // 计算相似度并限幅[0.0, 1.0]
+    similarity = 1.0 - (distance / max_distance);
+    similarity = qMax(0.0, qMin(similarity, 1.0));  // C++14兼容的限幅
+    return similarity;
 }
