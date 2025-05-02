@@ -34,6 +34,10 @@ void ResonanceSkillJudgeMonitor::on_start_monitor(const ResonanceSkillJudger* ju
         // 每个角色的判断依据都不一样
         if(selectCharactor == TowerBattleDataManager::Charactor::UNDEFINED){
             // 无需判断 0号角色占位而已
+            double val = dataManager.getResonanceSkillReady();
+            emit updateResonanceSkillStatus(val);
+            QThread::msleep(sleepMs);
+            continue;
         }
         else if(selectCharactor == TowerBattleDataManager::Charactor::Sanhua){
             double val = dataManager.getResonanceSkillReady();
