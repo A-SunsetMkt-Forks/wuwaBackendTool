@@ -596,7 +596,7 @@ bool MainWindow::initialCheck()
 
 void MainWindow::onCheckLic()
 {
-    qInfo() << QString("MainWindow::onCheckLic()");
+    //qInfo() << QString("MainWindow::onCheckLic()");
     if(toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)){
         qWarning() << QString("toolCurrentTime > licStartTime.addMSecs(MAX_MSECS)");
         this->m_mainBackendWorkerNew.stopWorker();

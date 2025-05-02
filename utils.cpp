@@ -394,41 +394,42 @@ bool Utils::clickWindowClientArea(HWND hwnd, int x, int y) {
 
     return true;
 
-        /*
-    if(hwnd == nullptr || !IsWindow(hwnd)){
-        return false;
-    }
+
+}
+
+bool Utils::sendMouseToWindow(HWND hwnd, int buttonEvent, int x, int y) {
+    if (!hwnd || !IsWindow(hwnd)) return false;
 
     QMutexLocker locker(&m_locker);
 
-    // 将客户区坐标转换为屏幕坐标
-    POINT clientPoint = { x, y };
-    if (!ClientToScreen(hwnd, &clientPoint)) {
-        qWarning() << "Failed to convert client area coordinates to screen coordinates.";
-        return false;
+    // 编码坐标到消息参数
+    LPARAM lParam = MAKELPARAM(x, y);
+
+    // 发送鼠标事件
+    PostMessage(hwnd, buttonEvent, 0, lParam); // WParam通常为0或按键组合状态
+
+    // 日志输出
+    QString action;
+    switch (buttonEvent) {
+        case WM_LBUTTONDOWN: action = "Pressed"; break;
+        case WM_LBUTTONUP:   action = "Released"; break;
+        case WM_MOUSEMOVE:   action = "Moved"; break;
+        default:             action = "Unknown";
     }
-
-    // 使用 SendInput 模拟鼠标点击
-    INPUT input = {0};
-    input.type = INPUT_MOUSE;
-
-    // 鼠标按下事件
-    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-    input.mi.dx = clientPoint.x;
-    input.mi.dy = clientPoint.y;
-    SendInput(1, &input, sizeof(INPUT));
-    Sleep(50);  // 给消息处理留一点缓冲时间
-
-    // 鼠标弹起事件
-    input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
-    SendInput(1, &input, sizeof(INPUT));
-    Sleep(50);
-
-    qDebug() << "Simulated click at client area coordinates: ("
-             << x << ", " << y << ")";
-
+    //qDebug() << QString("Mouse: Left (%1,%2), Action: %3").arg(x).arg(y).arg(action);
     return true;
-    */
+    /*
+    // 按下左键
+    sendMouseToWindow(hwnd, WM_LBUTTONDOWN, 100, 100);
+    // 释放左键（必须成对调用）
+    sendMouseToWindow(hwnd, WM_LBUTTONUP, 100, 100);
+    // 在起点按下
+    sendMouseToWindow(hwnd, WM_LBUTTONDOWN, startX, startY);
+    // 移动时保持按下状态
+    sendMouseToWindow(hwnd, WM_MOUSEMOVE, dragX, dragY);
+    // 最终释放
+    sendMouseToWindow(hwnd, WM_LBUTTONUP, endX, endY);
+     */
 }
 
 bool Utils::scrollWindowClientArea(HWND hwnd, int x, int y, int delta) {
