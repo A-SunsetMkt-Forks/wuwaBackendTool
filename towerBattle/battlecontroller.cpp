@@ -39,12 +39,25 @@ void BattleController::on_start_battleController(){
     double tickRate = dataManager.getTickRate();
     double sleepMs = 1000.0 / tickRate;
 
+    // 激活窗口
+    DWORD threadId = GetWindowThreadProcessId(Utils::hwnd, nullptr);
+    DWORD currentThreadId = GetCurrentThreadId();
+    if(!AttachThreadInput(currentThreadId, threadId, TRUE) ){
+        m_errMsg = QString("激活窗口失败 检查是否以管理员身份运行本工具");
+        qCritical() << m_errMsg;
+        emit battleDone(false, m_errMsg);
+        AttachThreadInput(currentThreadId, threadId, FALSE);
+        m_isBusy.store(0);
+        return;
+    }
+
     while(isBusy()){
         if(team[1] == TowerBattleDataManager::Charactor::Camellya && \
                 team[2] == TowerBattleDataManager::Charactor::Sanhua &&\
-                team[2] == TowerBattleDataManager::Charactor::Shorekeeper){
+                team[3] == TowerBattleDataManager::Charactor::Shorekeeper){
             bool ret = Camellya_Sanhua_Shorekeeper();
             emit battleDone(ret, m_errMsg);
+            AttachThreadInput(currentThreadId, threadId, FALSE);
             m_isBusy.store(0);
             return;
         }
@@ -52,6 +65,7 @@ void BattleController::on_start_battleController(){
             m_errMsg = QString("不支持当前配队");
             qCritical() << m_errMsg;
             emit battleDone(false, m_errMsg);
+            AttachThreadInput(currentThreadId, threadId, FALSE);
             m_isBusy.store(0);
             return;
         }
@@ -63,6 +77,7 @@ void BattleController::on_start_battleController(){
 
     m_errMsg = QString("被用户中断");
     emit battleDone(true, m_errMsg);
+    AttachThreadInput(currentThreadId, threadId, FALSE);
     m_isBusy.store(0);
     return;
 }

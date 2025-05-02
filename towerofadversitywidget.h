@@ -39,6 +39,8 @@
 // 战斗控制
 #include "towerBattle/battlecontroller.h"
 
+// 快捷键注册
+//#include "globalhotkeyfilter.h"
 
 namespace Ui {
 class TowerOfAdversityWidget;
@@ -85,7 +87,6 @@ private:
     QThread m_ultimateJudgeMonitorThread;
     UltimateJudgeMonitor m_ultimateJudgeMonitor;
 
-
     // 判断角色 共鸣技能
     QThread m_resonanceSkillJudgerThread;
     ResonanceSkillJudger m_resonanceSkillJudger;
@@ -102,7 +103,13 @@ private:
     QThread m_battleControllerThread;
     BattleController m_battleController;
 
+    // 快捷键 ALT 0 启动脚本
+    //GlobalHotKeyFilter* hotKeyFilter;
+    //const int toggleStartBattleId = 555;
 
+    // 注册快捷键和注销快捷键
+    void registerGlobalHotKey();
+    void unregisterGlobalHotKey();
 
 
     // 初始化配队介绍信息
@@ -170,6 +177,11 @@ signals:
 
     // 开始战斗
     void start_battle();
+
+private slots:
+    //void onHotKeyActivated(int id);
+
+
 
 };
 

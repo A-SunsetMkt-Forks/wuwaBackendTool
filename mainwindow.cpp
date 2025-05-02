@@ -234,6 +234,13 @@ void MainWindow::registerGlobalHotKey() {
     else{
         qDebug() << "CTRL + I hotkey registered.";
     }
+
+    if(!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdStartAutoBattle, MOD_ALT, '0')) {
+        qDebug() << "Failed to register ALT + 0!";
+    }
+    else{
+        qDebug() << " ALT + 0 hotkey registered.";
+    }
 }
 
 void MainWindow::unregisterGlobalHotKey() {
@@ -241,6 +248,7 @@ void MainWindow::unregisterGlobalHotKey() {
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdScrCpy);
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdActivateWuwa);
     UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdDeactivateWuwa);
+    UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleHotKeyIdStartAutoBattle);
 }
 
 void MainWindow::onHotKeyActivated(int id) {
@@ -254,7 +262,10 @@ void MainWindow::onHotKeyActivated(int id) {
         ui->debugPanel->on_activateBtn_clicked();
     } else if(id == toggleHotKeyIdDeactivateWuwa){
         ui->debugPanel->on_deactivateBtn_clicked();
-    }else {
+    }else if(id == toggleHotKeyIdStartAutoBattle){
+        ui->towerTextBookPanel->on_startButton_clicked();
+    }
+    else {
         qWarning() << "Unhandled hotkey ID:" << id;
     }
 
