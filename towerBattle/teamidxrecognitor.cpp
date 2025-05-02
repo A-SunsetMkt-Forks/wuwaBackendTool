@@ -36,12 +36,16 @@ void TeamIdxRecognitor::on_start_teamIdxRecognition(){
             continue;
         }
 
+        const std::vector<cv::Rect> numPadRoiVec = {{1154,139,17,17}, {1154,227,17,17}, {1154,315,17,17}};
         cv::Mat roiImg = lastCapImg(numPadRoiRec).clone();
         double numPad1_simi, numPad2_simi, numPad3_simi;
         int x, y;
-        Utils::findPic(roiImg, numPads[1], 0.7, x, y, numPad1_simi);
-        Utils::findPic(roiImg, numPads[2], 0.7, x, y, numPad2_simi);
-        Utils::findPic(roiImg, numPads[3], 0.7, x, y, numPad3_simi);
+        //Utils::findPic(roiImg, numPads[1], 0.7, x, y, numPad1_simi);
+        //Utils::findPic(roiImg, numPads[2], 0.7, x, y, numPad2_simi);
+        //Utils::findPic(roiImg, numPads[3], 0.7, x, y, numPad3_simi);
+        Utils::findPic(lastCapImg(numPadRoiVec[0]).clone(), numPads[1], 0.7, x, y, numPad1_simi);
+        Utils::findPic(lastCapImg(numPadRoiVec[1]).clone(), numPads[2], 0.7, x, y, numPad2_simi);
+        Utils::findPic(lastCapImg(numPadRoiVec[2]).clone(), numPads[3], 0.7, x, y, numPad3_simi);
         //qInfo() << QString("numPad1_simi %1, numPad2_simi %2, numPad3_simi %3").arg(numPad1_simi).arg(numPad2_simi).arg(numPad3_simi);
 
         //if(numPad1_simi*numPad1_simi + numPad2_simi*numPad2_simi + numPad3_simi*numPad3_simi <= 0.0){

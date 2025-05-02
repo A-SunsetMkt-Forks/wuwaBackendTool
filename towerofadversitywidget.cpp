@@ -21,19 +21,6 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
 
     ui->readme->setText(QString("教学工具并不能帮你完成所有操作。你需要手动完成开始游戏和闪避等。\n可以动脑多多思考"));
 
-    /*
-    // ============= 注册快捷键 ============
-    // 注册全局快捷键 允许快捷停止脚本运行
-    registerGlobalHotKey();
-
-    // 安装全局事件过滤器
-    hotKeyFilter = new GlobalHotKeyFilter();
-    qApp->installNativeEventFilter(hotKeyFilter);
-
-    // 连接热键信号到槽
-    connect(hotKeyFilter, &GlobalHotKeyFilter::hotKeyPressed, this, &TowerOfAdversityWidget::onHotKeyActivated);
-    */
-
 
     // ============= 线程管理 =============
     // 采图线程相关
@@ -111,15 +98,6 @@ TowerOfAdversityWidget::TowerOfAdversityWidget(QWidget *parent) :
 
 TowerOfAdversityWidget::~TowerOfAdversityWidget()
 {
-    /*
-    if(hotKeyFilter){
-        // 取消 停止脚本快捷键
-        unregisterGlobalHotKey(); // 注销全局快捷键
-        qApp->removeNativeEventFilter(hotKeyFilter);
-        hotKeyFilter->deleteLater();
-    }
-    */
-
     if(m_imageCapturerThread.isRunning()){
         m_imageCapturer.stop();
         m_imageCapturerThread.quit();
@@ -203,30 +181,6 @@ TowerOfAdversityWidget::~TowerOfAdversityWidget()
     delete ui;
 }
 
-/*
-void TowerOfAdversityWidget::registerGlobalHotKey(){
-    if (!RegisterHotKey(reinterpret_cast<HWND>(winId()), toggleStartBattleId, MOD_ALT, '0')) {
-        qInfo() << "Failed to register Alt + 0 (Main Keyboard)!";
-    } else {
-        qInfo() << "Alt + 0 (Main Keyboard) hotkey registered.";
-    }
-}
-
-void TowerOfAdversityWidget::unregisterGlobalHotKey(){
-    UnregisterHotKey(reinterpret_cast<HWND>(winId()), toggleStartBattleId);
-}
-
-void TowerOfAdversityWidget::onHotKeyActivated(int id) {
-    if (id == toggleStartBattleId) {
-        qInfo() << "收到ALT+0，开启战斗";
-        on_startButton_clicked();
-    } else {
-        qWarning() << "Unhandled hotkey ID:" << id;
-    }
-
-
-}
-*/
 
 void TowerOfAdversityWidget::initTeamInfoMap(){
     QString Camellya_Sanhua_Shorekeeper_str;
@@ -306,7 +260,7 @@ void TowerOfAdversityWidget::on_startButton_clicked(){
         emit start_concerto_energy_recognition();
         emit start_concerto_energy_recognition_monitor(&this->m_concertoEnergyJudger);
 
-        emit start_battle();
+        //emit start_battle();
     }
     else{
         QMessageBox::warning(this, "请先停止线程再启动", "请先ALT + F12 停止线程再启动");

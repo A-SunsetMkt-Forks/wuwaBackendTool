@@ -103,14 +103,6 @@ private:
     QThread m_battleControllerThread;
     BattleController m_battleController;
 
-    // 快捷键 ALT 0 启动脚本
-    //GlobalHotKeyFilter* hotKeyFilter;
-    //const int toggleStartBattleId = 555;
-
-    // 注册快捷键和注销快捷键
-    void registerGlobalHotKey();
-    void unregisterGlobalHotKey();
-
 
     // 初始化配队介绍信息
     void initTeamInfoMap();
@@ -179,7 +171,7 @@ signals:
     void start_battle();
 
 private slots:
-    //void onHotKeyActivated(int id);
+
 
 
 
