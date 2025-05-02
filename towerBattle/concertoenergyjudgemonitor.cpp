@@ -47,6 +47,12 @@ void ConcertoEnergyJudgeMonitor::on_start_monitor(const ConcertoEnergyJudger* ju
             QThread::msleep(sleepMs);
             continue;
         }
+        else if(selectCharactor == TowerBattleDataManager::Charactor::Camellya){
+            double val = dataManager.getConcertoEnergy();
+            emit updateConcertoEnergy(val);
+            QThread::msleep(sleepMs);
+            continue;
+        }
         else{
             QThread::msleep(sleepMs);
             continue;

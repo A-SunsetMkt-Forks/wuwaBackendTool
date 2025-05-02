@@ -42,7 +42,8 @@ void ResonanceSkillJudger::on_start_resonance_skill_recognition(){
         int charactorIdx = dataManager.getCurrentIndex();
         TowerBattleDataManager::Charactor selectCharactor = team[charactorIdx];
 
-        const cv::Rect resonanceSkillRoi = {1037, 619, 53, 53};
+        //const cv::Rect resonanceSkillRoi = {1037, 619, 53, 53};
+        const cv::Rect resonanceSkillRoi = {1035, 617, 57, 57};
         // 每个角色的判断依据都不一样
         if(selectCharactor == TowerBattleDataManager::Charactor::UNDEFINED){
             // 无需判断 0号角色占位而已
@@ -66,6 +67,33 @@ void ResonanceSkillJudger::on_start_resonance_skill_recognition(){
             }
 
             SanHua(lastCapImg(resonanceSkillRoi).clone(), resonanceSkillMat);
+            QThread::msleep(sleepMs);
+            continue;
+        }
+        else if(selectCharactor == TowerBattleDataManager::Charactor::Camellya){
+            cv::Mat resonanceSkillMat1, resonanceSkillMat2;
+            if(!currentTeamRes[selectCharactor].contains("skill1") || !currentTeamRes[selectCharactor].contains("skill2")){
+                qCritical() << QString("ERROR, Camellya's resonance skill res is lost");
+                QThread::msleep(sleepMs);
+                continue;
+            }
+
+            resonanceSkillMat1 = currentTeamRes[selectCharactor]["skill1"].clone();
+            resonanceSkillMat2 = currentTeamRes[selectCharactor]["skill2"].clone();
+            cv::Mat lastCapImg = dataManager.getLastCapImg();
+            if(lastCapImg.empty()){
+                QThread::msleep(sleepMs);
+                continue;
+            }
+
+            double sensitivity = 0.8;
+            double simi1, simi2;
+            int x, y;
+            TowerBattleDataManager& dataManager = TowerBattleDataManager::Instance();
+            Utils::findPic(lastCapImg(resonanceSkillRoi).clone(), resonanceSkillMat1, sensitivity, x, y, simi1);
+            Utils::findPic(lastCapImg(resonanceSkillRoi).clone(), resonanceSkillMat2, sensitivity, x, y, simi2);
+            dataManager.setResonanceSkillReady(qMax(simi1, simi2));
+
             QThread::msleep(sleepMs);
             continue;
         }
