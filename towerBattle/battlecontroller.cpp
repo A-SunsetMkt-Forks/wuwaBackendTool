@@ -284,7 +284,7 @@ bool BattleController::Camellya_Sanhua_Shorekeeper(){
         return true;
     }
 
-    // 散华E
+    // 散华E  ##### 等待落地 然后按
     Utils::keyPress(Utils::hwnd, 'E', 1);
     while(isBusy() && dataManager.getResonanceSkillReady() > 0.8 ){
         Utils::keyPress(Utils::hwnd, 'E', 1);
