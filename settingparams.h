@@ -167,6 +167,7 @@ enum class NormalBossEnum {
     TempestMephis,            // 云闪之鳞
     ThunderingMephis,         // 朔雷之鳞
     BellBorneGeochelone,      // 钟鸣之龟
+    GloriousLionStatue,      // 荣耀狮像
     NightmareCrownless,       // 梦魇无冠者
     NightmareFeilianBeringal, // 梦魇飞廉之猩
     NightmareImpermanenceHeron, // 梦魇无常凶鹭
@@ -174,7 +175,8 @@ enum class NormalBossEnum {
     NightmareMourningAix,     // 梦魇哀声鸷
     NightmareTempestMephis,   // 梦魇云闪之鳞
     NightmareThunderingMephis, // 梦魇朔雷之鳞
-    NightmareLampylumenMyriad   // 梦魇辉萤军势
+    NightmareLampylumenMyriad,   // 梦魇辉萤军势
+    NightmareKelpi            // 梦魇凯尔匹
 };
 
 // Boss设置结构
@@ -206,6 +208,7 @@ struct NormalBossSetting {
             case NormalBossEnum::TempestMephis: return "tempestMephis";
             case NormalBossEnum::ThunderingMephis: return "thunderingMephis";
             case NormalBossEnum::BellBorneGeochelone: return "bellBorneGeochelone";
+            case NormalBossEnum::GloriousLionStatue: return "gloriousLionStatue";
             case NormalBossEnum::NightmareCrownless: return "nightmareCrownless";
             case NormalBossEnum::NightmareFeilianBeringal: return "nightmareFeilianBeringal";
             case NormalBossEnum::NightmareImpermanenceHeron: return "nightmareImpermanenceHeron";
@@ -214,6 +217,7 @@ struct NormalBossSetting {
             case NormalBossEnum::NightmareTempestMephis: return "nightmareTempestMephis";
             case NormalBossEnum::NightmareThunderingMephis: return "nightmareThunderingMephis";
             case NormalBossEnum::NightmareLampylumenMyriad: return "nightmareLampylumenMyriad";
+            case NormalBossEnum::NightmareKelpi: return "nightmareKelpi";
             default: return "unknown";
         }
     }
