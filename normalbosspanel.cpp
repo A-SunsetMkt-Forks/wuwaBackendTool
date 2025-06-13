@@ -30,6 +30,7 @@ NormalBossSetting NormalBossPanel::getNormalBossSettingFromUI() {
     setting.setBossEnabled(NormalBossEnum::TempestMephis, ui->tempestMephis->isChecked());
     setting.setBossEnabled(NormalBossEnum::ThunderingMephis, ui->thunderingMephis->isChecked());
     setting.setBossEnabled(NormalBossEnum::BellBorneGeochelone, ui->bellBorneGeochelone->isChecked());
+    setting.setBossEnabled(NormalBossEnum::GloriousLionStatue, ui->gloriousLionStatue->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareCrownless, ui->nightmareCrownless->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareFeilianBeringal, ui->nightmareFeilianBeringal->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareImpermanenceHeron, ui->nightmareImpermanenceHeron->isChecked());
@@ -38,7 +39,7 @@ NormalBossSetting NormalBossPanel::getNormalBossSettingFromUI() {
     setting.setBossEnabled(NormalBossEnum::NightmareTempestMephis, ui->nightmareTempestMephis->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareThunderingMephis, ui->nightmareThunderingMephis->isChecked());
     setting.setBossEnabled(NormalBossEnum::NightmareLampylumenMyriad, ui->nightmareLampylumenMyriad->isChecked());
-
+    setting.setBossEnabled(NormalBossEnum::NightmareKelpi, ui->nightmareKelpi->isChecked());
     return setting;
 }
 

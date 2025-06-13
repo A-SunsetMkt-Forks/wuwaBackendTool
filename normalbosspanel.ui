@@ -32,7 +32,7 @@
      <x>190</x>
      <y>20</y>
      <width>171</width>
-     <height>381</height>
+     <height>421</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -143,6 +143,16 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QCheckBox" name="gloriousLionStatue">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>荣耀狮像</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="layoutWidget">
@@ -236,13 +246,13 @@ ALT+F12可停止脚本运行
     <string>本软件永久免费无广告无病毒</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>400</x>
      <y>20</y>
      <width>201</width>
-     <height>331</height>
+     <height>371</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -323,6 +333,16 @@ ALT+F12可停止脚本运行
       </property>
       <property name="text">
        <string>梦魇辉萤军势</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="nightmareKelpi">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>梦魇凯尔匹</string>
       </property>
      </widget>
     </item>

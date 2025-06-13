@@ -115,6 +115,8 @@ private:
     bool thunderingMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     // 钟鸣之龟
     bool bellBorneGeochelonePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    // 荣耀狮像
+    bool gloriousLionStatuePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
     // 梦魇boss
     bool nightmareCrownlessPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
@@ -126,6 +128,7 @@ private:
     bool nightmareTempestMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     bool nightmareThunderingMephisPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
     bool nightmareLampylumenMyriadPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
+    bool nightmareKelpiPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg);
 
     // 周本
     bool dreamlessPreparation(const SpecialBossSetting &specialBossSetting, QString& errMsg);
