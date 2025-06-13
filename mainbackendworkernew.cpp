@@ -1221,6 +1221,9 @@ bool MainBackendWorkerNew::oneBossLoop(const NormalBossSetting &normalBossSettin
     // 切换3号位 防止椿不会动
     Utils::keyPress(Utils::hwnd, '3', 1);
     revive();
+
+    Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+
     cv::Mat absorbMat = cv::imread(QString("%1/absorb.bmp").arg(Utils::IMAGE_DIR_EI()).toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
     Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
     Sleep(50);
@@ -2125,7 +2128,67 @@ bool MainBackendWorkerNew::bellBorneGeochelonePreparation(const NormalBossSettin
 }
 
 bool MainBackendWorkerNew::gloriousLionStatuePreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
+    bool isGeneralPrepared = echoList2bossPositionPreparation(normalBossSetting, "gloriousLionStatue", "荣耀狮像", errMsg);
+    if(!isGeneralPrepared){
+        return false;
+    }
 
+    // 相对简单 直接向前冲 W按住 循环判断有无特定boss名字
+    Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYDOWN);
+
+    // 如果跑了 N秒没找到 认为失败 跳过
+    const int maxRunFindBossMs = 10*1000;
+    const int detectBossPeroidMs = 500;
+
+    QElapsedTimer timer;
+    timer.start();
+    int x, y;
+    cv::Mat bossTitle = cv::imread(QString("%1/%2.bmp").arg(Utils::IMAGE_DIR_EI()).arg("gloriousLionStatueTitle").toLocal8Bit().toStdString(), cv::IMREAD_UNCHANGED);
+    bool isTraced = false;
+    while(timer.elapsed() < maxRunFindBossMs && isBusy()){
+        double similarity;
+        cv::Mat capImg = Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd));
+        if(Utils::findPic(capImg, bossTitle, 0.8, x, y, similarity)){
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+
+            // 找到boss title了
+            isTraced = true;
+
+            for(int i = 0; i < 5 && isBusy(); i++){
+                Sleep(500);
+            }
+            if(!isBusy()){
+                Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+                Sleep(250);
+                return true;
+            }
+            Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+            Sleep(250);
+            Utils::middleClickWindowClientArea(Utils::hwnd, 1, 1);
+            qInfo() << QString("locked %1").arg("梦魇无冠者");
+            Sleep(250);
+            break;
+        }
+
+        Sleep(detectBossPeroidMs);
+    }
+
+    if(!isBusy()){
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
+        return true;
+    }
+
+    if(!isTraced){
+        Utils::saveDebugImg(Utils::qImage2CvMat(Utils::captureWindowToQImage(Utils::hwnd)), cv::Rect(), x, y, "cannotLockgloriousLionStatue");
+        Utils::sendKeyToWindow(Utils::hwnd, 'W', WM_KEYUP);
+        Sleep(250);
+    }
+    return isTraced;
 }
 
 bool MainBackendWorkerNew::nightmareCrownlessPreparation(const NormalBossSetting &normalBossSetting, QString& errMsg){
